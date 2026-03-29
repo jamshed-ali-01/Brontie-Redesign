@@ -1,0 +1,52 @@
+import type { Metadata } from "next";
+import { Lobster } from 'next/font/google';
+import './globals.css';
+import { FathomAnalytics } from './fathom';
+import { PHProvider } from './posthog-provider';
+import Script from "next/script";
+import ConditionalHeader from '@/components/shared/ConditionalHeader';
+import Footer from '@/components/shared/footer/Footer';
+
+const lobster = Lobster({
+  weight: '400',
+  subsets: ['latin'],
+});
+
+export const metadata: Metadata = {
+  title: "Brontie - Send Small Surprises",
+  description: "Send small surprises like coffee, cake, tickets or passes. Delivered instantly, redeemed locally.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        {/* Cookiebot — must load before any tags that use cookies */}
+        <Script
+          id="usercentrics-cmp"
+          src="https://web.cmp.usercentrics.eu/ui/loader.js"
+          data-settings-id="tYvKBFyuVse4-B"
+          async
+        />
+      </head>
+      <body
+        className={`${lobster.className} antialiased min-h-screen  coffeE-gift-main-wrapper-area`}
+      >
+        <ConditionalHeader />
+
+        <PHProvider>
+          <FathomAnalytics />
+          <main className="page-main-content-wrapper">
+            {/* <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} /> */}
+            {children}
+          </main>
+        </PHProvider>
+        <Footer />
+      </body>
+    </html>
+  );
+}

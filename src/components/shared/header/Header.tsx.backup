@@ -1,0 +1,346 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+
+const HeaderSection: React.FC = () => {
+  const pathname = usePathname() || '/';
+  const isHowItWorks =
+    pathname === '/products' ||
+    pathname === '/term-condition' ||
+    pathname === '/cookie-policy' ||
+    pathname === '/privacy-policy';
+
+  // Mobile sidebar state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // ----- Scroll-aware header visibility -----
+  const { scrollY } = useScroll();
+  const lastYRef = useRef(0);
+  const [visible, setVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false); // > 100px?
+
+  // thresholds
+  const HIDE_THRESHOLD = 6;
+  const SHOW_THRESHOLD = 2;
+  const TOP_LOCK = 8;
+  const BOTTOM_LOCK = 120;
+  const EFFECTS_THRESHOLD = 100; // remove effects if scrollY <= 100
+
+  const checkLocks = (y: number) => {
+    const atTop = y <= TOP_LOCK;
+    const atBottom =
+      typeof window !== 'undefined' &&
+      window.innerHeight + y >=
+        (document.documentElement?.scrollHeight || document.body.scrollHeight) -
+          BOTTOM_LOCK;
+    return { atTop, atBottom };
+  };
+
+  useEffect(() => {
+    lastYRef.current = typeof window !== 'undefined' ? window.scrollY : 0;
+    setScrolled(lastYRef.current > EFFECTS_THRESHOLD);
+  }, []);
+
+  useMotionValueEvent(scrollY, 'change', current => {
+    const last = lastYRef.current;
+    const delta = current - last;
+
+    // update scrolled flag for effects
+    setScrolled(current > EFFECTS_THRESHOLD);
+
+    const { atTop, atBottom } = checkLocks(current);
+
+    if (atTop || atBottom) {
+      setVisible(true);
+    } else {
+      if (delta > HIDE_THRESHOLD) setVisible(false); // scrolling down
+      else if (delta < -SHOW_THRESHOLD) setVisible(true); // scrolling up
+    }
+
+    lastYRef.current = current;
+  });
+
+  const navItems = useMemo(
+    () => [
+      { href: '/products', label: 'Gift' },
+      { href: '/contactus', label: 'Contact' },
+    ],
+    []
+  );
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
+  return (
+    <motion.header
+      initial={{ y: 0 }}
+      animate={{ y: visible ? 0 : -100 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-primary-100/95 backdrop-blur-sm shadow-lg'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="custom-container">
+        <div className="header-wrapper w-full">
+          <nav className="nav-menu-navbar justify-between flex w-full items-end gap-4 xl:gap-6">
+            {/* MOBILE MENU */}
+            <div className="lg:hidden flex items-center justify-between w-full">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="w-10 h-[28px] block cursor-pointer p-1"
+                aria-label="Open menu"
+              >
+                <Image
+                  src="/images/icons/trigger-icons.svg"
+                  alt="Open menu"
+                  width={40}
+                  height={28}
+                />
+              </button>
+              
+              <Link href="/" className="block">
+                <Image
+                  src="/images/logo-main-mobo.svg"
+                  width={117}
+                  height={46}
+                  alt="brand logo"
+                  className="block w-[150px]"
+                />
+              </Link>
+            </div>
+
+            {/* BRAND + DESKTOP NAV */}
+            <div className="brand-logo lg:flex hidden items-center gap-6">
+              <Link href="/">
+                <Image
+                  src="/images/logo-main.svg"
+                  width={234}
+                  height={93}
+                  alt="brand logo"
+                  className="sm:block hidden lg:w-[150px] xl:w-[140px]"
+                />
+              </Link>
+            </div>
+
+            {/* Desktop menu */}
+            <ul className="nav-manu-list hidden lg:flex flex-col lg:flex-row gap-[15px] items-center lg:gap-[18px] pb-0">
+              {navItems.map(item => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`xl:text-[18px] text-center leading-[120%] inline-block font-secondary font-normal px-[10px] transition-all ease-in-out border-b border-b-transparent py-[9px] cursor-pointer ${
+                      pathname === item.href
+                        ? 'text-secondary-100 border-b-secondary-100'
+                        : 'text-mono-0 hover:text-secondary-100 hover:border-b-secondary-100'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* Desktop auth area */}
+            <div className="nav-menu-auth-area hidden lg:block">
+              <div className="before-login-feature items-center flex gap-6 flex-col md:flex-row md:gap-4">
+                <Link
+                  className="px-5 leading-[1] font-normal xl:text-[18px] text-mono-0 py-[17px] font-secondary h-[52.5px] flex items-center justify-center rounded-[12px] hover:text-secondary-100"
+                  href="cafes/login"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="cafes/signup"
+                  className="px-5 leading-[1] font-normal xl:text-[18px] text-mono-100 py-[17px] font-secondary h-[52.5px] flex items-center justify-center rounded-[11px] border border-mono-0 bg-mono-0 hover:text-secondary-100 hover:border-secondary-100"
+                >
+                  Cafe sign up →
+                </Link>
+              </div>
+
+              <div className="after-login-feature h-[52px] hidden items-center gap-8">
+                <Link className="caret-cart relative" href="/cart">
+                  <Image
+                    src="/images/icons/caret-image.svg"
+                    alt="caret cart icon"
+                    width={33}
+                    height={30}
+                  />
+                  <span className="flex items-center justify-center absolute -top-3 right-0 font-secondary font-normal text-[16px] text-center leading-[100%] w-[19px] h-[19px] rounded-full !bg-secondary-100">
+                    1
+                  </span>
+                </Link>
+                <Link className="caret-cart-user" href="/user">
+                  <Image
+                    src="/images/icons/user-icon.svg"
+                    alt="caret user icon"
+                    width={30}
+                    height={30}
+                  />
+                </Link>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[99999] lg:hidden">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Sidebar */}
+          <div className="fixed inset-y-0 left-0 w-[85%] max-w-xs bg-primary-100 shadow-xl transform transition-transform duration-300 ease-in-out">
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-primary-50">
+                <Link
+                  href="/"
+                  className="flex items-center gap-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Image
+                    src="/images/logo-main-mobo.svg"
+                    width={117}
+                    height={46}
+                    alt="brand logo"
+                  />
+                </Link>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 text-mono-0 hover:bg-primary-50 rounded-lg transition-colors"
+                  aria-label="Close menu"
+                >
+                  <Image
+                    src="/images/Vector.png"
+                    alt="close icons"
+                    width={24}
+                    height={24}
+                  />
+                </button>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex-1 px-4 py-6">
+                <ul className="space-y-4">
+                  {navItems.map(item => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={`block text-[20px] leading-[120%] font-secondary font-normal py-3 px-4 rounded-lg transition-colors ${
+                          pathname === item.href
+                            ? 'text-secondary-100 bg-secondary-100/10'
+                            : 'text-mono-0 hover:text-secondary-100 hover:bg-primary-50'
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              {/* Footer */}
+              <div className="px-4 py-6 border-t border-primary-50">
+                <div className="space-y-4">
+                  <Link
+                    href="cafes/signup"
+                    className="block w-full px-5 py-3 text-center text-[16px] font-secondary font-normal text-mono-100 bg-mono-0 rounded-[11px] border border-mono-0 hover:text-secondary-100 hover:border-secondary-100 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Cafe sign up →
+                  </Link>
+                  <Link
+                    href="cafes/login"
+                    className="block w-full px-5 py-3 text-center text-[16px] font-secondary font-normal text-mono-0 rounded-[12px] hover:text-secondary-100 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                </div>
+
+                {/* Social Links */}
+                <div className="mt-6">
+                  <ul className="flex items-center justify-center gap-3">
+                    <li>
+                      <Link
+                        href="/"
+                        className="w-10 h-10 flex items-center justify-center hover:bg-primary-50 transition-all ease-in-out duration-500 rounded-full border-2 border-mono-100"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Image
+                          src="/images/icons/fi_1077042.svg"
+                          alt="socials icons image"
+                          className="h-5"
+                          width={29}
+                          height={29}
+                        />
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="https://www.linkedin.com/company/brontie/?lipi=urn%3Ali%3Apage%3Ad_flagship3_search_srp_companies%3BAuhyj82ZTEythSaTU1QjKg%3D%3D"
+                        className="w-10 h-10 flex items-center justify-center hover:bg-primary-50 transition-all ease-in-out duration-500 rounded-full border-2 border-mono-100"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Image
+                          src="/images/icons/link-din-icons.svg"
+                          alt="socials icons image"
+                          className="h-5"
+                          width={29}
+                          height={29}
+                        />
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="https://www.facebook.com/share/1BF1snhHQF/"
+                        className="w-10 h-10 flex items-center justify-center hover:bg-primary-50 transition-all ease-in-out duration-500 rounded-full border-2 border-mono-100"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Image
+                          src="/images/icons/facebook.png"
+                          alt="socials icons image"
+                          className="h-5"
+                          width={29}
+                          height={29}
+                        />
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </motion.header>
+  );
+};
+
+export default HeaderSection;

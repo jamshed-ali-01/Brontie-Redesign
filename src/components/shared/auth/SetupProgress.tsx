@@ -8,7 +8,7 @@ interface SetupProgressProps {
 
 export default function SetupProgress({ currentStep, totalSteps = 6, stepName }: SetupProgressProps) {
   return (
-    <div className="w-full max-w-[640px] mx-auto flex flex-col items-start mb-14 px-1 relative z-30">
+    <div className="w-full max-w-[640px] mx-auto flex flex-col items-start md:mb-14 mb-8 px-1 relative z-30">
       <div className="flex items-end justify-between w-full mb-3">
          <div className="flex flex-col">
             <span className="text-[10px] font-black text-[#2c3e50]/80 uppercase tracking-widest mb-0.5">Setup Progress</span>

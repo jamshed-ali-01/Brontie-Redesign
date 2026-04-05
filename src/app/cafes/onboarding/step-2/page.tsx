@@ -204,9 +204,9 @@ export default function OnboardingStep2() {
       maxWidth="max-w-[800px]"
       buttonLayout="split"
     >
-      <div className="space-y-10 items-center justify-center px-4 w-full relative z-20 mt-20">
+      <div className="space-y-10 items-center justify-center md:px-4 w-full relative z-20 mt-20">
         {/* Choice Cards */}
-        <div className="grid grid-cols-2 gap-6 max-w-[620px] mx-auto w-full">
+        <div className="grid md:grid-cols-2 gap-6 max-w-[620px] mx-auto w-full">
           <div
             onClick={() => setFormData({ ...formData, locationType: 'single' })}
             className={`relative cursor-pointer py-8 px-6 rounded-3xl border-2 transition-all duration-300 flex flex-col items-center text-center ${
@@ -250,7 +250,7 @@ export default function OnboardingStep2() {
 
         {/* Success Message Hook */}
         {success && (
-          <div className="w-full max-w-2xl mx-auto bg-green-50 border border-green-100 text-green-600 rounded-2xl p-5 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
+          <div className="w-full max-w-2xl mx-auto bg-green-50 border border-green-100 text-green-600 rounded-2xl md:p-5 p-3 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">
                 <Check className="w-4 h-4 stroke-[3]" />
@@ -262,7 +262,7 @@ export default function OnboardingStep2() {
         )}
 
         {/* Main Form Card */}
-        <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 p-10 w-full flex flex-col gap-8 relative overflow-hidden">
+        <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 md:p-10 p-6 w-full flex flex-col gap-8 relative overflow-hidden">
           {/* ... added locations logic removed for brevity to just focus on layout below ... */}
           {locations.length > 0 && formData.locationType === 'multiple' && (
             <div className="w-full pb-8 border-b border-gray-100">

@@ -120,17 +120,17 @@ export default function OnboardingPage() {
 
   return (
     <AuthLayout>
-      <div className="text-center mb-8 max-w-[420px] mx-auto">
-        <h1 className={`text-[32px] md:text-[36px] text-[#6ca3a4] mb-2 leading-tight ${lobster.className}`}>
+      <div className="text-center mb-8 max-w-[420px] mx-auto    ">
+        <h1 className={`text-[32px] md:text-[36px] md:text-[#6ca3a4] text-black mb-2 leading-tight ${lobster.className}`}>
           Welcome to Brontie <span className="inline-block origin-bottom-right ml-1 drop-shadow-sm">👋</span>
         </h1>
-        <p className="text-gray-500 text-[12px]  font-sans opacity-90">
+        <p className="md:text-gray-500 text-black/90 md:text-[12px] text-xs  font-sans opacity-90">
           Start receiving coffee gifts in just a few minutes.
         </p>
       </div>
 
       {/* Checklist Card - Pixel Perfect Match */}
-      <div className="bg-white rounded-[32px] shadow-2xl shadow-[#6ca3a4]/10 p-7 md:p-9 w-full max-w-[420px] mx-auto border border-white">
+      <div className="max-md:mt-16 bg-white rounded-[32px] shadow-2xl shadow-[#6ca3a4]/10 p-7 md:p-9 w-full max-w-[420px] mx-auto border border-white">
         <div className="space-y-6">
           {steps.map((step) => (
             <div key={step.id} className="flex items-center group cursor-default transition-all">

@@ -8,11 +8,12 @@ import {
   X, 
   Camera, 
   Trash2, 
-  UploadCloud,
+  FileUp,
   Coffee,
   ChevronLeft,
   Image as ImageIcon
 } from 'lucide-react';
+import SetupLayout from '@/components/shared/auth/SetupLayout';
 import { Lobster } from 'next/font/google';
 import Image from 'next/image';
 
@@ -42,8 +43,8 @@ export default function OnboardingStep4() {
       }
    };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
+   const handleSubmit = async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
       setError('');
       setSaving(true);
       try {
@@ -69,148 +70,109 @@ export default function OnboardingStep4() {
    };
 
    return (
-      <div className="min-h-screen flex flex-col font-sans overflow-x-hidden bg-[#fef6eb]">
-         <header className="bg-[#6ca3a4] h-[64px] px-8 flex items-center relative z-50">
-            <div className={`text-[#f4c24d] text-2xl ${lobster.className}`}>Brontie</div>
-         </header>
+    <SetupLayout
+      currentStep={4}
+      stepName="Branding"
+      headingPart1="Add Your"
+      headingPart2="Branding (Optional)"
+      subtitle="We'll use this to create promotional materials and social content for your café"
+      onBack={() => router.back()}
+      onContinue={handleSubmit}
+      isSaving={saving}
+      // maxWidth="max-w-[640px]"
+      buttonLayout="split"
+    >
+      <div className="w-full space-y-8 pb-10 mt-12">
+        
+        {/* Logo Upload Card */}
+        <div className="space-y-3">
+          <label className="block text-[11px] font-bold text-black mb-1 font-sans">Brand Logo</label>
+          <div className={`relative bg-white rounded-[24px] py-8 px-6 border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center gap-2 ${logo ? 'border-[#6ca3a4]' : 'border-slate-200 hover:border-slate-300'}`}>
+            {logo ? (
+              <div className="relative w-32 h-32 rounded-[20px] overflow-hidden shadow-sm border border-gray-100">
+                <Image src={logo} alt="Logo" layout="fill" objectFit="cover" />
+                <button onClick={() => setLogo(null)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 transition-colors z-10">
+                  <X className="w-3.5 h-3.5 stroke-[3]" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-1.5 text-center mt-2">
+                <div className="w-[42px] h-[42px] bg-[#fdf3db] rounded-full flex items-center justify-center text-[#f4c24d] mb-2">
+                  <FileUp className="w-5 h-5 stroke-[2]" color='#F4C24D' />
+                </div>
+                <p className="text-[12px] font-bold text-[#2c3e50] mb-0.5">Drag & drop your logo here</p>
+                <p className="text-[10px] text-slate-400 font-medium opacity-90">Square logos work best</p>
+              </div>
+            )}
+            <input 
+              type="file" accept="image/*" 
+              className="absolute inset-0 opacity-0 cursor-pointer z-20"
+              onChange={(e) => handleFileChange(e, 'logo')}
+            />
+            {!logo && (
+              <button className="mt-4 h-[30px] px-5 bg-transparent border border-[#6ca3a4]/40 rounded-[6px] text-[10px] font-medium tracking-wide text-[#6ca3a4] flex items-center gap-1.5 pointer-events-none">
+                <Plus className="w-3 h-3 text-[#6ca3a4] opacity-70" /> Upload logo
+              </button>
+            )}
+          </div>
+        </div>
 
-         <main className="flex-1 relative flex flex-col items-center">
-            {/* Header Section with progress */}
-            <div className="absolute top-0 left-0 w-full h-[380px] bg-[#f4c24d] z-0 overflow-hidden">
-               <div className="absolute top-8 left-[-40px] opacity-10 pointer-events-none scale-75 rotate-[-12deg]">
-                  <Coffee className="text-white w-48 h-48" />
-               </div>
-               <div className="absolute bottom-[-150px] left-[50%] -translate-x-1/2 w-[300vw] h-[500px] bg-[#fef6eb] rounded-[100%] z-10"></div>
-            </div>
+        {/* Brand Image Upload Card */}
+        <div className="space-y-3">
+          <label className="block text-[11px] font-bold text-black mb-1 font-sans mt-2">Brand Image</label>
+          <div className={`relative bg-white rounded-[24px] py-8 px-6 border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center gap-2 ${brandingPhoto ? 'border-[#6ca3a4]' : 'border-slate-200 hover:border-slate-300'}`}>
+            {brandingPhoto ? (
+              <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-sm border border-gray-100">
+                <Image src={brandingPhoto} alt="Branding" layout="fill" objectFit="cover" />
+                <button onClick={() => setBrandingPhoto(null)} className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-xl shadow-sm hover:bg-red-600 transition-colors z-10">
+                  <X className="w-4 h-4 stroke-[3]" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-1 text-center mt-2">
+                <div className="w-[42px] h-[42px] bg-[#fdf3db] rounded-full flex items-center justify-center text-[#f4c24d] mb-2">
+                  <FileUp className="w-5 h-5 stroke-[2] " color='#F4C24D' />
+                </div>
+                <p className="text-[12px] font-bold text-[#2c3e50] mb-0.5">Drag & drop your Cafe Photo here</p>
+                <div className="flex flex-col items-center gap-0.5">
+                  <p className="text-[10px] text-slate-400 font-medium">Drag & drop your Care Brand image here</p>
+                  <p className="text-[10px] text-slate-400 font-medium">This can be a shopfront, sign, or café counter.</p>
+                  <p className="text-[10px] text-slate-400 font-medium">Clear, well-lit photos work best</p>
+                </div>
+              </div>
+            )}
+            <input 
+              type="file" accept="image/*" 
+              className="absolute inset-0 opacity-0 cursor-pointer z-20"
+              onChange={(e) => handleFileChange(e, 'photo')}
+            />
+            {!brandingPhoto && (
+              <button className="mt-4 h-[30px] px-5 bg-transparent border border-[#6ca3a4]/40 rounded-[6px] text-[10px] font-medium tracking-wide text-[#6ca3a4] flex items-center gap-1.5 pointer-events-none">
+                <Plus className="w-3 h-3 text-[#6ca3a4] opacity-70" /> Upload Photo
+              </button>
+            )}
+          </div>
+          <p className="text-[10px] text-black opacity-90 font-medium pb-2">Used for promotional materials and content we create for your café</p>
+        </div>
 
-            <div className="relative z-20 w-full max-w-2xl px-4 pt-6 flex flex-col items-center gap-8">
-               
-               {/* Progress Tracking */}
-               <div className="w-full max-w-xl">
-                  <div className="flex items-end justify-between mb-2 px-1">
-                     <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest">Branding Setup</span>
-                     <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest">4 / 6</span>
-                  </div>
-                  <div className="flex gap-1.5">
-                     {[1, 2, 3, 4, 5, 6].map((step) => (
-                        <div key={step} className={`h-1 flex-1 rounded-full ${step <= 4 ? 'bg-[#6ca3a4]' : 'bg-white shadow-sm'}`} />
-                     ))}
-                  </div>
-               </div>
+        {/* Use Defaults Logic */}
+        <div 
+          onClick={() => setUseDefaults(!useDefaults)}
+          className="bg-[#fdf3db] rounded-[10px] px-5 py-4 border border-[#f4c24d]/30 flex items-center gap-4 cursor-pointer transition-all w-full mt-8"
+        >
+          <div className={`w-4 h-4 rounded-[4px] border-[1px] flex flex-shrink-0 items-center justify-center transition-all bg-white ${useDefaults ? 'border-[#f4c24d]' : 'border-[#f4c24d]/40 hover:border-[#f4c24d]'}`}>
+            {useDefaults && <Check className="w-3 h-3 text-[#f4c24d] stroke-[4]" />}
+          </div>
+          <div className="flex flex-col gap-0.5">
+             <p className="text-[10px] font-bold text-[#2c3e50]">Use Brontie default images for now</p>
+             <p className="text-[9px] font-medium text-[#2c3e50] opacity-60">You can always update your branding later in settings.</p>
+          </div>
+        </div>
 
-               {/* Headline */}
-               <div className="text-center mb-4">
-                  <h1 className={`text-5xl text-white drop-shadow-sm mb-2 ${lobster.className}`}>
-                     Add Your <span className="text-[#2c3e50]">Branding (Optional)</span>
-                  </h1>
-                  <p className="text-[#2c3e50]/70 text-[12px] font-bold max-w-md mx-auto leading-relaxed">
-                     We&apos;ll use this to create promotional materials and social content for your café
-                  </p>
-               </div>
-
-               {/* Upload Sections */}
-               <div className="w-full space-y-8">
-                  
-                  {/* Logo Upload Card */}
-                  <div className="space-y-3">
-                     <label className="text-[10px] font-black text-[#2c3e50]/60 tracking-widest uppercase ml-1">Brand Logo</label>
-                     <div className={`relative bg-white rounded-[32px] p-8 border-2 border-dashed ${logo ? 'border-[#6ca3a4]' : 'border-gray-200'} shadow-sm flex flex-col items-center justify-center gap-4 transition-all hover:bg-white/60 group`}>
-                        {logo ? (
-                           <div className="relative w-32 h-32 rounded-2xl overflow-hidden shadow-lg border border-white/50">
-                              <Image src={logo} alt="Logo" layout="fill" objectFit="cover" />
-                              <button onClick={() => setLogo(null)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors z-10">
-                                 <X className="w-3 h-3" />
-                              </button>
-                           </div>
-                        ) : (
-                           <div className="flex flex-col items-center gap-3">
-                              <div className="w-16 h-16 bg-[#fef6eb] rounded-2xl flex items-center justify-center text-[#f4c24d]">
-                                 <ImageIcon className="w-8 h-8" />
-                              </div>
-                              <div className="text-center">
-                                 <p className="text-[14px] font-black text-[#2c3e50]">Drag & drop your logo here</p>
-                                 <p className="text-[11px] font-medium text-gray-400">Square logos work best</p>
-                              </div>
-                           </div>
-                        )}
-                        <input 
-                           type="file" accept="image/*" 
-                           className="absolute inset-0 opacity-0 cursor-pointer"
-                           onChange={(e) => handleFileChange(e, 'logo')}
-                        />
-                        <button className="h-10 px-8 bg-white border border-gray-100 rounded-xl text-[12px] font-black uppercase text-[#6ca3a4] shadow-sm pointer-events-none group-hover:shadow-md transition-all">Upload logo</button>
-                     </div>
-                  </div>
-
-                  {/* Brand Image Upload Card */}
-                  <div className="space-y-3">
-                     <label className="text-[10px] font-black text-[#2c3e50]/60 tracking-widest uppercase ml-1">Brand Image</label>
-                     <div className={`relative bg-white rounded-[32px] p-10 border-2 border-dashed ${brandingPhoto ? 'border-[#6ca3a4]' : 'border-gray-200'} shadow-sm flex flex-col items-center justify-center gap-4 transition-all hover:bg-white/60 group`}>
-                        {brandingPhoto ? (
-                           <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden shadow-lg border border-white/50">
-                              <Image src={brandingPhoto} alt="Branding" layout="fill" objectFit="cover" />
-                              <button onClick={() => setBrandingPhoto(null)} className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors z-10">
-                                 <X className="w-4 h-4" />
-                              </button>
-                           </div>
-                        ) : (
-                           <div className="flex flex-col items-center gap-3">
-                              <div className="w-16 h-16 bg-[#fef6eb] rounded-2xl flex items-center justify-center text-[#f4c24d]">
-                                 <Camera className="w-8 h-8" />
-                              </div>
-                              <div className="text-center">
-                                 <p className="text-[14px] font-black text-[#2c3e50]">Drag & drop your Cafe Photo here</p>
-                                 <p className="text-[11px] font-medium text-gray-400 max-w-[280px]">This can be a storefront, sign, or cafe interior. Clean, well-lit photos work best.</p>
-                              </div>
-                           </div>
-                        )}
-                        <input 
-                           type="file" accept="image/*" 
-                           className="absolute inset-0 opacity-0 cursor-pointer"
-                           onChange={(e) => handleFileChange(e, 'photo')}
-                        />
-                        <button className="h-10 px-8 bg-white border border-gray-100 rounded-xl text-[12px] font-black uppercase text-[#6ca3a4] shadow-sm pointer-events-none group-hover:shadow-md transition-all">Upload Photo</button>
-                     </div>
-                     <p className="text-[10px] font-black text-gray-400/80 uppercase tracking-widest text-center mt-4">Used for promotional materials and content we create for your café</p>
-                  </div>
-
-                  {/* Use Defaults Logic */}
-                  <div 
-                     onClick={() => setUseDefaults(!useDefaults)}
-                     className="bg-[#fef6eb] rounded-2xl p-6 border border-[#f4c24d]/20 flex items-center gap-5 cursor-pointer shadow-sm hover:shadow-md transition-all group"
-                  >
-                     <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${useDefaults ? 'bg-[#f4c24d] border-[#f4c24d]' : 'bg-white border-[#f4c24d]/30 group-hover:border-[#f4c24d]'}`}>
-                        {useDefaults && <Check className="w-4 h-4 text-white stroke-[4]" />}
-                     </div>
-                     <div>
-                        <p className="text-[13px] font-bold text-[#2c3e50]">Use Brontie default images for now</p>
-                        <p className="text-[10px] font-medium text-gray-500">You can always update your branding later in settings.</p>
-                     </div>
-                  </div>
-
-                  {/* Navigation Footer */}
-                  <div className="flex items-center justify-between pt-8 pb-20">
-                     <button 
-                        onClick={() => router.back()} 
-                        className="px-10 h-14 bg-white rounded-2xl text-[14px] font-black uppercase text-[#2c3e50] shadow-sm hover:shadow-md active:scale-95 transition-all"
-                     >
-                        Go Back
-                     </button>
-                     <button 
-                        onClick={handleSubmit} 
-                        disabled={saving}
-                        className="bg-[#f4c24d] text-[#2c3e50] flex items-center justify-center font-black px-16 h-[64px] rounded-2xl text-xl uppercase shadow-lg transform hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-                     >
-                        {saving ? 'Saving...' : 'Save & Continue'}
-                     </button>
-                  </div>
-
-                  {error && (
-                     <p className="text-red-500 text-center font-bold text-sm bg-red-50 p-4 rounded-xl border border-red-100 italic">{error}</p>
-                  )}
-               </div>
-            </div>
-         </main>
+        {error && (
+          <div className="bg-red-50 text-red-600 text-center font-bold text-[11px] p-4 rounded-xl border border-red-100 italic">{error}</div>
+        )}
       </div>
+    </SetupLayout>
    );
 }

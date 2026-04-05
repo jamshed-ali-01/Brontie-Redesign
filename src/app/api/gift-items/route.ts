@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
 
     // Sort first by merchant.displayOrder, then by itemDisplayOrder
     giftItems.sort((a: any, b: any) => {
-      const merchantAOrder = a.merchantId.displayOrder || 0;
-      const merchantBOrder = b.merchantId.displayOrder || 0;
+      const merchantAOrder = a.merchantId?.displayOrder || 0;
+      const merchantBOrder = b.merchantId?.displayOrder || 0;
 
       if (merchantAOrder !== merchantBOrder) {
         return merchantAOrder - merchantBOrder;

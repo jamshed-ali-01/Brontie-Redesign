@@ -56,6 +56,7 @@ export default function AvailableGiftsFromBackend() {
   const [availableCounties, setAvailableCounties] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [merchantInfo, setMerchantInfo] = useState<Merchant | null>(null);
 
   /* ---------- underline animation ---------- */
   const ulRef = useRef<HTMLUListElement | null>(null);
@@ -88,15 +89,31 @@ export default function AvailableGiftsFromBackend() {
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
 
-        let items: GiftItem[] = data.giftItems || [];
+        let items: GiftItem[] = (data.giftItems || []).filter((i: any) => i.merchantId);
 
         // ✅ merchant restriction (safe fallback)
         if (merchantFromQuery) {
           const merchantItems = items.filter(
             (i) => i.merchantId?._id === merchantFromQuery
           );
-          if (merchantItems.length > 0) {
-            items = merchantItems;
+          
+          // Force items to be only this merchant's items (even if 0) to avoid showing all items
+          items = merchantItems;
+          
+          if (merchantItems.length === 0) {
+             // Safe lookup for cafe name if they have 0 items
+             try {
+                const merchRes = await fetch('/api/admin/merchants');
+                if (merchRes.ok) {
+                   const merchData = await merchRes.json();
+                   const merch = merchData.data?.find((m: any) => m._id === merchantFromQuery);
+                   if (merch) {
+                      setMerchantInfo(merch);
+                   }
+                }
+             } catch(e) {
+                console.error("Could not fetch merchant info", e);
+             }
           }
         } else if (organizationId || searchParams.get('organization')) {
           // If accessing via organization link but no specific merchant (Any mode),
@@ -121,19 +138,21 @@ export default function AvailableGiftsFromBackend() {
 
   /* ---------- AUTO TAB FROM QR ---------- */
   useEffect(() => {
-    if (!merchantFromQuery || giftItems.length === 0) return;
+    if (!merchantFromQuery) return;
 
-    const merchant = giftItems[0]?.merchantId;
-    if (!merchant) return;
-
-    setActiveTab(merchant.name);
+    if (merchantInfo) {
+       setActiveTab(merchantInfo.name);
+    } else if (giftItems.length > 0) {
+       const merchant = giftItems[0]?.merchantId;
+       if (merchant) setActiveTab(merchant.name);
+    }
 
     // trackQRNavigationToProducts({
     //   merchant_id: merchant._id,
     //   merchant_name: merchant.name,
     //   source: 'qr_code',
     // });
-  }, [merchantFromQuery, giftItems]);
+  }, [merchantFromQuery, giftItems, merchantInfo]);
 
   /* ---------- BUILD TABS ---------- */
   useEffect(() => {
@@ -150,6 +169,10 @@ export default function AvailableGiftsFromBackend() {
     const merchantMap = new Map<string, Merchant>();
     items.forEach((i) => merchantMap.set(i.merchantId._id, i.merchantId));
 
+    if (merchantInfo && merchantFromQuery) {
+      merchantMap.set(merchantInfo._id, merchantInfo);
+    }
+
     const merchantNames = Array.from(merchantMap.values())
       .sort((a, b) => a.displayOrder - b.displayOrder)
       .map((m) => m.name);
@@ -165,7 +188,7 @@ export default function AvailableGiftsFromBackend() {
     if (!newCategories.includes(activeTab)) {
       setActiveTab(newCategories[0] || "All Items");
     }
-  }, [giftItems, selectedCounty, merchantFromQuery, activeTab, organizationId]);
+  }, [giftItems, selectedCounty, merchantFromQuery, activeTab, organizationId, merchantInfo]);
 
   /* ---------- COUNTIES ---------- */
   useEffect(() => {
@@ -552,7 +575,7 @@ export default function AvailableGiftsFromBackend() {
                 <p className="text-amber-700 text-lg">
                   {selectedCounty
                     ? `No gifts found in ${selectedCounty}`
-                    : "No gifts available"}
+                    : (merchantInfo ? `No gifts have been added by ${merchantInfo.name} yet.` : "No gifts available")}
                 </p>
                 {selectedCounty && (
                   <button

@@ -50,7 +50,9 @@ function BrandingAsset({
   merchantName, 
   merchantLogo, 
   useLogo,
-  merchantId
+  merchantId,
+  itemImage,
+  designType = 'counter'
 }: { 
   title: string; 
   subtitle: string; 
@@ -60,6 +62,8 @@ function BrandingAsset({
   merchantLogo?: string;
   useLogo: boolean;
   merchantId?: string;
+  itemImage?: string;
+  designType?: 'poster' | 'post' | 'story' | 'counter';
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -70,66 +74,130 @@ function BrandingAsset({
     if (!ctx) return;
 
     const renderPoster = async () => {
-      // 1. Fill background teal
-      ctx.fillStyle = '#6ca3a4';
-      ctx.fillRect(0, 0, width, height);
-
       const minDim = Math.min(width, height);
+      
+      // Helper to load image as a Promise
+      const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+        return new Promise((resolve) => {
+          const img = new (window as any).Image();
+          img.crossOrigin = "anonymous";
+          img.src = src;
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+        });
+      };
 
-      // 2. Draw 'Brontie' Logo at the top
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#f4c24d';
-      ctx.font = `${minDim * 0.22}px Lobster, cursive`;
-      ctx.fillText("Brontie", width / 2, height * 0.18);
+      // NEW APPROACH: Use provided images as background
+      const getTemplatePath = () => {
+        switch(designType) {
+          case 'poster': return '/images/templates/a4-poster-base-clean.png';
+          case 'post': return '/images/templates/instagram-post-base-clean.png';
+          case 'story': return '/images/templates/instagram-story-base-v4.png';
+          case 'counter': return '/images/templates/counter-sign-base.png';
+          default: return '/images/templates/a4-poster-base.png';
+        }
+      };
 
-      // 3. Draw bottom text
-      ctx.fillStyle = '#f4c24d';
-      ctx.font = `bold ${minDim * 0.08}px sans-serif`;
-      ctx.fillText("Scan to gift a", width / 2, height * 0.85);
-      ctx.fillText("coffee from here", width / 2, height * 0.93);
+      // Load all assets in parallel
+      const [templateImg, coffeeImg, logoImg] = await Promise.all([
+        loadImage(getTemplatePath()),
+        itemImage ? loadImage(itemImage) : Promise.resolve(null),
+        (useLogo && merchantLogo) ? loadImage(merchantLogo) : Promise.resolve(null)
+      ]);
 
-      // 4. Generate and draw QR Code in the center
-      if (merchantId) {
-        try {
-          const baseUrl = window.location.origin;
-          const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
-            margin: 2,
-            scale: 10,
-            color: {
-              dark: '#000000',
-              light: '#ffffff'
+      // 1. Draw Template Background
+      if (templateImg) {
+        ctx.drawImage(templateImg, 0, 0, width, height);
+      } else {
+        // Fallback
+        ctx.fillStyle = '#fdf8f2';
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      if (designType === 'counter') {
+        // --- ORIGINAL TEAL COUNTER DESIGN ---
+        ctx.fillStyle = '#6ca3a4';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#f4c24d';
+        ctx.font = `${minDim * 0.22}px Lobster, cursive`;
+        ctx.fillText("Brontie", width / 2, height * 0.18);
+
+        ctx.fillStyle = '#f4c24d';
+        ctx.font = `bold ${minDim * 0.08}px sans-serif`;
+        ctx.fillText("Scan to gift a", width / 2, height * 0.85);
+        ctx.fillText("coffee from here", width / 2, height * 0.93);
+
+        if (merchantId) {
+          try {
+            const baseUrl = window.location.origin;
+            const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
+              margin: 2, scale: 10, color: { dark: '#000000', light: '#ffffff' }
+            });
+            const qrImg = await loadImage(qrUrl);
+            if (qrImg) {
+              const qrSize = minDim * 0.55;
+              const x = (width - qrSize) / 2;
+              const y = (height - qrSize) / 2;
+              const radius = minDim * 0.04;
+              ctx.fillStyle = '#ffffff';
+              ctx.beginPath();
+              ctx.moveTo(x + radius, y);
+              ctx.lineTo(x + qrSize - radius, y);
+              ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
+              ctx.lineTo(x + qrSize, y + qrSize - radius);
+              ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
+              ctx.lineTo(x + radius, y + qrSize);
+              ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
+              ctx.lineTo(x, y + radius);
+              ctx.quadraticCurveTo(x, y, x + radius, y);
+              ctx.closePath();
+              ctx.fill();
+              const padding = minDim * 0.02;
+              ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
             }
-          });
-          
-          const qrImg = new (window as any).Image();
-          qrImg.src = qrUrl;
-          qrImg.onload = () => {
-             const qrSize = minDim * 0.55;
-             const x = (width - qrSize) / 2;
-             const y = (height - qrSize) / 2; // centered
-             
-             // Draw rounded white background
-             const radius = minDim * 0.04;
-             ctx.fillStyle = '#ffffff';
-             ctx.beginPath();
-             ctx.moveTo(x + radius, y);
-             ctx.lineTo(x + qrSize - radius, y);
-             ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
-             ctx.lineTo(x + qrSize, y + qrSize - radius);
-             ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
-             ctx.lineTo(x + radius, y + qrSize);
-             ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
-             ctx.lineTo(x, y + radius);
-             ctx.quadraticCurveTo(x, y, x + radius, y);
-             ctx.closePath();
-             ctx.fill();
+          } catch (e) { console.error("QR Error", e); }
+        }
+      } else {
+        // --- POSTER / SOCIAL DESIGN ---
+        // Load all assets in parallel
+        const [templateImg, coffeeImg, logoImg] = await Promise.all([
+          loadImage(getTemplatePath()),
+          itemImage ? loadImage(itemImage) : Promise.resolve(null),
+          (useLogo && merchantLogo) ? loadImage(merchantLogo) : Promise.resolve(null)
+        ]);
 
-             // Draw padding
-             const padding = minDim * 0.02;
-             ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
-          };
-        } catch (e) {
-          console.error("QR Generation error", e);
+        // 1. Draw Template Background
+        if (templateImg) {
+          ctx.drawImage(templateImg, 0, 0, width, height);
+        } else {
+          ctx.fillStyle = '#fdf8f2';
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        // Overlay Coffee and Logo on Poster/Social
+        // 2. Coffee Cup Image (Dynamic)
+        if (coffeeImg) {
+          const cupWidth = width * 0.38; // Scaled down for alignment
+          const cupHeight = cupWidth * (coffeeImg.height / coffeeImg.width);
+          const cupX = (width - cupWidth) / 2;
+          const cupY = height * (designType === 'story' ? 0.38 : 0.32);
+
+          ctx.drawImage(coffeeImg, cupX, cupY, cupWidth, cupHeight);
+        }
+
+        // 3. Merchant Logo (Dynamic)
+        if (logoImg) {
+          const logoMaxW = width * 0.22;
+          const logoMaxH = height * 0.08;
+          const ratio = Math.min(logoMaxW / logoImg.width, logoMaxH / logoImg.height);
+          const logoW = logoImg.width * ratio;
+          const logoH = logoImg.height * ratio;
+          
+          const marginX = width * 0.08;
+          const marginY = height * 0.04;
+          ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
         }
       }
     };
@@ -139,7 +207,7 @@ function BrandingAsset({
       document.fonts.ready.then(renderPoster);
     }
 
-  }, [merchantId, width, height]);
+  }, [merchantId, width, height, merchantLogo, itemImage, designType, useLogo]);
 
   const download = () => {
     const canvas = canvasRef.current;
@@ -156,10 +224,10 @@ function BrandingAsset({
          <h4 className="text-[14px] font-bold text-[#2c3e50]">{title}</h4>
          <p className="text-[10px] text-gray-400 font-medium leading-tight">{subtitle}</p>
       </div>
-      <div className="relative w-full aspect-[2/3] bg-white rounded-3xl overflow-hidden border border-[#6ca3a4]/10 shadow transition-all group-hover:shadow-lg p-2">
+      <div className="relative w-full h-[280px] bg-slate-50/50 rounded-2xl overflow-hidden border border-[#6ca3a4]/10 transition-all group-hover:shadow-md p-3 flex items-center justify-center">
          {/* Checkerboard pattern wrapper */}
-         <div className="absolute inset-2 z-0 bg-transparent opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#ccc 1px, transparent 0)', backgroundSize: '10px 10px' }}></div>
-         <canvas ref={canvasRef} width={width} height={height} className="relative z-10 w-full h-full object-cover rounded-xl" />
+         <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#ccc 1px, transparent 0)', backgroundSize: '10px 10px' }}></div>
+         <canvas ref={canvasRef} width={width} height={height} className="relative z-10 max-w-full max-h-full object-contain shadow-sm rounded-lg" />
       </div>
       <button 
         onClick={download}
@@ -587,6 +655,7 @@ function ExperienceBrontie() {
 function OnboardingStep6Content() {
    const [merchantData, setMerchantData] = useState<any>(null);
    const [locations, setLocations] = useState<any[]>([]);
+   const [firstItemImage, setFirstItemImage] = useState<string | undefined>(undefined);
    const [useLogo, setUseLogo] = useState(true);
    const [saving, setSaving] = useState(false);
    const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -612,8 +681,28 @@ function OnboardingStep6Content() {
          }
       };
 
+      const fetchItems = async () => {
+         try {
+            const res = await fetch('/api/cafes/items');
+            if (res.ok) {
+               const items = await res.json();
+               if (items && items.length > 0) {
+                  // Sort by createdAt or use the first one available
+                  // The API might already sort them. 
+                  const coffeeItem = items[0];
+                  if (coffeeItem.imageUrl) {
+                     setFirstItemImage(coffeeItem.imageUrl);
+                  }
+               }
+            }
+         } catch (err) {
+            console.error('Fetch items error:', err);
+         }
+      };
+
       fetchProfile();
       fetchLocations();
+      fetchItems();
    }, []);
 
    const handleComplete = async () => {
@@ -724,40 +813,45 @@ function OnboardingStep6Content() {
 
         {/* Actionable Assets Section */}
         <div className="w-full bg-white rounded-[30px] p-10 py-8 shadow-2xl shadow-[#6ca3a4]/5 border border-white space-y-12 overflow-hidden">
-          
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-start">
              <BrandingAsset 
-                title="A4 Poster" subtitle="For windows & walls" 
+                title="A4 Poster" subtitle="Promote coffee gifting in your café." 
                 width={1240} height={1754} 
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
                 merchantId={merchantData?._id}
+                itemImage={firstItemImage}
+                designType="poster"
              />
              <BrandingAsset 
-                title="Instagram Post" subtitle="For social feed" 
+                title="Instagram Post (4:5)" subtitle="Share that your café now offers coffee gifting." 
                 width={1080} height={1350} 
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
                 merchantId={merchantData?._id}
+                itemImage={firstItemImage}
+                designType="post"
              />
              <BrandingAsset 
-                title="Instagram Story" subtitle="For social stories" 
+                title="Instagram Story (9:16)" subtitle="Share that your café now offers coffee gifting." 
                 width={1080} height={1920} 
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
                 merchantId={merchantData?._id}
+                itemImage={firstItemImage}
+                designType="story"
              />
              <BrandingAsset 
-                title="Counter Sign" subtitle="Perfect for the till" 
+                title="Counter QR Sign (A5)" subtitle="Perfect for placing beside the till." 
                 width={1748} height={1240} 
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
                 merchantId={merchantData?._id}
+                designType="counter"
              />
           </div>
         </div>

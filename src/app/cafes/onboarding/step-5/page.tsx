@@ -13,6 +13,7 @@ import {
   Calendar,
   ChevronLeft
 } from 'lucide-react';
+import SetupLayout from '@/components/shared/auth/SetupLayout';
 import { Lobster } from 'next/font/google';
 import Image from 'next/image';
 
@@ -85,129 +86,104 @@ function OnboardingStep5Content() {
    };
 
    return (
-      <div className="min-h-screen flex flex-col font-sans overflow-x-hidden bg-[#fef6eb]">
-         <header className="bg-[#6ca3a4] h-[64px] px-8 flex items-center relative z-50">
-            <div className={`text-[#f4c24d] text-2xl ${lobster.className}`}>Brontie</div>
-         </header>
+    <SetupLayout
+      currentStep={5}
+      stepName="Payments"
+      headingPart1="Get Paid for"
+      headingPart2="Coffee Gifts"
+      subtitle="Connect your payout method to receive payments."
+      onBack={() => router.back()}
+      onContinue={handleSubmit}
+      isSaving={saving}
+      isContinueDisabled={!skip && !isStripeSuccess}
+      maxWidth="max-w-[420px]"
+      buttonLayout="split"
+    >
+      <div className="w-full flex flex-col items-center gap-10 mt-10">
+        
+        {/* Stripe Card */}
+        <div className="w-full bg-white rounded-[16px] px-8 pt-8 pb-7 shadow-sm flex flex-col gap-5 mt-4">
+          <div className="flex flex-col gap-3">
+             <div className="text-[#635bff] font-black text-[28px] tracking-tighter leading-none">stripe</div>
+             <div className="flex flex-col gap-1.5 mt-2 mb-1">
+                <h2 className="text-[12px] font-bold text-black">Stripe Connect</h2>
+                <p className="text-[9px] text-[#2c3e50] opacity-50 font-medium leading-relaxed">
+                   The gold standard for online payments. Get paid faster and manage everything in one place.
+                </p>
+             </div>
 
-         <main className="flex-1 relative flex flex-col items-center">
-            {/* Header Section with progress */}
-            <div className="absolute top-0 left-0 w-full h-[380px] bg-[#f4c24d] z-0 overflow-hidden">
-               <div className="absolute top-8 left-[-40px] opacity-10 pointer-events-none scale-75 rotate-[-12deg]">
-                  <Coffee className="text-white w-48 h-48" />
-               </div>
-               <div className="absolute bottom-[-150px] left-[50%] -translate-x-1/2 w-[300vw] h-[500px] bg-[#fef6eb] rounded-[100%] z-10"></div>
-            </div>
+             <ul className="space-y-2 mt-4">
+                <li className="flex items-center gap-2.5 text-[9px] font-medium text-black">
+                   <div className="w-3 h-3 rounded-full border border-[#f4c24d] flex shrink-0 items-center justify-center">
+                      <Check className="w-2 h-2 text-[#f4c24d] stroke-[4]" color='#F4C24D' />
+                   </div>
+                   Secure onboarding
+                </li>
+                <li className="flex items-center gap-2.5 text-[9px] font-medium text-black">
+                   <div className="w-3 h-3 rounded-full border border-[#f4c24d] flex shrink-0 items-center justify-center">
+                      <Check className="w-2 h-2 text-[#f4c24d] stroke-[4]" color='#F4C24D' />
+                   </div>
+                   Automatic payouts
+                </li>
+                <li className="flex items-center gap-2.5 text-[9px] font-medium text-black">
+                   <div className="w-3 h-3 rounded-full border border-[#f4c24d] flex shrink-0 items-center justify-center">
+                      <Check className="w-2 h-2 text-[#f4c24d] stroke-[4]" color='#F4C24D' />
+                   </div>
+                   Card payments handled
+                </li>
+                <li className="flex items-center gap-2.5 text-[9px] font-medium text-black">
+                   <div className="w-3 h-3 rounded-full border border-[#f4c24d] flex shrink-0 items-center justify-center">
+                      <Check className="w-2 h-2 text-[#f4c24d] stroke-[4]" color='#F4C24D' />
+                   </div>
+                   Paid out at the end of each month
+                </li>
+             </ul>
+          </div>
 
-            <div className="relative z-20 w-full max-w-2xl px-4 pt-6 flex flex-col items-center gap-8">
-               
-               {/* Progress Tracking */}
-               <div className="w-full max-w-xl">
-                  <div className="flex items-end justify-between mb-2 px-1">
-                     <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest">Payout Setup</span>
-                     <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest">5 / 6</span>
+          <div className="w-full mt-1">
+            {isStripeSuccess ? (
+               <div className="w-full h-[40px] bg-green-50 border border-green-200 rounded-[8px] flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white">
+                     <Check className="w-3 h-3 stroke-[4]" />
                   </div>
-                  <div className="flex gap-1.5">
-                     {[1, 2, 3, 4, 5, 6].map((step) => (
-                        <div key={step} className={`h-1 flex-1 rounded-full ${step <= 5 ? 'bg-[#6ca3a4]' : 'bg-white shadow-sm'}`} />
-                     ))}
-                  </div>
+                  <span className="text-[11px] font-black text-green-700 tracking-wide">Connected</span>
                </div>
-
-               {/* Headline */}
-               <div className="text-center mb-4">
-                  <h1 className={`text-5xl text-white drop-shadow-sm mb-2 ${lobster.className}`}>
-                     Get Paid for <span className="text-[#2c3e50]">Coffee Gifts</span>
-                  </h1>
-                  <p className="text-[#2c3e50]/70 text-[12px] font-bold max-w-md mx-auto leading-relaxed">
-                     Connect your payout method to receive payments.
-                  </p>
-               </div>
-
-               {/* Stripe Card */}
-               <div className="w-full max-w-md bg-white rounded-[32px] p-8 shadow-xl shadow-[#6ca3a4]/5 border border-white/50 space-y-8">
-                  <div className="flex flex-col items-center text-center space-y-2">
-                     <div className="w-16 h-8 relative mb-2">
-                        {/* Manual Stripe Text Logo if SVG missing */}
-                        <div className="text-[#635bff] font-black text-2xl tracking-tighter">stripe</div>
-                     </div>
-                     <h2 className="text-xl font-black text-[#2c3e50]">Stripe Connect</h2>
-                     <p className="text-[12px] text-gray-400 font-medium px-4">
-                        The gold standard for online payments. Get paid faster and manage everything in one place.
-                     </p>
-                  </div>
-
-                  <div className="space-y-4 px-2">
-                     {[
-                        { icon: ShieldCheck, text: "Secure onboarding" },
-                        { icon: Zap, text: "Automatic payouts" },
-                        { icon: CreditCard, text: "Card payments handled" },
-                        { icon: Calendar, text: "Payout at the end of each month" }
-                     ].map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-3 transition-opacity">
-                           <div className="w-8 h-8 bg-[#fef6eb] rounded-lg flex items-center justify-center text-[#f4c24d]">
-                              <item.icon className="w-5 h-5" />
-                           </div>
-                           <span className="text-[13px] font-bold text-[#2c3e50]">{item.text}</span>
-                        </div>
-                     ))}
-                  </div>
-
-                  {isStripeSuccess ? (
-                     <div className="w-full h-16 bg-green-50 border-2 border-green-200 rounded-2xl flex items-center justify-center gap-2 animate-in fade-in zoom-in duration-500">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white">
-                           <Check className="w-4 h-4 stroke-[4]" />
-                        </div>
-                        <span className="text-[14px] font-black uppercase text-green-700">Successfully Connected</span>
-                     </div>
-                  ) : (
-                     <button 
-                        onClick={handleStripeConnectSetup}
-                        disabled={stripeLoading}
-                        className="w-full h-16 bg-[#f4c24d] rounded-2xl flex items-center justify-center gap-2 group transform transition-all active:scale-[0.98] hover:shadow-lg shadow-sm disabled:opacity-50"
-                     >
-                        <span className="text-[14px] font-black uppercase text-[#2c3e50]">{stripeLoading ? 'Connecting...' : 'Connect with Stripe'}</span>
-                        <ArrowRight className="w-5 h-5 text-[#2c3e50] group-hover:translate-x-1 transition-transform" />
-                     </button>
-                  )}
-               </div>
-
-               {/* Skip Toggle */}
-               <div 
-                  onClick={() => setSkip(!skip)}
-                  className="w-full max-w-md bg-[#fef6eb] rounded-2xl p-6 border border-[#f4c24d]/20 flex items-center gap-5 cursor-pointer shadow-sm hover:shadow-md transition-all group"
+            ) : (
+               <button 
+                  onClick={handleStripeConnectSetup}
+                  disabled={stripeLoading}
+                  className="w-full h-[40px] bg-[#f4c24d] rounded-[8px] flex items-center justify-center gap-2 hover:brightness-105 transition-all disabled:opacity-50"
                >
-                  <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${skip ? 'bg-[#f4c24d] border-[#f4c24d]' : 'bg-white border-[#f4c24d]/30 group-hover:border-[#f4c24d]'}`}>
-                     {skip && <Check className="w-4 h-4 text-white stroke-[4]" />}
-                  </div>
-                  <div>
-                     <p className="text-[13px] font-bold text-[#2c3e50]">Skip for now</p>
-                     <p className="text-[10px] font-medium text-gray-500 text-left">You can always update your payment method later in settings.</p>
-                  </div>
-               </div>
+                  <span className="text-[11px] font-bold text-black">{stripeLoading ? 'Connecting...' : 'Connect with Stripe'}</span>
+                  {!stripeLoading && <ArrowRight className="w-3 h-3 text-black stroke-[3]" />}
+               </button>
+            )}
+          </div>
+        </div>
 
-               <p className="text-[10px] font-medium text-gray-400 text-center px-8">
-                  By continuing, you agree to Brontie&apos;s <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
-               </p>
+        {/* Skip Toggle */}
+        <div 
+          onClick={() => setSkip(!skip)}
+          className="bg-[#fdf3db] rounded-[10px] px-5 py-4 border border-[#f4c24d]/30 flex items-center gap-4 cursor-pointer transition-all w-full mt-2"
+        >
+          <div className={`w-4 h-4 rounded-[4px] border-[1px] flex flex-shrink-0 items-center justify-center transition-all bg-white ${skip ? 'border-[#f4c24d]' : 'border-[#f4c24d]/40 hover:border-[#f4c24d]'}`}>
+            {skip && <Check className="w-3 h-3 text-[#f4c24d] stroke-[4]" />}
+          </div>
+          <div className="flex flex-col gap-0.5">
+             <p className="text-[10px] font-bold text-black">Skip for now</p>
+             <p className="text-[9px] font-medium text-black opacity-60">You can always update your Payment Method later in settings.</p>
+          </div>
+        </div>
 
-               {/* Navigation Footer */}
-               <div className="w-full flex items-center justify-between pt-4 pb-20 px-2">
-                  <button onClick={() => router.back()} className="px-10 h-14 bg-white rounded-2xl text-[14px] font-black uppercase text-[#2c3e50] shadow-sm hover:shadow-md active:scale-95 transition-all">Go Back</button>
-                  <button 
-                     onClick={handleSubmit} 
-                     disabled={saving || (!skip && !isStripeSuccess)}
-                     className="bg-[#f4c24d] text-[#2c3e50] flex items-center justify-center font-black px-16 h-[64px] rounded-2xl text-xl uppercase shadow-lg transform hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-                  >
-                     {saving ? 'Saving...' : 'Save & Continue'}
-                  </button>
-               </div>
+        <p className="text-[8px] font-medium text-[#2c3e50] opacity-50 text-center max-w-[200px] mt-2 mb-4">
+           By continuing, you agree to Brontie's <br/>Terms of Service and Privacy Policy
+        </p>
 
-               {error && (
-                  <p className="text-red-500 text-center font-bold text-sm bg-red-50 p-4 rounded-xl border border-red-100 italic">{error}</p>
-               )}
-            </div>
-         </main>
+        {error && (
+          <div className="bg-red-50 text-red-600 text-center font-bold text-[11px] p-5 rounded-3xl border border-red-100 italic animate-in fade-in zoom-in w-full max-w-md">{error}</div>
+        )}
       </div>
+    </SetupLayout>
    );
 }
 

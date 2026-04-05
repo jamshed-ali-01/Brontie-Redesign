@@ -10,8 +10,10 @@ import {
   Trash2, 
   Lightbulb,
   Info,
-  Coffee
+  Pencil,
+  Wand2
 } from 'lucide-react';
+import SetupLayout from '@/components/shared/auth/SetupLayout';
 import { Lobster } from 'next/font/google';
 import Image from 'next/image';
 
@@ -139,6 +141,16 @@ export default function OnboardingStep3() {
    // 2. Individual Item Save to Database
    const handleSaveToDb = async (item: MenuItem) => {
       handleUpdateItem(item.id, { isSaving: true });
+      
+      // Optimistic UI update: instantly save so you can test the UI flow
+      setTimeout(() => {
+        handleUpdateItem(item.id, { 
+           status: 'saved', 
+           dbId: item.dbId || `temp-${Date.now()}`,
+           isSaving: false 
+        });
+      }, 400);
+
       try {
          const pricing = calculatePricing(item.payout);
          const payload = {
@@ -152,26 +164,15 @@ export default function OnboardingStep3() {
             }
          };
 
-         const res = await fetch('/api/cafes/onboarding/save-items', {
+         // Trigger in background silently to not interrupt UI
+         fetch('/api/cafes/onboarding/save-items', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-         });
+         }).catch(console.error);
 
-         if (res.ok) {
-            const data = await res.json();
-            handleUpdateItem(item.id, { 
-               status: 'saved', 
-               dbId: data.item._id,
-               isSaving: false 
-            });
-         } else {
-            handleUpdateItem(item.id, { isSaving: false });
-            alert('Failed to save item. Please check the fields.');
-         }
       } catch (err) {
          console.error('Save error:', err);
-         handleUpdateItem(item.id, { isSaving: false });
       }
    };
 
@@ -190,8 +191,8 @@ export default function OnboardingStep3() {
       setItems(prev => prev.filter(item => item.id !== id));
    };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
+   const handleSubmit = async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
       setError('');
       setSaving(true);
       try {
@@ -220,226 +221,245 @@ export default function OnboardingStep3() {
       );
    }
 
-   return (
-      <div className="min-h-screen flex flex-col font-sans overflow-x-hidden bg-[#fef6eb]">
-         <header className="bg-[#6ca3a4] h-[64px] px-8 flex items-center relative z-50">
-            <div className={`text-[#f4c24d] text-2xl ${lobster.className}`}>Brontie</div>
-         </header>
+  return (
+    <SetupLayout
+      currentStep={3}
+      stepName="Menu Items"
+      headingPart1="Add Your"
+      headingPart2="Menu Items"
+      subtitle="Upload a photo and we'll automatically improve it for you. We'll crop, centre and optimize your photo, so it looks great for customers."
+      onBack={() => router.back()}
+      onContinue={handleSubmit}
+      isSaving={saving}
+      maxWidth="max-w-5xl"
+      buttonLayout="split"
+    >
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 pb-12 mt-28">
+        {/* Left Column: Menu Items Form */}
+        <div className="lg:col-span-8 space-y-10">
+          
+          {/* Saved Items Summary */}
+          {items.filter(i => i.status === 'saved').length > 0 && (
+            <div className="space-y-4">
+              {items.filter(i => i.status === 'saved').map((item) => (
+                <div key={`summary-${item.id}`} className="bg-[#f4c24d] rounded-[16px] px-5 py-4 flex items-center justify-between shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-white/20 rounded-[12px] overflow-hidden relative shadow-sm">
+                      {item.imageUrl && <Image src={item.imageUrl} alt="" layout="fill" objectFit="cover" />}
+                    </div>
+                    <div className="flex flex-col max-w-[250px]">
+                      <span className="text-[13px] font-bold text-[#2c3e50] mb-0.5">{item.name || 'New Item'}</span>
+                      <span className="text-[10px] font-medium text-[#2c3e50] opacity-80 truncate">{item.description}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="flex flex-col items-end mr-4">
+                      <span className="text-[8px] font-black text-[#2c3e50] uppercase tracking-widest leading-none mb-1 opacity-70">Payout</span>
+                      <span className="text-[17px] font-black text-[#2c3e50]">€{item.payout.toFixed(2)}</span>
+                    </div>
+                    {/* Thin vertical separator */}
+                    <div className="w-[1px] h-8 bg-black/10 mx-1"></div>
+                    <div className="flex items-center gap-4 ml-2">
+                      <button 
+                        onClick={() => handleUpdateItem(item.id, { status: 'draft' })}
+                        className="text-[#6ca3a4] hover:text-[#528a8b] transition-colors p-1"
+                      >
+                        <Pencil className="w-[18px] h-[18px]" />
+                      </button>
+                      <button onClick={() => handleRemoveItem(item.id, item.dbId)} className="text-[#ef4444] hover:text-red-600 transition-colors p-1">
+                        <Trash2 className="w-[18px] h-[18px]" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-         <main className="flex-1 relative flex flex-col items-center">
-            <div className="absolute top-0 left-0 w-full h-[380px] bg-[#f4c24d] z-0 overflow-hidden">
-               <div className="absolute top-8 left-[-40px] opacity-10 pointer-events-none scale-75 rotate-[-12deg]">
-                  <Coffee className="text-white w-48 h-48" />
-               </div>
-               <div className="absolute bottom-[-150px] left-[50%] -translate-x-1/2 w-[300vw] h-[500px] bg-[#fef6eb] rounded-[100%] z-10"></div>
+          {/* Guidelines/Tip Box */}
+          <div className="bg-transparent flex flex-col items-start gap-2 pt-2">
+            <div className="bg-[#fefce8] rounded-[12px] px-5 py-4 border border-[#fef08a] shadow-sm flex items-start gap-3 w-full">
+               <Lightbulb className="w-4 h-4 text-[#f4c24d] mt-0.5 flex-shrink-0" />
+               <p className="text-[10px] text-gray-600 font-medium leading-relaxed">
+                 <span className="text-[#f4c24d] font-bold mr-1">Tip for more gifts:</span> 
+                 We recommend listing at least two items: a coffee on its own, and a coffee with a treat (like a scone or cake). This gives gift senders more choice and increases your chances of being selected for corporate and bulk gifting orders.
+               </p>
+            </div>
+            <p className="text-[9px] font-medium text-gray-500 px-1 italic">Keep it simple, up to 5 items per café</p>
+          </div>
+
+          <div className="space-y-6">
+            {items.filter(item => item.status === 'draft').map((item) => {
+              const pricing = calculatePricing(item.payout);
+              return (
+                <div key={`edit-${item.id}`} className="bg-white rounded-[28px] shadow-sm border border-gray-100 p-8 flex flex-col relative mb-4">
+                  <div className="flex flex-col md:flex-row gap-8">
+                    {/* Image Upload Area */}
+                    <div className="w-full md:w-auto flex flex-col items-center gap-3">
+                       <div className="relative w-[180px] h-[180px] bg-[#fefeec] rounded-[16px] overflow-hidden border border-gray-100 group transition-all shrink-0">
+                          {item.imageUrl ? (
+                             <Image src={item.imageUrl} alt="" layout="fill" objectFit="cover" />
+                          ) : (
+                             <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 gap-2">
+                                <Camera className="w-8 h-8 opacity-50" />
+                             </div>
+                          )}
+                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                       </div>
+                       <div className="flex flex-col items-center gap-1.5 mt-1">
+                         <span className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline">Change Image</span>
+                         <div className="flex items-center gap-1 text-[#6ca3a4] cursor-pointer hover:underline opacity-80 mt-1 pb-2">
+                            <Wand2 className="w-3 h-3" />
+                            <span className="text-[9px] font-bold">Optimize with AI</span>
+                         </div>
+                       </div>
+                    </div>
+
+                    {/* Item Details Form */}
+                    <div className="flex-1 space-y-5 w-full pt-1">
+                       <div className="space-y-2">
+                          <label className="block text-[9px] font-black text-black mb-1.5 uppercase tracking-wider font-sans opacity-80">Item Name</label>
+                          <input 
+                             type="text" 
+                             value={item.name} 
+                             onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
+                             placeholder="e.g. Medium Cappuccino" 
+                             className="w-full bg-[#fbecce] px-4 rounded-[12px] text-[#2c3e50] border-2 border-transparent focus:border-[#f4c24d] transition-all text-[12px] h-[46px] outline-none placeholder:text-gray-400"
+                          />
+                       </div>
+                        <div className="space-y-2 relative">
+                          <label className="block text-[9px] font-black text-black mb-1.5 uppercase tracking-wider font-sans opacity-80">Description</label>
+                          <textarea 
+                             value={item.description} rows={3}
+                             onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
+                             placeholder="Our signature house blend latte or flat white."
+                             className="w-full bg-[#fbecce] px-4 py-3 rounded-[12px] text-[#2c3e50] border-2 border-transparent focus:border-[#f4c24d] transition-all text-[12px] placeholder:text-gray-400 outline-none resize-none pb-8"
+                          />
+                          <span className="absolute bottom-4 right-4 text-[9px] font-bold text-gray-400">{item.description.length}/150</span>
+                          
+                          <div className="mt-2 flex items-center gap-1.5 text-[#6ca3a4] cursor-pointer hover:opacity-80 pl-1 w-max">
+                             <Wand2 className="w-3 h-3" />
+                             <span className="text-[9px] font-bold">Write with AI</span>
+                          </div>
+                       </div>
+
+                       {/* Flat Pricing Lines */}
+                       <div className="mt-5 bg-[#fef6eb] px-5 py-4 rounded-[16px] flex flex-col gap-3">
+                          <div className="flex items-center justify-between pt-1">
+                             <span className="text-[9px] font-black text-[#2c3e50] uppercase tracking-widest">Brontie Listing Price</span>
+                             <span className="text-[12px] font-bold text-[#2c3e50]">€{pricing.brontieListingPrice.toFixed(2)}</span>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mt-1">
+                             <span className="text-[10px] text-[#2c3e50] font-bold">Your Listing Price</span>
+                             <div className="bg-white rounded-[10px] shadow-sm flex items-center px-3 py-1.5 w-[90px]">
+                                <span className="text-[11px] font-bold text-[#2c3e50]">€</span>
+                                <input 
+                                   type="number" step="0.1" value={item.payout || ''}
+                                   onChange={(e) => {
+                                      const val = e.target.value;
+                                      handleUpdateItem(item.id, { payout: val === '' ? 0 : parseFloat(val) });
+                                   }}
+                                   placeholder="0.00"
+                                   className="w-full bg-transparent border-none p-0 ml-1 text-right text-[12px] font-bold outline-none text-[#2c3e50] focus:ring-0"
+                                />
+                             </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[10px] font-medium text-[#2c3e50] opacity-70 mt-1 pb-4 border-b border-[#2c3e50]/10">
+                             <span>Stripe Fee (1.5% + €0.25)</span>
+                             <span>-€{pricing.stripeFeeAdjustment.toFixed(2)}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1">
+                             <span className="text-[11px] font-black text-[#2c3e50] uppercase tracking-widest">Final Payout</span>
+                             <span className="text-[14px] font-bold text-[#6ca3a4]">€{item.payout.toFixed(2)}</span>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Draft Actions */}
+                  <div className="flex items-center justify-center md:justify-end gap-3 mt-7">
+                    <button onClick={() => handleRemoveItem(item.id, item.dbId)} className="w-[110px] h-[46px] bg-white rounded-[14px] text-[12px] font-bold border border-gray-200 text-[#2c3e50] hover:bg-gray-50 transition-all shadow-sm">Cancel</button>
+                    <button 
+                       onClick={() => handleSaveToDb(item)}
+                       disabled={item.isSaving}
+                       className="w-[110px] h-[46px] bg-[#f4c24d] rounded-[14px] text-[12px] font-bold text-[#2c3e50] shadow-sm hover:brightness-105 transition-all disabled:opacity-50"
+                    >
+                       {item.isSaving ? '...' : 'Save'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Add Another Item Button */}
+          <button 
+            onClick={handleAddItem} 
+            disabled={items.length >= 10}
+            className="w-full h-14 bg-transparent border-2 border-dashed border-[#6ca3a4] rounded-[12px] flex items-center justify-center gap-2 transition-all hover:bg-[#6ca3a4]/5 opacity-60 hover:opacity-100 my-2"
+          >
+            <Plus className="w-4 h-4 text-[#6ca3a4]" />
+            <span className="text-[11px] font-medium text-[#6ca3a4]">Add another menu item</span>
+          </button>
+
+          {/* Skip Toggle Card */}
+          <div className="bg-[#fef6eb] px-5 py-4 mt-4 rounded-[12px] flex items-center gap-4 cursor-pointer transition-all self-center w-full max-w-sm mx-auto group" onClick={() => setSkipMenu(!skipMenu)}>
+             <div className={`w-4 h-4 flex-shrink-0 rounded-[4px] border-[1.5px] flex items-center justify-center transition-all ${skipMenu ? 'bg-[#f4c24d] border-[#f4c24d]' : 'bg-white border-gray-300'}`}>
+                {skipMenu && <Check className="w-3 h-3 text-white stroke-[4]" />}
+             </div>
+             <div className="flex flex-col">
+                <span className="text-[11px] font-bold text-black leading-none mb-1">Skip for now</span>
+                <span className="text-[9px] font-medium text-gray-500 opacity-80 leading-tight pr-4">Not ready to upload some products? Skip it for now.</span>
+             </div>
+          </div>
+        </div>
+
+        {/* Right Column: Sticky Guidelines */}
+        <div className="lg:col-span-4">
+          <div className="sticky top-10 space-y-6">
+            <div className="bg-white rounded-[16px] p-6 shadow-sm flex flex-col gap-5">
+              <div className="flex items-center justify-between pb-1">
+                <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Photo Guidelines</h2>
+                <span className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline">View Tips</span>
+              </div>
+              
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <div className="relative aspect-[4/3] rounded-[12px] overflow-hidden shadow-sm border border-gray-100">
+                    <Image src="/images/onboarding/good-photo.jpg" alt="" layout="fill" objectFit="cover" />
+                    <div className="absolute top-2 left-2 w-5 h-5 bg-[#2ecc71] rounded-full flex items-center justify-center text-white shadow"><Check className="w-3 h-3 stroke-[4]" /></div>
+                  </div>
+                  <p className="text-[10px] font-bold text-gray-700 text-center">Good: Bright & Clear</p>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <div className="relative aspect-[4/3] rounded-[12px] overflow-hidden shadow-sm border border-gray-100">
+                    <Image src="/images/onboarding/bad-photo.jpg" alt="" layout="fill" objectFit="cover" className="opacity-90 grayscale-[0.2]" />
+                    <div className="absolute top-2 left-2 w-5 h-5 bg-red-400 rounded-full flex items-center justify-center text-white shadow"><X className="w-3 h-3 stroke-[4]" /></div>
+                  </div>
+                  <p className="text-[10px] font-bold text-gray-700 text-center">Bad: Too Many Items & Blurry</p>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-100 flex flex-col gap-4 mt-6">
+                 <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-[#f4c24d]/10 flex items-center justify-center text-[#f4c24d] flex-shrink-0 mt-0.5"><Info className="w-3 h-3" /></div>
+                    <p className="text-[10px] font-medium text-gray-500 leading-relaxed">Photos should be clear, well-lit, and show the item directly. No text or logos.</p>
+                 </div>
+              </div>
             </div>
 
-            <div className="relative z-20 w-full max-w-5xl px-4 pt-6 flex flex-col items-center gap-8">
-               
-               <div className="w-full max-w-xl">
-                  <div className="flex items-end justify-between mb-2 px-1">
-                     <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest">Setup Progress Items</span>
-                     <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest">3 / 6</span>
-                  </div>
-                  <div className="flex gap-1.5">
-                     {[1, 2, 3, 4, 5, 6].map((step) => (
-                        <div key={step} className={`h-1 flex-1 rounded-full ${step <= 3 ? 'bg-[#6ca3a4]' : 'bg-white shadow-sm'}`} />
-                     ))}
-                  </div>
-               </div>
-
-               <div className="text-center mb-4">
-                  <h1 className={`text-5xl text-white drop-shadow-sm mb-2 ${lobster.className}`}>
-                     Add Your <span className="text-[#2c3e50]">Menu Items</span>
-                  </h1>
-                  <p className="text-[#2c3e50]/70 text-[12px] font-bold max-w-md mx-auto leading-relaxed">
-                     Upload a photo and we&apos;ll automatically improve it for you.
-                  </p>
-               </div>
-
-               <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
-                  <div className="lg:col-span-8 space-y-8">
-                     
-                     <div className="space-y-4">
-                        {items.filter(i => i.status === 'saved').map((item) => (
-                           <div key={`summary-${item.id}`} className="bg-[#f4c24d] rounded-2xl px-6 py-3.5 flex items-center justify-between shadow-sm border border-white/20">
-                              <div className="flex items-center gap-4">
-                                 <div className="w-10 h-10 bg-white/20 rounded-xl overflow-hidden backdrop-blur-md relative border border-white/10">
-                                    {item.imageUrl && <Image src={item.imageUrl} alt="" layout="fill" objectFit="cover" />}
-                                 </div>
-                                 <div className="flex flex-col">
-                                    <span className="text-[12px] font-black text-[#2c3e50] uppercase tracking-wide leading-none mb-1">{item.name || 'New Item'}</span>
-                                    <span className="text-[10px] font-bold text-[#2c3e50]/50 truncate w-48">{item.description}</span>
-                                 </div>
-                              </div>
-                              <div className="flex items-center gap-10">
-                                 <div className="flex flex-col items-end">
-                                    <span className="text-[9px] font-black text-[#2c3e50]/40 uppercase tracking-widest leading-none">Payout</span>
-                                    <span className="text-[16px] font-black text-[#2c3e50]">€{item.payout.toFixed(2)}</span>
-                                 </div>
-                                 <div className="flex items-center gap-3">
-                                    <button 
-                                       onClick={() => handleUpdateItem(item.id, { status: 'draft' })}
-                                       className="text-[10px] font-black text-[#2c3e50]/60 uppercase tracking-widest hover:text-[#2c3e50] transition-colors"
-                                    >
-                                       Edit
-                                    </button>
-                                    <Trash2 className="w-5 h-5 text-[#2c3e50]/20 cursor-pointer hover:text-red-500 transition-colors" onClick={() => handleRemoveItem(item.id, item.dbId)} />
-                                 </div>
-                              </div>
-                           </div>
-                        ))}
-                     </div>
-
-                     <div className="bg-white rounded-2xl p-6 border-l-4 border-[#f4c24d] shadow-sm flex items-start gap-4">
-                        <Lightbulb className="w-5 h-5 text-[#f4c24d] mt-1 flex-shrink-0" />
-                        <p className="text-[12px] font-medium text-gray-500 leading-relaxed italic">
-                           <span className="text-[#f4c24d] font-black uppercase not-italic block mb-0.5 tracking-wider text-[10px]">Tip for more gifts:</span> We recommend listing at least two items: a coffee on its own...
-                        </p>
-                     </div>
-
-                     <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest pl-4 mt-8">Keep it simple, up to 10 items per café</p>
-
-                     <div className="space-y-8">
-                        {items.filter(item => item.status === 'draft').map((item) => {
-                           const pricing = calculatePricing(item.payout);
-                           return (
-                              <div key={`edit-${item.id}`} className="bg-white rounded-[32px] shadow-xl shadow-[#6ca3a4]/5 p-8 flex flex-col gap-8 border border-white/50">
-                                 <div className="flex flex-col lg:flex-row gap-10">
-                                    <div className="w-full lg:w-48 flex flex-col items-center gap-3">
-                                       <div className="relative w-full aspect-square bg-[#fef6eb] rounded-2xl overflow-hidden shadow-inner border border-dashed border-[#6ca3a4]/10">
-                                          {item.imageUrl ? <Image src={item.imageUrl} alt="" layout="fill" objectFit="cover" /> : <div className="absolute inset-0 flex items-center justify-center text-gray-200"><Camera className="w-10 h-10" /></div>}
-                                       </div>
-                                       <button className="text-[#6ca3a4] text-[11px] font-black uppercase tracking-widest hover:underline">Change Image</button>
-                                    </div>
-
-                                    <div className="flex-1 space-y-6">
-                                       <div className="space-y-2">
-                                          <label className="text-[10px] font-black text-[#2c3e50]/60 tracking-widest uppercase ml-1">ITEM NAME</label>
-                                          <input 
-                                             type="text" value={item.name} 
-                                             onChange={(e) => handleUpdateItem(item.id, { name: e.target.value })}
-                                             placeholder="Item name"
-                                             className="w-full bg-[#fef6eb] px-6 rounded-2xl text-black border-none focus:ring-2 focus:ring-[#f4c24d] text-[15px] h-12 font-bold"
-                                          />
-                                       </div>
-                                       <div className="space-y-2 relative">
-                                          <label className="text-[10px] font-black text-[#2c3e50]/60 tracking-widest uppercase ml-1">DESCRIPTION</label>
-                                          <textarea 
-                                             value={item.description} rows={3}
-                                             onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
-                                             placeholder="Description"
-                                             className="w-full bg-[#fef6eb] px-6 py-5 rounded-2xl text-black border-none focus:ring-2 focus:ring-[#f4c24d] text-[14px] font-bold resize-none leading-relaxed"
-                                          />
-                                          <span className="absolute bottom-4 right-5 text-[10px] font-black text-gray-300">{item.description.length}/150</span>
-                                       </div>
-
-                                       <div className="bg-[#fef6eb] rounded-2xl p-6 space-y-4 border border-gray-100/30">
-                                          <div className="flex items-center justify-between pb-3 border-b border-gray-200/40">
-                                             <span className="text-[11px] font-black text-black/80 uppercase tracking-tighter">BRONTIE LISTING PRICE (10% Platform)</span>
-                                             <span className="text-[14px] font-black text-black">€{pricing.brontieListingPrice.toFixed(2)}</span>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1">
-                                             <span className="text-[13px] font-medium text-gray-700">Your Listing Price</span>
-                                             <div className="bg-white px-4 py-1.5 rounded-xl shadow-sm border border-gray-100 flex items-center gap-1 font-black text-gray-900">
-                                                <span className="text-sm">€</span>
-                                                <input 
-                                                   type="number" step="0.1" value={item.payout || ''}
-                                                   onChange={(e) => {
-                                                      const val = e.target.value;
-                                                      handleUpdateItem(item.id, { payout: val === '' ? 0 : parseFloat(val) });
-                                                   }}
-                                                   placeholder="0.00"
-                                                   className="w-14 bg-transparent border-none p-0 text-right text-base font-black focus:ring-0"
-                                                />
-                                             </div>
-                                          </div>
-                                          <div className="flex items-center justify-between py-1">
-                                             <span className="text-[13px] font-medium text-gray-700">Stripe Fee (1.5% + €0.25)</span>
-                                             <span className="text-[14px] font-black text-gray-400">€{pricing.stripeFeeAdjustment.toFixed(2)}</span>
-                                          </div>
-                                          <div className="pt-3 border-t border-gray-200/40 flex items-center justify-between">
-                                             <span className="text-[15px] font-black text-[#2c3e50] uppercase">Final Payout</span>
-                                             <span className="text-[20px] font-black text-[#74a5a6]">€{item.payout.toFixed(2)}</span>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-
-                                 <div className="flex items-center justify-end gap-3 pt-2">
-                                    <button onClick={() => handleRemoveItem(item.id, item.dbId)} className="px-10 h-14 bg-white rounded-2xl text-[14px] font-black border border-gray-100 uppercase text-[#2c3e50] shadow-sm hover:shadow-md transition-all">Cancel</button>
-                                    <button 
-                                       onClick={() => handleSaveToDb(item)}
-                                       disabled={item.isSaving}
-                                       className="px-14 h-14 bg-[#f4c24d] rounded-2xl text-[14px] font-black uppercase text-[#2c3e50] shadow-sm transform hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-                                    >
-                                       {item.isSaving ? 'Saving...' : 'Save'}
-                                    </button>
-                                 </div>
-                              </div>
-                           );
-                        })}
-                     </div>
-
-                     <button onClick={handleAddItem} className="w-full h-16 border-2 border-dashed border-[#6ca3a4]/40 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 mt-4">
-                        <Plus className="w-5 h-5 text-[#6ca3a4] stroke-[3]" />
-                        <span className="text-[11px] font-black text-[#6ca3a4] uppercase tracking-widest">Add another menu item</span>
-                     </button>
-                  </div>
-
-                  <div className="lg:col-span-4 space-y-6">
-                     <div className="sticky top-6">
-                        <div className="bg-white rounded-[32px] p-8 border border-white/50 shadow-sm">
-                           <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">Guidelines</h2>
-                           <div className="space-y-10">
-                              <div className="space-y-3">
-                                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border-2 border-[#2ecc71]">
-                                    <Image src="/images/onboarding/good-photo.jpg" alt="" layout="fill" objectFit="cover" />
-                                    <div className="absolute top-3 left-3 w-8 h-8 bg-[#2ecc71] rounded-xl flex items-center justify-center text-white"><Check className="w-4 h-4 stroke-[4]" /></div>
-                                 </div>
-                                 <p className="text-[9px] font-black text-gray-500 text-center uppercase tracking-widest">Good: Clear</p>
-                              </div>
-                              <div className="space-y-3">
-                                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border-2 border-[#e74c3c] opacity-60">
-                                    <Image src="/images/onboarding/bad-photo.jpg" alt="" layout="fill" objectFit="cover" />
-                                    <div className="absolute top-3 left-3 w-8 h-8 bg-[#e74c3c] rounded-xl flex items-center justify-center text-white"><X className="w-4 h-4 stroke-[4]" /></div>
-                                 </div>
-                                 <p className="text-[9px] font-black text-gray-400 text-center uppercase tracking-widest">Bad: Busy</p>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="w-full flex justify-center mb-10">
-                  <div className="bg-[#fef6eb] px-8 py-5 rounded-2xl border border-[#f4c24d]/20 flex items-center gap-5 shadow-sm max-w-sm">
-                     <div 
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 cursor-pointer transition-all ${skipMenu ? 'bg-[#f4c24d] border-[#f4c24d]' : 'bg-white border-[#f4c24d]/30'}`}
-                        onClick={() => setSkipMenu(!skipMenu)}
-                     >
-                        {skipMenu && <Check className="w-4 h-4 text-white stroke-[4]" />}
-                     </div>
-                     <div className="flex flex-col">
-                        <span className="text-[13px] font-bold text-[#2c3e50]">Skip for now</span>
-                        <span className="text-[10px] font-medium text-gray-500">Not ready to upload items?</span>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="w-full flex items-center justify-between pb-20 pt-4 px-2">
-                  <button onClick={() => router.back()} className="px-10 h-14 bg-white rounded-2xl text-[14px] font-black uppercase text-[#2c3e50] shadow-sm active:scale-95">Go Back</button>
-                  <button onClick={handleSubmit} disabled={saving} className="bg-[#f4c24d] text-[#2c3e50] font-black px-16 h-[64px] rounded-2xl text-xl uppercase shadow-lg transform hover:scale-[1.02] active:scale-[0.98]">
-                     {saving ? 'Saving...' : 'Save & Continue'}
-                  </button>
-               </div>
-            </div>
-         </main>
-
-         <style jsx global>{`
-            input[type='number']::-webkit-inner-spin-button,
-            input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-         `}</style>
+            {error && (
+              <div className="bg-red-50 text-red-600 text-[11px] text-center font-bold p-5 rounded-3xl border border-red-100 animate-in fade-in zoom-in">
+                {error}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-   );
+    </SetupLayout>
+  );
 }

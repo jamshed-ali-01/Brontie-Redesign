@@ -66,8 +66,8 @@ export default function CafeSignupPage() {
   };
 
   return (
-    <AuthLayout 
-      title="Join Brontie" 
+    <AuthLayout
+      title="Join Brontie"
       subtitle="Let customers send coffee gifts from your café
 Free to join. No training needed. Get paid via Stripe."
     >
@@ -79,9 +79,9 @@ Free to join. No training needed. Get paid via Stripe."
             <h2 className={`text-[28px] text-[#2c3e50] ${lobster.className}`}>
               Create your account
             </h2>
-             
+
           </div>
-          
+
           <div className="space-y-6">
             <div>
               <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-70">Business Name</label>
@@ -126,7 +126,7 @@ Free to join. No training needed. Get paid via Stripe."
 
       {/* Button Area */}
       <div className="w-full max-w-[640px] mx-auto mt-6">
-        <button 
+        <button
           onClick={handleNext}
           disabled={loading}
           className="w-full bg-[#f4c24d] text-[#2c3e50] font-bold h-[50px] rounded-[18px] flex items-center justify-center space-x-3 hover:bg-[#e5b54d] transition-all group shadow-2xl shadow-[#f4c24d]/20 relative active:scale-95 disabled:opacity-50"
@@ -137,7 +137,7 @@ Free to join. No training needed. Get paid via Stripe."
           {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform  " />}
         </button>
         <p className="text-center text-gray-500 text-[12px] mt-2  font-medium  opacity-60">
-         Check your email for a secure login link.
+          Check your email for a secure login link.
         </p>
       </div>
 
@@ -145,20 +145,20 @@ Free to join. No training needed. Get paid via Stripe."
       <div className="w-full max-w-[500px] mx-auto mt-8 text-center space-y-6">
         <div className="flex items-center justify-center gap-10 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
           <div className="flex flex-col items-center">
-             <span className="font-serif text-[#6ca3a4] text-[13px] font-black uppercase tracking-tight leading-none text-center">
-               Willow<br/>&amp; Wild
-             </span>
+            <span className="font-serif text-[#6ca3a4] text-[13px] font-black uppercase tracking-tight leading-none text-center">
+              Willow<br />&amp; Wild
+            </span>
           </div>
           <div className="flex flex-col items-center">
-             <span className={`text-[#813B44] text-[28px] ${lobster.className}`}>
-               shoda
-               <span className="block text-[6px] uppercase tracking-[0.2em] font-sans font-black mt-[-4px]">Market Cafe</span>
-             </span>
+            <span className={`text-[#813B44] text-[28px] ${lobster.className}`}>
+              shoda
+              <span className="block text-[6px] uppercase tracking-[0.2em] font-sans font-black mt-[-4px]">Market Cafe</span>
+            </span>
           </div>
           <div className="flex flex-col items-center">
-             <span className="font-sans font-black text-gray-800 text-[18px] tracking-[0.3em] uppercase">
-               T Y P O
-             </span>
+            <span className="font-sans font-black text-gray-800 text-[18px] tracking-[0.3em] uppercase">
+              T Y P O
+            </span>
           </div>
         </div>
         <p className="text-gray-600 text-[11px] font-medium  max-w-[320px] mx-auto">
@@ -172,7 +172,7 @@ Free to join. No training needed. Get paid via Stripe."
           By continuing, you agree to Brontie's<br />
           <Link href="/terms" className="underline hover:text-[#2c3e50] text-[#6CA3A4] transition-colors">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-[#2c3e50] text-[#6CA3A4] transition-colors">Privacy Policy</Link>
         </p>
-        
+
         <p className="text-[#2c3e50] font-medium text-[12px]    ">
           Already have an account? <Link href="/cafes/login" className="text-[#6ca3a4] hover:text-[#6CA3A4] inline-flex items-center ml-2 transition-all group">
             Sign In <ChevronRight color='#6CA3A4' className="w-4 h-4 group-hover:translate-x-1 transition-transform stroke-[2.5]" />

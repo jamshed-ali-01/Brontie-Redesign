@@ -49,7 +49,8 @@ function BrandingAsset({
   height, 
   merchantName, 
   merchantLogo, 
-  useLogo 
+  useLogo,
+  merchantId
 }: { 
   title: string; 
   subtitle: string; 
@@ -58,6 +59,7 @@ function BrandingAsset({
   merchantName: string; 
   merchantLogo?: string;
   useLogo: boolean;
+  merchantId?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -67,49 +69,77 @@ function BrandingAsset({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Background
-    ctx.fillStyle = '#fef6eb';
-    ctx.fillRect(0, 0, width, height);
+    const renderPoster = async () => {
+      // 1. Fill background teal
+      ctx.fillStyle = '#6ca3a4';
+      ctx.fillRect(0, 0, width, height);
 
-    // Decorative Yellow Circle (Matches Brontie Branding)
-    ctx.beginPath();
-    ctx.arc(width / 2, -height * 0.2, width * 0.8, 0, Math.PI * 2);
-    ctx.fillStyle = '#f4c24d';
-    ctx.fill();
+      const minDim = Math.min(width, height);
 
-    // Text Rendering
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#2c3e50';
-    
-    // Merchant Name
-    ctx.font = `bold ${width * 0.08}px sans-serif`;
-    ctx.fillText(merchantName.toUpperCase(), width / 2, height * 0.4);
+      // 2. Draw 'Brontie' Logo at the top
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#f4c24d';
+      ctx.font = `${minDim * 0.22}px Lobster, cursive`;
+      ctx.fillText("Brontie", width / 2, height * 0.18);
 
-    // "Now on Brontie"
-    ctx.font = `${width * 0.12}px Lobster, cursive`;
-    ctx.fillStyle = 'white';
-    ctx.fillText("Now on Brontie", width / 2, height * 0.22);
+      // 3. Draw bottom text
+      ctx.fillStyle = '#f4c24d';
+      ctx.font = `bold ${minDim * 0.08}px sans-serif`;
+      ctx.fillText("Scan to gift a", width / 2, height * 0.85);
+      ctx.fillText("coffee from here", width / 2, height * 0.93);
 
-    // Coffee Icon or Logo
-    if (useLogo && merchantLogo) {
-       const img = new (window as any).Image();
-       img.crossOrigin = "anonymous";
-       img.src = merchantLogo;
-       img.onload = () => {
-         const size = width * 0.3;
-         ctx.drawImage(img, (width - size) / 2, height * 0.45, size, size);
-       };
-    } else {
-       ctx.font = `${width * 0.2}px sans-serif`;
-       ctx.fillText("☕", width / 2, height * 0.65);
+      // 4. Generate and draw QR Code in the center
+      if (merchantId) {
+        try {
+          const baseUrl = window.location.origin;
+          const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
+            margin: 2,
+            scale: 10,
+            color: {
+              dark: '#000000',
+              light: '#ffffff'
+            }
+          });
+          
+          const qrImg = new (window as any).Image();
+          qrImg.src = qrUrl;
+          qrImg.onload = () => {
+             const qrSize = minDim * 0.55;
+             const x = (width - qrSize) / 2;
+             const y = (height - qrSize) / 2; // centered
+             
+             // Draw rounded white background
+             const radius = minDim * 0.04;
+             ctx.fillStyle = '#ffffff';
+             ctx.beginPath();
+             ctx.moveTo(x + radius, y);
+             ctx.lineTo(x + qrSize - radius, y);
+             ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
+             ctx.lineTo(x + qrSize, y + qrSize - radius);
+             ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
+             ctx.lineTo(x + radius, y + qrSize);
+             ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
+             ctx.lineTo(x, y + radius);
+             ctx.quadraticCurveTo(x, y, x + radius, y);
+             ctx.closePath();
+             ctx.fill();
+
+             // Draw padding
+             const padding = minDim * 0.02;
+             ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
+          };
+        } catch (e) {
+          console.error("QR Generation error", e);
+        }
+      }
+    };
+
+    renderPoster();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(renderPoster);
     }
 
-    // Call to action
-    ctx.fillStyle = '#2c3e50';
-    ctx.font = `bold ${width * 0.05}px sans-serif`;
-    ctx.fillText("Send us a Coffee Gift today!", width / 2, height * 0.85);
-
-  }, [merchantName, merchantLogo, useLogo, width, height]);
+  }, [merchantId, width, height]);
 
   const download = () => {
     const canvas = canvasRef.current;
@@ -703,6 +733,7 @@ function OnboardingStep6Content() {
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
+                merchantId={merchantData?._id}
              />
              <BrandingAsset 
                 title="Instagram Post" subtitle="For social feed" 
@@ -710,6 +741,7 @@ function OnboardingStep6Content() {
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
+                merchantId={merchantData?._id}
              />
              <BrandingAsset 
                 title="Instagram Story" subtitle="For social stories" 
@@ -717,6 +749,7 @@ function OnboardingStep6Content() {
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
+                merchantId={merchantData?._id}
              />
              <BrandingAsset 
                 title="Counter Sign" subtitle="Perfect for the till" 
@@ -724,6 +757,7 @@ function OnboardingStep6Content() {
                 merchantName={merchantData?.name || 'Your Café'} 
                 merchantLogo={merchantData?.logoUrl}
                 useLogo={useLogo}
+                merchantId={merchantData?._id}
              />
           </div>
         </div>

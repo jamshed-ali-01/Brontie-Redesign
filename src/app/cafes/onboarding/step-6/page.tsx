@@ -523,7 +523,7 @@ function ExperienceBrontie() {
             ))}
          </div>
 
-         <div className="bg-white border border-dashed border-[#6ca3a4]/40 rounded-[24px] p-8 grid grid-cols-1 lg:grid-cols-2 gap-12 relative shadow-none">
+         <div className="bg-white border border-dashed border-[#6ca3a4]/40 rounded-[24px] p-5 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative shadow-none">
             
             {/* Left Column: Voucher Preview */}
             <div className={`space-y-6 transition-all duration-700 relative z-30 ${!demoId ? 'opacity-40 blur-[2px] pointer-events-none' : ''}`}>
@@ -604,7 +604,7 @@ function ExperienceBrontie() {
 
                    </div>
                    <div className="space-y-1">
-                      <h3 className={`text-[22px] text-[#2c3e50] ${lobster.className} leading-tight`}>
+                      <h3 className={`text-[20px] md:text-[22px] text-[#2c3e50] ${lobster.className} leading-tight`}>
                          {isRedeemed ? 'Demo Complete!' : 'Your counter QR'}
                       </h3>
                       <p className="text-[9px] text-[#2c3e50]/60 font-medium leading-[1.4] max-w-[140px]">
@@ -615,21 +615,21 @@ function ExperienceBrontie() {
 
                <div className="space-y-5">
                   <h4 className={`text-[15px] italic text-[#2c3e50] ${lobster.className}`}>How to complete the demo</h4>
-                  <div className="space-y-4 max-w-[280px]">
-                     {[
-                        <span key={0}><b>Send yourself the link</b> via WhatsApp on the left</span>,
-                        <span key={1}><b>Open the link on your phone</b> — you'll see the voucher your customer receives</span>,
-                        <span key={2}><b>Tap Redeem</b> on your phone, then <b>scan the QR above</b> on this screen</span>,
-                        <span key={3}>Watch the voucher status change to <span className="text-[#6ca3a4]">Redeemed ✓</span></span>
-                     ].map((item, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                           <div className={`w-4 h-4 rounded-full flex shrink-0 items-center justify-center text-[8px] font-bold border transition-all mt-0.5 ${step > i + 1 ? 'bg-[#fffbea] border-[#f4c24d]/30 text-[#f4c24d]' : 'bg-[#fffbea] border-[#f4c24d]/20 text-[#f4c24d]'}`}>
-                              {i + 1}
-                           </div>
-                           <p className={`text-[9px] leading-[1.5] ${step === i + 1 ? 'text-[#2c3e50] font-bold' : 'text-[#2c3e50]/80'}`}>{item}</p>
-                        </div>
-                     ))}
-                  </div>
+                      <div className="flex overflow-x-auto md:overflow-y-auto gap-4 pb-4 snap-x md:snap-none md:flex-col md:space-y-4 md:max-w-[280px] md:pb-0 scrollbar-hide">
+                         {[
+                            <span key={0}><b>Send yourself the link</b> via WhatsApp on the left</span>,
+                            <span key={1}><b>Open the link on your phone</b> — you'll see the voucher your customer receives</span>,
+                            <span key={2}><b>Tap Redeem</b> on your phone, then <b>scan the QR above</b> on this screen</span>,
+                            <span key={3}>Watch the voucher status change to <span className="text-[#6ca3a4]">Redeemed ✓</span></span>
+                         ].map((item, i) => (
+                            <div key={i} className="flex items-start gap-3 min-w-[220px] md:min-w-0 shrink-0 snap-center">
+                               <div className={`w-4 h-4 rounded-full flex shrink-0 items-center justify-center text-[8px] font-bold border transition-all mt-0.5 ${step > i + 1 ? 'bg-[#fffbea] border-[#f4c24d]/30 text-[#f4c24d]' : 'bg-[#fffbea] border-[#f4c24d]/20 text-[#f4c24d]'}`}>
+                                  {i + 1}
+                               </div>
+                               <p className={`text-[9px] leading-[1.5] ${step === i + 1 ? 'text-[#2c3e50] font-bold' : 'text-[#2c3e50]/80'}`}>{item}</p>
+                            </div>
+                         ))}
+                      </div>
                </div>
             </div>
 
@@ -741,28 +741,28 @@ function OnboardingStep6Content() {
         <button 
            onClick={handleComplete}
            disabled={saving}
-           className="h-[46px] w-[260px] bg-[#6ca3a4] rounded-[14px] flex items-center justify-center text-[12px] font-bold uppercase text-white shadow-sm hover:brightness-105 transition-all mb-4 relative z-40 disabled:opacity-50 mb-20"
+           className="h-[46px] w-[260px] bg-[#6ca3a4] rounded-[14px] flex items-center justify-center text-[12px] font-bold uppercase text-white shadow-sm hover:brightness-105 transition-all mb-4 relative z-40 disabled:opacity-50 mb-10 md:mb-20"
         >
            {saving ? 'Processing...' : 'Go to Dashboard →'}
         </button>
 
         {/* Success Alert Banner */}
-        <div className="w-full max-w-[640px] bg-white rounded-xl p-4 border border-[#f4c24d]/30 flex items-start justify-center gap-3 shadow-sm relative z-30">
+        <div className="w-screen md:w-full max-w-[640px] bg-white rounded-xl p-4 border border-[#f4c24d]/30 flex items-start justify-center gap-3 shadow-sm relative z-30 mx-4 md:mx-0">
           <div className="mt-0.5 w-[14px] flex justify-center text-[#f4c24d]">
              <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7 0L14 13H0L7 0Z" fill="#F4C24D"/>
                 <path d="M7.5 9V4H6.5V9H7.5ZM7.5 11V10H6.5V11H7.5Z" fill="white"/>
              </svg>
           </div>
-          <p className="text-[10px] font-medium text-black  flex-1 pt-0.5">
+          <p className="text-[10px] font-medium text-black flex-1 pt-0.5">
              Your café is now live, so customers may start redeeming gifts soon. Make sure the QR is placed beside the till so customers can scan it easily.
           </p>
         </div>
 
         {/* Next Steps Carousel/Grid */}
-        <div className="w-full bg-white rounded-[16px] px-8 py-10 flex flex-col gap-6 relative z-30">
+        <div className="w-full bg-white rounded-[16px] px-6 md:px-8 py-8 md:py-10 flex flex-col gap-6 relative z-30">
           <div className="text-center">
-             <h3 className={`text-[28px] text-[#2c3e50] ${lobster.className}`}>Next Steps</h3>
+             <h3 className={`text-[24px] md:text-[28px] text-[#2c3e50] ${lobster.className}`}>Next Steps</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
@@ -786,10 +786,10 @@ function OnboardingStep6Content() {
         </div>
 
         {/* Share Link Banner */}
-        <div className="w-full bg-white rounded-[16px] px-10 py-8 flex flex-col gap-5 relative z-30">
-           <div className="flex justify-between items-end">
-              <h3 className={`text-[26px] text-[#2c3e50] ${lobster.className}`}>Share this link to let anyone send you a coffee</h3>
-              <div className="flex items-center gap-2   px-3 py-1.5  mb-1">
+        <div className="w-full bg-white rounded-[16px] px-6 md:px-10 py-6 md:py-8 flex flex-col gap-5 relative z-30">
+           <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-4 md:gap-0">
+              <h3 className={`text-[22px] md:text-[26px] text-[#2c3e50] ${lobster.className} text-center md:text-left`}>Share this link to let anyone send you a coffee</h3>
+              <div className="flex items-center gap-2 px-3 py-1.5 mb-0 md:mb-1">
                  <span className="text-[10px]">📸</span>
                  <span className="text-[10px] font-bold text-[#2c3e50] opacity-80">Perfect for your Instagram bio.</span>
               </div>
@@ -811,54 +811,67 @@ function OnboardingStep6Content() {
            </div>
         </div>
 
-        {/* Actionable Assets Section */}
-        <div className="w-full bg-white rounded-[30px] p-10 py-8 shadow-2xl shadow-[#6ca3a4]/5 border border-white space-y-12 overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-start">
-             <BrandingAsset 
-                title="A4 Poster" subtitle="Promote coffee gifting in your café." 
-                width={1240} height={1754} 
-                merchantName={merchantData?.name || 'Your Café'} 
-                merchantLogo={merchantData?.logoUrl}
-                useLogo={useLogo}
-                merchantId={merchantData?._id}
-                itemImage={firstItemImage}
-                designType="poster"
-             />
-             <BrandingAsset 
-                title="Instagram Post (4:5)" subtitle="Share that your café now offers coffee gifting." 
-                width={1080} height={1350} 
-                merchantName={merchantData?.name || 'Your Café'} 
-                merchantLogo={merchantData?.logoUrl}
-                useLogo={useLogo}
-                merchantId={merchantData?._id}
-                itemImage={firstItemImage}
-                designType="post"
-             />
-             <BrandingAsset 
-                title="Instagram Story (9:16)" subtitle="Share that your café now offers coffee gifting." 
-                width={1080} height={1920} 
-                merchantName={merchantData?.name || 'Your Café'} 
-                merchantLogo={merchantData?.logoUrl}
-                useLogo={useLogo}
-                merchantId={merchantData?._id}
-                itemImage={firstItemImage}
-                designType="story"
-             />
-             <BrandingAsset 
-                title="Counter QR Sign (A5)" subtitle="Perfect for placing beside the till." 
-                width={1748} height={1240} 
-                merchantName={merchantData?.name || 'Your Café'} 
-                merchantLogo={merchantData?.logoUrl}
-                useLogo={useLogo}
-                merchantId={merchantData?._id}
-                designType="counter"
-             />
+        {/* Actionable Assets Section (Scroll Slider on Mobile) */}
+        <div className="w-full bg-white rounded-[20px] md:rounded-[30px] p-6 md:p-10 py-8 shadow-2xl shadow-[#6ca3a4]/5 border border-white space-y-12 overflow-hidden">
+          <style jsx>{`
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+          `}</style>
+          
+          <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none md:grid-cols-4 gap-6 md:gap-8 items-start pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide">
+             <div className="min-w-[280px] md:min-w-0 snap-center">
+                <BrandingAsset 
+                   title="A4 Poster" subtitle="Promote coffee gifting in your café." 
+                   width={1240} height={1754} 
+                   merchantName={merchantData?.name || 'Your Café'} 
+                   merchantLogo={merchantData?.logoUrl}
+                   useLogo={useLogo}
+                   merchantId={merchantData?._id}
+                   itemImage={firstItemImage}
+                   designType="poster"
+                />
+             </div>
+             <div className="min-w-[280px] md:min-w-0 snap-center">
+                <BrandingAsset 
+                   title="Instagram Post (4:5)" subtitle="Share that your café now offers coffee gifting." 
+                   width={1080} height={1350} 
+                   merchantName={merchantData?.name || 'Your Café'} 
+                   merchantLogo={merchantData?.logoUrl}
+                   useLogo={useLogo}
+                   merchantId={merchantData?._id}
+                   itemImage={firstItemImage}
+                   designType="post"
+                />
+             </div>
+             <div className="min-w-[280px] md:min-w-0 snap-center">
+                <BrandingAsset 
+                   title="Instagram Story (9:16)" subtitle="Share that your café now offers coffee gifting." 
+                   width={1080} height={1920} 
+                   merchantName={merchantData?.name || 'Your Café'} 
+                   merchantLogo={merchantData?.logoUrl}
+                   useLogo={useLogo}
+                   merchantId={merchantData?._id}
+                   itemImage={firstItemImage}
+                   designType="story"
+                />
+             </div>
+             <div className="min-w-[280px] md:min-w-0 snap-center">
+                <BrandingAsset 
+                   title="Counter QR Sign (A5)" subtitle="Perfect for placing beside the till." 
+                   width={1748} height={1240} 
+                   merchantName={merchantData?.name || 'Your Café'} 
+                   merchantLogo={merchantData?.logoUrl}
+                   useLogo={useLogo}
+                   merchantId={merchantData?._id}
+                   designType="counter"
+                />
+             </div>
           </div>
         </div>
 
         {/* Physical Promo Banner */}
-        <div className="w-full max-w-[820px] bg-[#6ca3a4] rounded-[16px] overflow-hidden shadow-sm flex flex-col md:flex-row relative group min-h-[260px] items-center px-16">
-          <div className="py-12 space-y-6 flex-1 z-10 flex flex-col justify-center">
+        <div className="w-full max-w-[820px] bg-[#6ca3a4] rounded-[16px] overflow-hidden shadow-sm flex flex-col md:flex-row relative group min-h-[260px] items-center px-6 md:px-16 py-8 md:py-0">
+          <div className="space-y-6 flex-1 z-10 flex flex-col justify-center items-center md:items-start text-center md:text-left">
              <div className="space-y-5 max-w-[380px]">
                 <h2 className={`text-4xl text-white ${lobster.className}`}>Skip The Printing,<br/>We'll Send It Ready To<br/>Use</h2>
                 <p className="text-white opacity-95 font-medium text-[14px] leading-relaxed">
@@ -866,7 +879,7 @@ function OnboardingStep6Content() {
                 </p>
              </div>
              
-             <div className="space-y-4">
+             <div className="space-y-4 flex flex-col items-center md:items-start">
                 <button 
                    onClick={() => setIsOrderModalOpen(true)}
                    className="bg-[#f4c24d] text-black font-bold px-6 h-10 rounded-[8px] text-[10px] shadow-sm transform hover:brightness-105 transition-all flex items-center gap-2 group w-fit"
@@ -877,12 +890,12 @@ function OnboardingStep6Content() {
                    <div className="w-4 h-4 rounded-md border border-white flex items-center justify-center">
                       <span className="text-white text-[10px] leading-none mb-px">📄</span>
                    </div>
-                   <p className="text-[8px]  uppercase text-white">Free for founding cafes, limited time only</p>
+                   <p className="text-[8px] uppercase text-white">Free for founding cafes, limited time only</p>
                 </div>
              </div>
           </div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center p-4">
+          <div className="relative z-10 flex flex-col items-center justify-center p-4 mt-8 md:mt-0">
              <div className="relative w-[240px] h-[240px] bg-white rounded-2xl flex flex-col items-center justify-center gap-2 group-hover:scale-105 transition-all duration-700 shadow-md">
                 <Image src="/images/onboarding/wooden-block.png" alt="Wooden Block" layout="fill" objectFit="contain" />
              </div>
@@ -890,13 +903,13 @@ function OnboardingStep6Content() {
         </div>
 
         {/* Experience Brontie Title */}
-        <div className="text-left w-full mt-8 mb-2 bg-white rounded-[16px] p-10 pb-10 flex flex-col gap-10">
+        <div className="text-left w-full mt-8 mb-2 bg-white rounded-[16px] p-6 md:p-10 pb-10 flex flex-col gap-8 md:gap-10">
            <div className="space-y-2">
-               <h2 className={`text-3xl text-[#2c3e50] ${lobster.className}`}>Experience Brontie like your customers do</h2>
+               <h2 className={`text-26px md:text-3xl text-[#2c3e50] ${lobster.className}`}>Experience Brontie like your customers do</h2>
                <p className="text-[11px] text-gray-400 font-medium mt-1">Experience exactly what your customers and recipients will see — demo only, no payouts affected.</p>
                <div className="flex items-center gap-2 mt-4 text-[#2c3e50] bg-transparent">
-                 <CircleAlert className='size-4' color='#c1bebeff' />
-                  <span className="text-[12px] font-medium text-gray-500">This is a test voucher and QR code for demonstration only. It is not your café's live redemption QR and does not create a payout.</span>
+                 <CircleAlert className='size-4 flex-shrink-0' color='#c1bebeff' />
+                  <span className="text-[11px] md:text-[12px] font-medium text-gray-500">This is a test voucher and QR code for demonstration only. It is not your café's live redemption QR and does not create a payout.</span>
                </div>
            </div>
 

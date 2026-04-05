@@ -526,7 +526,7 @@ function ExperienceBrontie() {
          <div className="bg-white border border-dashed border-[#6ca3a4]/40 rounded-[24px] p-5 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative shadow-none">
             
             {/* Left Column: Voucher Preview */}
-            <div className={`space-y-6 transition-all duration-700 relative z-30 ${!demoId ? 'opacity-40 blur-[2px] pointer-events-none' : ''}`}>
+            <div className="space-y-6 transition-all duration-700 relative z-30">
                <div className="flex items-center gap-3">
                   <h3 className={`text-[26px] text-[#2c3e50] ${lobster.className}`}>Your Test Voucher</h3>
                   <div className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase  flex items-center gap-1.5 ${isRedeemed ? 'bg-green-100 text-green-600' : 'bg-[#DCFCE7] text-[#15803D]'}`}>
@@ -585,7 +585,7 @@ function ExperienceBrontie() {
             </div>
 
             {/* Right Column: QR Preview */}
-            <div className={`space-y-8 transition-all duration-700 w-full lg:pl-10 ${!demoId ? 'opacity-40 blur-[2px] pointer-events-none' : ''}`}>
+            <div className="space-y-8 transition-all duration-700 w-full lg:pl-10">
                <div className="flex items-center gap-6">
                   <div className="w-24 h-24 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100 flex items-center justify-center relative group overflow-hidden shrink-0">
                      {terminalQr || qrDataUrl ? (
@@ -632,19 +632,6 @@ function ExperienceBrontie() {
                       </div>
                </div>
             </div>
-
-            {/* Overlay if not generated */}
-            {!demoId && (
-               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center space-y-4 text-center">
-                  <div className="w-16 h-16 bg-[#f4c24d] rounded-2xl flex items-center justify-center text-[#2c3e50] shadow-xl animate-bounce">
-                     <Smartphone className="w-8 h-8" />
-                  </div>
-                  <div className="space-y-1">
-                     <h4 className="text-xl font-bold text-[#2c3e50]">Ready To Experience It?</h4>
-                     <p className="text-[12px] text-gray-400 font-medium">Click the button below to generate your test voucher.</p>
-                  </div>
-               </div>
-            )}
 
          </div>
  

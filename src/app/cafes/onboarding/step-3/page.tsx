@@ -126,7 +126,7 @@ export default function OnboardingStep3() {
       setItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
    };
 
-   const handleAddItem = () => {
+    const handleAddItem = () => {
       if (items.length >= 10) return;
       setItems(prev => [...prev, {
          id: Date.now().toString(),
@@ -136,6 +136,17 @@ export default function OnboardingStep3() {
          imageUrl: '',
          status: 'draft'
       }]);
+    };
+
+   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+      const file = e.target.files?.[0];
+      if (file) {
+         const reader = new FileReader();
+         reader.onloadend = () => {
+            handleUpdateItem(id, { imageUrl: reader.result as string });
+         };
+         reader.readAsDataURL(file);
+      }
    };
 
    // 2. Individual Item Save to Database
@@ -282,7 +293,7 @@ export default function OnboardingStep3() {
                <Lightbulb className="w-4 h-4 text-[#f4c24d] mt-0.5 flex-shrink-0" />
                <p className="text-[10px] text-gray-600 font-medium leading-relaxed">
                  <span className="text-[#f4c24d] font-bold mr-1">Tip for more gifts:</span> 
-                 We recommend listing at least two items: a coffee on its own, and a coffee with a treat (like a scone or cake). This gives gift senders more choice and increases your chances of being selected for corporate and bulk gifting orders.
+                 We recommend listing at least two items: start with a coffee on its own as your first item - this enables bulk orders from corporates and community groups. Then add a coffee with a treat for more gifting options.
                </p>
             </div>
             <p className="text-[9px] font-medium text-gray-500 px-1 italic">Keep it simple, up to 5 items per café</p>
@@ -304,10 +315,21 @@ export default function OnboardingStep3() {
                                 <Camera className="w-8 h-8 opacity-50" />
                              </div>
                           )}
-                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                           <input 
+                              type="file" 
+                              accept="image/*"
+                              id={`file-${item.id}`}
+                              className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+                              onChange={(e) => handleFileChange(e, item.id)}
+                           />
                        </div>
                        <div className="flex flex-col items-center gap-1.5 mt-1">
-                         <span className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline">Change Image</span>
+                          <label 
+                            htmlFor={`file-${item.id}`}
+                            className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline"
+                          >
+                            Change Image
+                          </label>
                          <div className="flex items-center gap-1 text-[#6ca3a4] cursor-pointer hover:underline opacity-80 mt-1 pb-2">
                             <Wand2 className="w-3 h-3" />
                             <span className="text-[9px] font-bold">Optimize with AI</span>

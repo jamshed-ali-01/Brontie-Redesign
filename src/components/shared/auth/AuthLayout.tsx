@@ -32,24 +32,22 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
           {/* Left Yellow Section */}
           <div className="h-full md:w-[45%] w-full bg-[#f4c24d] relative shrink-0">
             {/* Outline Coffee Beans Top Left */}
-            <div className="absolute top-[8%] -left-[8%]">
-              <div className="relative  size-44  ">
+            <div className="absolute top-[10%] md:-left-[8%] -left-[5%]">
+              <div className="relative  md:size-44 size-30  ">
                 <Image src="/images/onboarding/Coffee-Bean.png" alt="" fill className="filter brightness-0 object-contain opacity-60" />
               </div>
             </div>
 
 
             {/* Elegantly placed Curve - using a better positioned rounded element for a smoother arc */}
-            <div className="absolute bg-[#fef6eb] max-md:top-[15%] max-md:bottom-[-10%] max-md:-left-[25%] max-md:w-[150%] max-md:rounded-t-[100%] max-md:shadow-[0_-10px_30px_rgba(0,0,0,0.02)] md:top-[-10%] md:bottom-[-10%] md:-right-[80%] md:w-[130%] md:rounded-l-[100%] md:shadow-[-10px_0_30px_rgba(0,0,0,0.02)]"></div>
+            <div className="absolute bg-[#fef6eb] max-md:top-[21%] max-md:bottom-[30%] max-md:-left-[25%] max-md:w-[150%] max-md:rounded-t-[100%] max-md:shadow-[0_-10px_30px_rgba(0,0,0,0.02)] md:top-[-10%] md:bottom-[-10%] md:-right-[80%] md:w-[130%] md:rounded-l-[100%] md:shadow-[-10px_0_30px_rgba(0,0,0,0.02)] max-md:h-full"></div>
 
             {/* Coffee Cups Heart Visualization - Bottom Left */}
-            <div className="absolute bottom-[8%] left-[6%] w-[280px] h-[280px] z-10 pointer-events-none flex items-center justify-center translate-y-[10%]">
+            <div className="absolute md:bottom-[8%] max-md:top-[10%]  md:left-[6%] -right-[2%] md:size-[280px] size-[120px] z-10 pointer-events-none flex items-center justify-center translate-y-[10%] ">
               {/* Using the Heart.svg asset for the loop */}
               <div className="absolute inset-0 scale-125">
-                <Image src="/images/onboarding/Heart.png" alt="" fill className="object-contain " />
-              </div>
-
-
+                <Image src="/images/onboarding/Heart.png" alt="" fill className="object-contain" />
+              </div> 
             </div>
           </div>
 
@@ -61,7 +59,7 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
         <div className="relative z-10 w-full flex items-center justify-end md:justify-center p-6 md:p-8 min-h-full">
           <div className="w-full max-w-[640px] md:pl-[8%] lg:pl-[12%] pt-2 pb-8">
             {title && (
-              <div className="text-center mb-8   mx-auto">
+              <div className="text-center md:mb-8 mb-10  mx-auto">
                 <h1 className={`text-[36px] md:text-[52px] md:text-[#6ca3a4] text-black mb-1.5 ${lobster.className} leading-tight`}>{title}</h1>
                 {subtitle && <p className="md:text-slate-500 text-black/90 text-xs md:text-[12px] max-w-[320px] md:max-w-[460px] mx-auto">{subtitle}</p>}
               </div>

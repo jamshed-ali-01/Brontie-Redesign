@@ -73,10 +73,10 @@ Free to join. No training needed. Get paid via Stripe."
     >
 
       {/* Premium Design Card */}
-      <div className="bg-white rounded-[40px] shadow-2xl shadow-[#6ca3a4]/5 p-10 w-full max-w-[640px] mx-auto border border-white flex flex-col items-center">
+      <div className="bg-white md:rounded-[40px] rounded-[30px] shadow-2xl shadow-[#6ca3a4]/5 md:p-10 p-8 w-full max-w-[640px] mx-auto border border-white flex flex-col items-center max-md:mt-28 ">
         <div className="space-y-8 w-full">
           <div className="text-center space-y-2">
-            <h2 className={`text-[28px] text-[#2c3e50] ${lobster.className}`}>
+            <h2 className={`md:text-[28px] text-[26px] text-[#2c3e50] ${lobster.className}`}>
               Create your account
             </h2>
 

@@ -94,15 +94,34 @@ function CafeLoginPageContent() {
     }
   };
 
-  const handleMagicalCodeSubmit = (e: React.FormEvent) => {
+  const handleMagicalCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!magicalCode.trim()) {
-      setError('Please enter your magical code');
+      setError('Please enter your business email');
       return;
     }
     setLoading(true);
-    // Direct redirect to the magic login API
-    window.location.href = `/api/auth/cafe-magic-login?token=${magicalCode.trim()}`;
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const response = await fetch('/api/auth/cafe-send-magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: magicalCode.trim() }),
+      });
+
+      if (response.ok) {
+        setSuccessMessage('Sign-in link sent! Please check your email.');
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to send sign-in link');
+      }
+    } catch {
+      setError('Network error. Try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -151,11 +170,11 @@ function CafeLoginPageContent() {
               {activeTab === 'magic' ? (
                 <div>
                   <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-70">
-                    Your Magical Code
+                    BUSINESS EMAIL
                   </label>
                   <input
-                     type="text"
-                     placeholder="Enter your 12-digit code"
+                     type="email"
+                     placeholder="Where should we send your code?"
                      value={magicalCode}
                      onChange={(e) => setMagicalCode(e.target.value)}
                      required
@@ -224,7 +243,7 @@ function CafeLoginPageContent() {
             className="w-full bg-[#f4c24d] text-[#2c3e50] font-bold h-[50px] rounded-[18px] flex items-center justify-center space-x-3 hover:bg-[#e5b54d] transition-all group shadow-2xl shadow-[#f4c24d]/20 relative active:scale-95 disabled:opacity-50"
           >
             <span className="text-[12px] uppercase tracking-wider">
-              {loading ? 'Processing...' : (activeTab === 'magic' ? 'Sign In with Code' : 'Sign In')}
+              {loading ? 'Processing...' : (activeTab === 'magic' ? 'Send me a sign-in link' : 'Sign In')}
             </span>
             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform stroke-[3]" />}
           </button>

@@ -99,7 +99,7 @@ Free to join. No training needed. Get paid via Stripe."
               <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-70">Business Email</label>
               <input
                 type="email"
-                placeholder="Where should we send your code?"
+                placeholder="Enter Your Business Email"
                 value={merchantData.businessEmail}
                 onChange={(e) => setMerchantData(prev => ({ ...prev, businessEmail: e.target.value }))}
                 className="w-full bg-[#FBECCE] px-3 rounded-[12px] text-[#2c3e50]   border-2 border-transparent focus:border-[#f4c24d] transition-all text-[13px] h-[50px]   placeholder:text-gray-400"

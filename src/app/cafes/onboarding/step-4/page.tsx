@@ -89,8 +89,8 @@ export default function OnboardingStep4() {
           <label className="block text-[11px] font-bold text-black mb-1 font-sans">Brand Logo</label>
           <div className={`relative bg-white rounded-[24px] py-8 px-6 border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center gap-2 ${logo ? 'border-[#6ca3a4]' : 'border-slate-200 hover:border-slate-300'}`}>
             {logo ? (
-              <div className="relative w-32 h-32 rounded-[20px] overflow-hidden shadow-sm border border-gray-100">
-                <Image src={logo} alt="Logo" layout="fill" objectFit="cover" />
+              <div className="relative w-32 h-32 rounded-[20px] overflow-hidden shadow-sm border border-gray-100 bg-gray-50/50">
+                <Image src={logo} alt="Logo" layout="fill" objectFit="contain" />
                 <button onClick={() => setLogo(null)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 transition-colors z-10">
                   <X className="w-3.5 h-3.5 stroke-[3]" />
                 </button>
@@ -122,8 +122,8 @@ export default function OnboardingStep4() {
           <label className="block text-[11px] font-bold text-black mb-1 font-sans mt-2">Brand Image</label>
           <div className={`relative bg-white rounded-[24px] py-8 px-6 border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center gap-2 ${brandingPhoto ? 'border-[#6ca3a4]' : 'border-slate-200 hover:border-slate-300'}`}>
             {brandingPhoto ? (
-              <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-sm border border-gray-100">
-                <Image src={brandingPhoto} alt="Branding" layout="fill" objectFit="cover" />
+              <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-sm border border-gray-100 bg-gray-50/50">
+                <Image src={brandingPhoto} alt="Branding" layout="fill" objectFit="contain" />
                 <button onClick={() => setBrandingPhoto(null)} className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-xl shadow-sm hover:bg-red-600 transition-colors z-10">
                   <X className="w-4 h-4 stroke-[3]" />
                 </button>

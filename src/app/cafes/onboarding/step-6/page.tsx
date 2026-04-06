@@ -168,35 +168,76 @@ function BrandingAsset({
           (useLogo && merchantLogo) ? loadImage(merchantLogo) : Promise.resolve(null)
         ]);
 
-        // 1. Draw Template Background
+        // 1. Draw Template Background (Fit-to-Width strategy, anchored to TOP-LEFT)
         if (templateImg) {
-          ctx.drawImage(templateImg, 0, 0, width, height);
+          const scale = width / templateImg.width;
+          const drawWidth = width;
+          const drawHeight = templateImg.height * scale;
+          
+          const drawX = 0; // Fit exactly to width, NO horizontal shifting
+          const drawY = 0; // Anchor to TOP
+          
+          // Set high quality smoothing settings
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          
+          ctx.drawImage(templateImg, drawX, drawY, drawWidth, drawHeight);
         } else {
           ctx.fillStyle = '#fdf8f2';
           ctx.fillRect(0, 0, width, height);
         }
 
+        // --- DESIGN CONFIGURATIONS (Isolated) ---
+        const configs: Record<string, any> = {
+          poster: {
+            cupWidthFactor: 0.58,
+            cupYFactor: 0.28,
+            logoMaxWFactor: 0.30,
+            logoMaxHFactor: 0.10,
+            marginXFactor: 0.12,
+            marginYFactor: 0.04
+          },
+          story: {
+            cupWidthFactor: 0.38,
+            cupYFactor: 0.38,
+            logoMaxWFactor: 0.22,
+            logoMaxHFactor: 0.08,
+            marginXFactor: 0.08,
+            marginYFactor: 0.04
+          },
+          post: {
+            cupWidthFactor: 0.38,
+            cupYFactor: 0.32,
+            logoMaxWFactor: 0.22,
+            logoMaxHFactor: 0.08,
+            marginXFactor: 0.08,
+            marginYFactor: 0.04
+          }
+        };
+
+        const config = configs[designType] || configs.post;
+
         // Overlay Coffee and Logo on Poster/Social
         // 2. Coffee Cup Image (Dynamic)
         if (coffeeImg) {
-          const cupWidth = width * 0.38; // Scaled down for alignment
+          const cupWidth = width * config.cupWidthFactor;
           const cupHeight = cupWidth * (coffeeImg.height / coffeeImg.width);
           const cupX = (width - cupWidth) / 2;
-          const cupY = height * (designType === 'story' ? 0.38 : 0.32);
+          const cupY = height * config.cupYFactor;
 
           ctx.drawImage(coffeeImg, cupX, cupY, cupWidth, cupHeight);
         }
 
         // 3. Merchant Logo (Dynamic)
         if (logoImg) {
-          const logoMaxW = width * 0.22;
-          const logoMaxH = height * 0.08;
+          const logoMaxW = width * config.logoMaxWFactor;
+          const logoMaxH = height * config.logoMaxHFactor;
           const ratio = Math.min(logoMaxW / logoImg.width, logoMaxH / logoImg.height);
           const logoW = logoImg.width * ratio;
           const logoH = logoImg.height * ratio;
           
-          const marginX = width * 0.08;
-          const marginY = height * 0.04;
+          const marginX = width * config.marginXFactor;
+          const marginY = height * config.marginYFactor;
           ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
         }
       }

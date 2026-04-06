@@ -84,7 +84,7 @@ Free to join. No training needed. Get paid via Stripe."
 
           <div className="space-y-6">
             <div>
-              <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-70">Business Name</label>
+              <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-90">Business Name</label>
               <input
                 type="text"
                 placeholder="Enter your Business Name"
@@ -96,10 +96,10 @@ Free to join. No training needed. Get paid via Stripe."
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-70">Business Email</label>
+              <label className="block text-[10px] font-bold text-black mb-2 uppercase  font-sans opacity-90">Your Email</label>
               <input
                 type="email"
-                placeholder="Where should we send your code?"
+                placeholder="Your Email"
                 value={merchantData.businessEmail}
                 onChange={(e) => setMerchantData(prev => ({ ...prev, businessEmail: e.target.value }))}
                 className="w-full bg-[#FBECCE] px-3 rounded-[12px] text-[#2c3e50]   border-2 border-transparent focus:border-[#f4c24d] transition-all text-[13px] h-[50px]   placeholder:text-gray-400"
@@ -136,7 +136,7 @@ Free to join. No training needed. Get paid via Stripe."
           </span>
           {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform  " />}
         </button>
-        <p className="text-center text-gray-500 text-[12px] mt-2  font-medium  opacity-60">
+        <p className="text-center text-gray-500 text-[12px] mt-2  font-medium   ">
           Check your email for a secure login link.
         </p>
       </div>

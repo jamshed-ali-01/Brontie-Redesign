@@ -7,6 +7,7 @@ import { Coffee } from 'lucide-react';
 
 import SetupProgress from './SetupProgress';
 import SetupActions from './SetupActions';
+import Image from 'next/image';
 
 const lobster = Lobster({
   weight: '400',
@@ -56,11 +57,12 @@ export default function SetupLayout({
   return (
     <div className="min-h-screen flex flex-col font-sans overflow-x-hidden bg-[#f4c24d]">
       {/* Header */}
-      <header className="h-[64px] bg-[#6ca3a4] relative z-50 flex items-center px-10 shrink-0">
-        <Link href="/" className="inline-block">
-          <span className={`text-[#f4c24d] text-[26px] leading-none block pt-0.5 ${lobster.className}`}>Brontie</span>
+     <header className="h-[64px] bg-[#6ca3a4] relative z-50 flex items-center px-10 shrink-0">
+        <Link href="/" className="relative w-[160px] h-[42px] block">
+          <Image src="/images/logo-main.svg" alt="Brontie" fill className="object-contain object-left" /> 
         </Link>
       </header>
+
 
       {/* Main Content with Branded Background */}
       <main className="flex-1 relative flex flex-col items-center">

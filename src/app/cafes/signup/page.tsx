@@ -68,8 +68,12 @@ export default function CafeSignupPage() {
   return (
     <AuthLayout
       title="Join Brontie"
-      subtitle="Let customers send coffee gifts from your café
-Free to join. No training needed. Get paid via Stripe."
+      subtitle={
+        <>
+          Let customers send coffee gifts from your café<br />
+          Free to join. No training needed. Get paid via Stripe.
+        </>
+      }
     >
 
       {/* Premium Design Card */}
@@ -108,12 +112,12 @@ Free to join. No training needed. Get paid via Stripe."
             </div>
 
             {errors.global && (
-              <div className="bg-red-50 text-red-600 text-[11px] font-black p-4 rounded-[16px] border border-red-100 font-sans text-center italic shadow-sm animate-in fade-in zoom-in">
+              <div className="bg-red-50 text-red-600 text-[12px] font-semibold p-4 rounded-[16px] border border-red-100 font-sans text-center shadow-sm animate-in fade-in zoom-in">
                 {errors.global}
               </div>
             )}
             {errors.success && (
-              <div className="bg-green-50 text-green-600 text-[11px] font-black p-4 rounded-[16px] border border-green-100 font-sans text-center italic shadow-sm animate-in fade-in zoom-in">
+              <div className="bg-green-50 text-green-600 text-[12px] font-semibold p-4 rounded-[16px] border border-green-100 font-sans text-center shadow-sm animate-in fade-in zoom-in">
                 {errors.success}
                 <div className="mt-3">
                   <Link href="/cafes/login" className="text-[#6ca3a4] underline uppercase   text-[9px] hover:text-[#2c3e50] transition-colors">Go to Login</Link>
@@ -142,26 +146,13 @@ Free to join. No training needed. Get paid via Stripe."
       </div>
 
       {/* Refined Partner Logos */}
-      <div className="w-full max-w-[500px] mx-auto mt-8 text-center space-y-6">
-        <div className="flex items-center justify-center gap-10 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-          <div className="flex flex-col items-center">
-            <span className="font-serif text-[#6ca3a4] text-[13px] font-black uppercase tracking-tight leading-none text-center">
-              Willow<br />&amp; Wild
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className={`text-[#813B44] text-[28px] ${lobster.className}`}>
-              shoda
-              <span className="block text-[6px] uppercase tracking-[0.2em] font-sans font-black mt-[-4px]">Market Cafe</span>
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="font-sans font-black text-gray-800 text-[18px] tracking-[0.3em] uppercase">
-              T Y P O
-            </span>
-          </div>
+      <div className="w-full max-w-[500px] mx-auto mt-8 space-y-6 text-center">
+        <div className="flex items-center justify-center gap-6 md:gap-10 transition-all duration-700">
+           <img src="/images/onboarding/wilowandwild.png" alt="Willow & Wild" className="h-6 md:h-10 object-contain" /> 
+           <img src="/images/onboarding/shoda.png" alt="Shoda Market Café" className="h-6 md:h-10 object-contain" /> 
+           <img src="/images/onboarding/typologo.png" alt="Typo Coffee" className="h-6 md:h-10 object-contain" /> 
         </div>
-        <p className="text-gray-600 text-[11px] font-medium  max-w-[320px] mx-auto">
+        <p className="text-black  text-[11px] font-medium  max-w-[320px] mx-auto">
           Trusted by Willow & Wild, Shoda Market Café, Typo Coffee Roasters, SO Coffee and more
         </p>
       </div>

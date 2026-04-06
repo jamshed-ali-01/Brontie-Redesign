@@ -12,7 +12,7 @@ const lobster = Lobster({
 interface AuthLayoutProps {
   children: React.ReactNode;
   title?: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
 }
 
 export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
@@ -62,7 +62,7 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
             {title && (
               <div className="text-center md:mb-8 mb-10  mx-auto">
                 <h1 className={`text-[36px] md:text-[52px] md:text-[#6ca3a4] text-black mb-1 ${lobster.className} leading-tight`}>{title}</h1>
-                {subtitle && <p className="md:text-slate-500 text-black/90 text-xs md:text-[11px] max-w-[320px] md:max-w-[300px]  leading-tight mx-auto font-medium font-sans">{subtitle}</p>}
+                {subtitle && <p className="md:text-slate-500 text-black/90 text-xs md:text-[11px] max-w-[320px] md:max-w-[460px]  leading-tight mx-auto font-medium font-sans">{subtitle}</p>}
               </div>
             )}
             {children}

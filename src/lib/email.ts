@@ -604,8 +604,8 @@ export const sendMerchantSignupEmail = async (email: string, data: { name: strin
   try {
     const transporter = createTransporter();
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const loginLink = `${baseUrl}/cafes/login`;
     const magicCode = data.magicLinkToken;
+    const loginLink = `${baseUrl}/api/auth/cafe-magic-login?token=${magicCode}`;
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -674,20 +674,15 @@ export const sendMerchantSignupEmail = async (email: string, data: { name: strin
           </div>
 
           <p style="font-size: 16px; color: #555; margin-bottom: 30px;">
-            We're excited to have you on board. Copy the magical code below and paste it into the login page to access your dashboard.
+            We're excited to have you on board. Click the button below to sign in directly to your dashboard. No password or code needed!
           </p>
           
-          <div style="background-color: #fef6eb; border: 2px dashed #f4c24d; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <span style="font-family: monospace; font-size: 32px; font-weight: bold; color: #2c3e50; letter-spacing: 4px;">${magicCode}</span>
-            <p style="font-size: 12px; color: #6ca3a4; margin-top: 10px; font-weight: bold; uppercase;">Your Magical Code</p>
-          </div>
-
           <a href="${loginLink}" class="cta-button">
-            Go to Login Page
+            Sign In to Dashboard
           </a>
 
           <p style="font-size: 14px; color: #999; margin-top: 30px;">
-            This code will expire in 7 days and is valid for one-time use until you set your password.
+            This magic link is for <strong>one-time use</strong> and will expire once you are logged in.
           </p>
 
           <div class="footer">

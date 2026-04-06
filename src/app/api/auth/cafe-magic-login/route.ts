@@ -24,12 +24,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/cafes/login?error=invalid_token', request.url));
     }
 
-    // Security: If the merchant has already set a password, they should not use Magic Code anymore
-    if (merchant.password && merchant.password.trim() !== "") {
-      return NextResponse.redirect(new URL('/cafes/login?error=password_set', request.url));
-    }
-
-    // Persist token until password set (cleared in password update APIs)
+    // Invalidate token after first use (One-time login)
+    merchant.magicLinkToken = "";
+    await merchant.save();
 
     // Generate JWT token
     const jwtToken = jwt.sign(

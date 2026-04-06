@@ -21,11 +21,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (!merchant) {
-      // For security, don't reveal if account exists or not if not approved
       return NextResponse.json({ 
-        success: true, 
-        message: 'If an approved account exists, a sign-in link has been sent.' 
-      });
+        error: 'No account found with this email.' 
+      }, { status: 404 });
     }
 
     // Generate token

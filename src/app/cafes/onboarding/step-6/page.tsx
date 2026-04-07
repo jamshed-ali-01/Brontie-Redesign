@@ -401,7 +401,7 @@ function OrderModal({
    );
 }
 
-function ExperienceBrontie() {
+function ExperienceBrontie({ defaultItemImage }: { defaultItemImage?: string }) {
    const router = useRouter();
    const [demoId, setDemoId] = useState<string | null>(null);
    const [demoData, setDemoData] = useState<any>(null);
@@ -583,8 +583,8 @@ function ExperienceBrontie() {
 
                <div className="flex gap-4 items-center pl-1">
                   <div className="w-24 h-24 bg-gray-100 rounded-[12px] overflow-hidden shrink-0 shadow-sm border border-gray-100">
-                     {demoData?.itemImage ? (
-                        <img src={demoData.itemImage} alt="Voucher" className="w-full h-full object-cover" />
+                     {demoData?.itemImage || defaultItemImage ? (
+                        <img src={demoData?.itemImage || defaultItemImage} alt="Voucher" className="w-full h-full object-cover" />
                      ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xl">☕</div>
                      )}
@@ -829,11 +829,25 @@ function OnboardingStep6Content() {
            </div>
            
            <div className="bg-white px-4 py-2 rounded-[16px] flex justify-between items-center border border-gray-100 ">
-              <div className="flex items-center gap-3">
-                 <Link2 className="size-4 stroke-[2.5]" color='#6ca3a4' /> 
-                 <span className="text-[12px] font-bold text-[#6CA3A4]">brontie.ie/your-cafe</span>
+              <div className="flex items-center gap-3 overflow-hidden">
+                 <Link2 className="size-4 stroke-[2.5] shrink-0" color='#6ca3a4' /> 
+                 <span className="text-[12px] font-bold text-[#6CA3A4] truncate">
+                    {merchantData?._id 
+                       ? `${window.location.host}/products?merchant=${merchantData._id}`
+                       : 'brontie.ie/products?merchant=...'
+                    }
+                 </span>
               </div>
-              <button className="w-8 h-8 rounded-full bg-[#6ca3a4] flex items-center justify-center text-white hover:brightness-110 shadow-sm">
+              <button 
+                onClick={() => {
+                  if (merchantData?._id) {
+                    const url = `${window.location.origin}/products?merchant=${merchantData._id}`;
+                    navigator.clipboard.writeText(url);
+                    toast.success('Link copied to clipboard!');
+                  }
+                }}
+                className="w-8 h-8 rounded-full bg-[#6ca3a4] flex items-center justify-center text-white hover:brightness-110 shadow-sm shrink-0"
+              >
                  <Copy className="size-3 stroke-[2.5]" color='#fff' />
               </button>
            </div>
@@ -947,7 +961,7 @@ function OnboardingStep6Content() {
            </div>
 
            {/* Interactive Experience Section */}
-           <ExperienceBrontie />
+           <ExperienceBrontie defaultItemImage={firstItemImage} />
         </div>
 
       </div>

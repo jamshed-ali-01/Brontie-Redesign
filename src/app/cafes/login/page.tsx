@@ -127,7 +127,11 @@ function CafeLoginPageContent() {
   return (
     <AuthLayout 
       title="Welcome to Brontie" 
-      subtitle="Join Ireland's café gifting platform. Let your community send coffees and treats into people they appreciate, redeemed right at your counter."
+      subtitle={
+        <>
+         Join Ireland's café gifting platform. Let your community send coffees <br /> and treats to people they appreciate, redeemed right at your counter.
+        </>
+      }
     >
       <form onSubmit={activeTab === 'magic' ? handleMagicalCodeSubmit : handlePasswordSubmit} className="w-full">
         {/* Main Card */}
@@ -222,13 +226,13 @@ function CafeLoginPageContent() {
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 text-[11px] font-black p-4 rounded-[16px] border border-red-100 font-sans text-center italic shadow-sm animate-in fade-in zoom-in duration-300">
+              <div className="bg-red-50 text-red-600 text-[12px] font-semibold p-4 rounded-[16px] border border-red-100  text-center   shadow-sm animate-in fade-in zoom-in duration-300">
                 {error}
               </div>
             )}
 
             {successMessage && (
-              <div className="bg-green-50 text-green-600 text-[11px] font-black p-4 rounded-[16px] border border-green-100 font-sans text-center italic shadow-sm animate-in fade-in zoom-in duration-300">
+              <div className="bg-green-50 text-green-600 text-[12px] font-semibold p-4 rounded-[16px] border border-green-100  text-center   shadow-sm animate-in fade-in zoom-in duration-300">
                 {successMessage}
               </div>
             )}

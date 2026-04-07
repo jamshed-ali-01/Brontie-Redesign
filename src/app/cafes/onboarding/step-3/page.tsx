@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { 
   Plus, 
   Check, 
@@ -127,7 +128,19 @@ export default function OnboardingStep3() {
    };
 
     const handleAddItem = () => {
-      if (items.length >= 10) return;
+      if (items.length >= 5) {
+        toast.error('You can only add a maximum of 5 coffees.', {
+          style: {
+            borderRadius: '16px',
+            background: '#2c3e50',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: 'bold',
+          },
+          icon: '☕',
+        });
+        return;
+      }
       setItems(prev => [...prev, {
          id: Date.now().toString(),
          name: '',
@@ -417,10 +430,8 @@ export default function OnboardingStep3() {
             })}
           </div>
 
-          {/* Add Another Item Button */}
           <button 
             onClick={handleAddItem} 
-            disabled={items.length >= 10}
             className="w-full h-14 bg-transparent border-2 border-dashed border-[#6ca3a4] rounded-[12px] flex items-center justify-center gap-2 transition-all hover:bg-[#6ca3a4]/5 opacity-60 hover:opacity-100 my-2"
           >
             <Plus className="w-4 h-4 text-[#6ca3a4]" />

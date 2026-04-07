@@ -140,11 +140,11 @@ export default function OnboardingPage() {
               </div>
               
               <div className="flex-1 ml-4 text-left">
-                <h3 className="text-[13.5px] font-bold text-black tracking-tight leading-none mb-1">
+                <h3 className="text-[14px] font-semibold text-black   leading-none mb-1 font-sans">
                   {step.title}
-                  {step.isOptional && <span className="text-[9px] text-[#b0bec5] font-black ml-1 font-sans opacity-60">(Optional)</span>}
+                  {step.isOptional && <span className="text-[10px] text-gray-500  ml-1 font-sans">(Optional)</span>}
                 </h3>
-                <p className="text-[10px] text-gray-400 ">{step.description}</p>
+                <p className="text-[10px] text-gray-500 ">{step.description}</p>
               </div>
               
               <div className="ml-3 shrink-0">
@@ -174,7 +174,7 @@ export default function OnboardingPage() {
           <span className="text-[12px] uppercase tracking-wider">Continue Setup</span>
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform  " />
         </button>
-        <p className="text-[#a0aab2] text-[12px] mt-3 text-center  ">
+        <p className="text-gray-500 text-[12px] mt-3 text-center  ">
          Takes 3-5 minutes. You can save and return anytime
         </p>
       </div>

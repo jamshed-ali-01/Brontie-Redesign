@@ -156,7 +156,7 @@ export default function OnboardingStep1() {
             {showValidation && !formData.phone && (
               <p className="text-[10px] text-red-500 font-bold mt-2 ml-1 animate-in fade-in italic">Phone number is required</p>
             )}
-            <p className="text-[10px] text-gray-500 font-bold ml-1 opacity-60">Only used by Brontie, not shown publicly</p>
+            <p className="text-[10px] text-black/90  ml-1 ">Only used by Brontie, not shown publicly</p>
           </div>
 
           <div className="space-y-3">

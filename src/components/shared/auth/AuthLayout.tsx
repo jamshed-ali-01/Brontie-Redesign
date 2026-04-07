@@ -12,7 +12,7 @@ const lobster = Lobster({
 interface AuthLayoutProps {
   children: React.ReactNode;
   title?: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
 }
 
 export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
@@ -20,8 +20,8 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
     <div className="min-h-screen flex flex-col font-sans overflow-hidden bg-[#fef6eb]">
       {/* Header */}
       <header className="h-[64px] bg-[#6ca3a4] relative z-50 flex items-center px-10 shrink-0">
-        <Link href="/" className="inline-block relative z-10">
-          <span className={`text-[#f4c24d] text-[26px] leading-none block pt-0.5 ${lobster.className}`}>Brontie</span>
+        <Link href="/" className="relative w-[160px] h-[42px] block">
+          <Image src="/images/logo-main.svg" alt="Brontie" fill className="object-contain object-left" /> 
         </Link>
       </header>
 
@@ -52,6 +52,7 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
           </div>
 
           {/* Right Cream Section */}
+         
           <div className="flex-1 bg-[#fef6eb]"></div>
         </div>
 
@@ -60,8 +61,8 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
           <div className="w-full max-w-[640px] md:pl-[8%] lg:pl-[12%] pt-2 pb-8">
             {title && (
               <div className="text-center md:mb-8 mb-10  mx-auto">
-                <h1 className={`text-[36px] md:text-[52px] md:text-[#6ca3a4] text-black mb-1.5 ${lobster.className} leading-tight`}>{title}</h1>
-                {subtitle && <p className="md:text-slate-500 text-black/90 text-xs md:text-[12px] max-w-[320px] md:max-w-[460px] mx-auto">{subtitle}</p>}
+                <h1 className={`text-[36px] md:text-[52px] md:text-[#6ca3a4] text-black mb-1 ${lobster.className} leading-tight`}>{title}</h1>
+                {subtitle && <p className="md:text-slate-500 text-black/90 text-xs md:text-[11px] max-w-[320px] md:max-w-[460px]  leading-tight mx-auto font-medium font-sans">{subtitle}</p>}
               </div>
             )}
             {children}

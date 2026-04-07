@@ -206,12 +206,12 @@ function BrandingAsset({
             marginYFactor: 0.04
           },
           post: {
-            cupWidthFactor: 0.38,
-            cupYFactor: 0.32,
-            logoMaxWFactor: 0.22,
-            logoMaxHFactor: 0.08,
-            marginXFactor: 0.08,
-            marginYFactor: 0.04
+            cupWidthFactor: 0.55,
+            cupYFactor: 0.26, // Moved up
+            logoMaxWFactor: 0.30,
+            logoMaxHFactor: 0.10,
+            marginXFactor: 0.12,
+            marginYFactor: 0.04  // Moved down
           }
         };
 

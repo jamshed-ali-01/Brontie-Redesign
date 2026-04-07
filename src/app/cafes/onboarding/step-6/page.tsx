@@ -98,69 +98,7 @@ function BrandingAsset({
         }
       };
 
-      // Load all assets in parallel
-      const [templateImg, coffeeImg, logoImg] = await Promise.all([
-        loadImage(getTemplatePath()),
-        itemImage ? loadImage(itemImage) : Promise.resolve(null),
-        (useLogo && merchantLogo) ? loadImage(merchantLogo) : Promise.resolve(null)
-      ]);
 
-      // 1. Draw Template Background
-      if (templateImg) {
-        ctx.drawImage(templateImg, 0, 0, width, height);
-      } else {
-        // Fallback
-        ctx.fillStyle = '#fdf8f2';
-        ctx.fillRect(0, 0, width, height);
-      }
-
-      if (designType === 'counter') {
-        // --- ORIGINAL TEAL COUNTER DESIGN ---
-        ctx.fillStyle = '#6ca3a4';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#f4c24d';
-        ctx.font = `${minDim * 0.22}px Lobster, cursive`;
-        ctx.fillText("Brontie", width / 2, height * 0.18);
-
-        ctx.fillStyle = '#f4c24d';
-        ctx.font = `bold ${minDim * 0.08}px sans-serif`;
-        ctx.fillText("Scan to gift a", width / 2, height * 0.85);
-        ctx.fillText("coffee from here", width / 2, height * 0.93);
-
-        if (merchantId) {
-          try {
-            const baseUrl = window.location.origin;
-            const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
-              margin: 2, scale: 10, color: { dark: '#000000', light: '#ffffff' }
-            });
-            const qrImg = await loadImage(qrUrl);
-            if (qrImg) {
-              const qrSize = minDim * 0.55;
-              const x = (width - qrSize) / 2;
-              const y = (height - qrSize) / 2;
-              const radius = minDim * 0.04;
-              ctx.fillStyle = '#ffffff';
-              ctx.beginPath();
-              ctx.moveTo(x + radius, y);
-              ctx.lineTo(x + qrSize - radius, y);
-              ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
-              ctx.lineTo(x + qrSize, y + qrSize - radius);
-              ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
-              ctx.lineTo(x + radius, y + qrSize);
-              ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
-              ctx.lineTo(x, y + radius);
-              ctx.quadraticCurveTo(x, y, x + radius, y);
-              ctx.closePath();
-              ctx.fill();
-              const padding = minDim * 0.02;
-              ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
-            }
-          } catch (e) { console.error("QR Error", e); }
-        }
-      } else {
-        // --- POSTER / SOCIAL DESIGN ---
         // Load all assets in parallel
         const [templateImg, coffeeImg, logoImg] = await Promise.all([
           loadImage(getTemplatePath()),
@@ -174,14 +112,17 @@ function BrandingAsset({
           const drawWidth = width;
           const drawHeight = templateImg.height * scale;
           
-          const drawX = 0; // Fit exactly to width, NO horizontal shifting
-          const drawY = 0; // Anchor to TOP
+          const drawX = 0; 
+          const drawY = 0; 
           
-          // Set high quality smoothing settings
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           
           ctx.drawImage(templateImg, drawX, drawY, drawWidth, drawHeight);
+        } else if (designType === 'counter') {
+          // Fallback teal for counter if no template
+          ctx.fillStyle = '#6ca3a4';
+          ctx.fillRect(0, 0, width, height);
         } else {
           ctx.fillStyle = '#fdf8f2';
           ctx.fillRect(0, 0, width, height);
@@ -192,55 +133,97 @@ function BrandingAsset({
           poster: {
             cupWidthFactor: 0.58,
             cupYFactor: 0.28,
-            logoMaxWFactor: 0.30,
-            logoMaxHFactor: 0.10,
+            logoMaxWFactor: 0.35,
+            logoMaxHFactor: 0.12,
             marginXFactor: 0.12,
-            marginYFactor: 0.04
+            marginYFactor: 0.08
           },
           story: {
-            cupWidthFactor: 0.60, // Slightly larger
-            cupYFactor: 0.28,    // Slightly higher
-            logoMaxWFactor: 0.30,
-            logoMaxHFactor: 0.10,
+            cupWidthFactor: 0.60,
+            cupYFactor: 0.28,
+            logoMaxWFactor: 0.35,
+            logoMaxHFactor: 0.12,
             marginXFactor: 0.12,
-            marginYFactor: 0.06
+            marginYFactor: 0.10
           },
           post: {
             cupWidthFactor: 0.55,
-            cupYFactor: 0.26, // Moved up
-            logoMaxWFactor: 0.30,
-            logoMaxHFactor: 0.10,
+            cupYFactor: 0.26,
+            logoMaxWFactor: 0.35,
+            logoMaxHFactor: 0.12,
             marginXFactor: 0.12,
-            marginYFactor: 0.04  // Moved down
+            marginYFactor: 0.08
+          },
+          counter: {
+            qrSizeFactor: 0.65, // Increased size
+            qrYFactor: 0.50,
+            qrRadiusFactor: 0.04,
+            qrPaddingFactor: 0.02
           }
         };
 
         const config = configs[designType] || configs.post;
 
-        // Overlay Coffee and Logo on Poster/Social
-        // 2. Coffee Cup Image (Dynamic)
-        if (coffeeImg) {
-          const cupWidth = width * config.cupWidthFactor;
-          const cupHeight = cupWidth * (coffeeImg.height / coffeeImg.width);
-          const cupX = (width - cupWidth) / 2;
-          const cupY = height * config.cupYFactor;
+        // Overlay Elements
+        if (designType === 'counter') {
+          // --- COUNTER SIGN QR CODE ---
+          if (merchantId) {
+            try {
+              const baseUrl = window.location.origin;
+              const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
+                margin: 2, scale: 10, color: { dark: '#000000', light: '#ffffff' }
+              });
+              const qrImg = await loadImage(qrUrl);
+              if (qrImg) {
+                const qrSize = minDim * config.qrSizeFactor;
+                const x = (width - qrSize) / 2;
+                const y = height * config.qrYFactor - (qrSize / 2); // Position based on factor
+                const radius = minDim * config.qrRadiusFactor;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + qrSize - radius, y);
+                ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
+                ctx.lineTo(x + qrSize, y + qrSize - radius);
+                ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
+                ctx.lineTo(x + radius, y + qrSize);
+                ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                ctx.fill();
+                
+                const padding = minDim * config.qrPaddingFactor;
+                ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
+              }
+            } catch (e) { console.error("QR Error", e); }
+          }
+        } else {
+          // --- POSTER / STORY / POST OVERLAYS ---
+          // 2. Coffee Cup Image (Dynamic)
+          if (coffeeImg) {
+            const cupWidth = width * config.cupWidthFactor;
+            const cupHeight = cupWidth * (coffeeImg.height / coffeeImg.width);
+            const cupX = (width - cupWidth) / 2;
+            const cupY = height * config.cupYFactor;
 
-          ctx.drawImage(coffeeImg, cupX, cupY, cupWidth, cupHeight);
-        }
+            ctx.drawImage(coffeeImg, cupX, cupY, cupWidth, cupHeight);
+          }
 
-        // 3. Merchant Logo (Dynamic)
-        if (logoImg) {
-          const logoMaxW = width * config.logoMaxWFactor;
-          const logoMaxH = height * config.logoMaxHFactor;
-          const ratio = Math.min(logoMaxW / logoImg.width, logoMaxH / logoImg.height);
-          const logoW = logoImg.width * ratio;
-          const logoH = logoImg.height * ratio;
-          
-          const marginX = width * config.marginXFactor;
-          const marginY = height * config.marginYFactor;
-          ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
+          // 3. Merchant Logo (Dynamic)
+          if (logoImg) {
+            const logoMaxW = width * config.logoMaxWFactor;
+            const logoMaxH = height * config.logoMaxHFactor;
+            const ratio = Math.min(logoMaxW / logoImg.width, logoMaxH / logoImg.height);
+            const logoW = logoImg.width * ratio;
+            const logoH = logoImg.height * ratio;
+            
+            const marginX = width * config.marginXFactor;
+            const marginY = height * config.marginYFactor;
+            ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
+          }
         }
-      }
     };
 
     renderPoster();
@@ -886,7 +869,7 @@ function OnboardingStep6Content() {
              <div className="min-w-[280px] md:min-w-0 snap-center">
                 <BrandingAsset 
                    title="Counter QR Sign (A5)" subtitle="Perfect for placing beside the till." 
-                   width={1748} height={1240} 
+                   width={1240} height={1748} 
                    merchantName={merchantData?.name || 'Your Café'} 
                    merchantLogo={merchantData?.logoUrl}
                    useLogo={useLogo}

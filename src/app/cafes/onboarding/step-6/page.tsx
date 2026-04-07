@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { jsPDF } from 'jspdf';
 import { 
   Check, 
   X, 
@@ -27,7 +29,8 @@ import {
   ScanLine,
   Link2,
   Lightbulb,
-  CircleAlert
+  CircleAlert,
+  Loader2
 } from 'lucide-react';
 import SetupLayout from '@/components/shared/auth/SetupLayout';
 import { Lobster } from 'next/font/google';
@@ -66,6 +69,7 @@ function BrandingAsset({
   designType?: 'poster' | 'post' | 'story' | 'counter';
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isRendering, setIsRendering] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -74,6 +78,7 @@ function BrandingAsset({
     if (!ctx) return;
 
     const renderPoster = async () => {
+      setIsRendering(true);
       const minDim = Math.min(width, height);
       
       // Helper to load image as a Promise
@@ -98,69 +103,7 @@ function BrandingAsset({
         }
       };
 
-      // Load all assets in parallel
-      const [templateImg, coffeeImg, logoImg] = await Promise.all([
-        loadImage(getTemplatePath()),
-        itemImage ? loadImage(itemImage) : Promise.resolve(null),
-        (useLogo && merchantLogo) ? loadImage(merchantLogo) : Promise.resolve(null)
-      ]);
 
-      // 1. Draw Template Background
-      if (templateImg) {
-        ctx.drawImage(templateImg, 0, 0, width, height);
-      } else {
-        // Fallback
-        ctx.fillStyle = '#fdf8f2';
-        ctx.fillRect(0, 0, width, height);
-      }
-
-      if (designType === 'counter') {
-        // --- ORIGINAL TEAL COUNTER DESIGN ---
-        ctx.fillStyle = '#6ca3a4';
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#f4c24d';
-        ctx.font = `${minDim * 0.22}px Lobster, cursive`;
-        ctx.fillText("Brontie", width / 2, height * 0.18);
-
-        ctx.fillStyle = '#f4c24d';
-        ctx.font = `bold ${minDim * 0.08}px sans-serif`;
-        ctx.fillText("Scan to gift a", width / 2, height * 0.85);
-        ctx.fillText("coffee from here", width / 2, height * 0.93);
-
-        if (merchantId) {
-          try {
-            const baseUrl = window.location.origin;
-            const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
-              margin: 2, scale: 10, color: { dark: '#000000', light: '#ffffff' }
-            });
-            const qrImg = await loadImage(qrUrl);
-            if (qrImg) {
-              const qrSize = minDim * 0.55;
-              const x = (width - qrSize) / 2;
-              const y = (height - qrSize) / 2;
-              const radius = minDim * 0.04;
-              ctx.fillStyle = '#ffffff';
-              ctx.beginPath();
-              ctx.moveTo(x + radius, y);
-              ctx.lineTo(x + qrSize - radius, y);
-              ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
-              ctx.lineTo(x + qrSize, y + qrSize - radius);
-              ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
-              ctx.lineTo(x + radius, y + qrSize);
-              ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
-              ctx.lineTo(x, y + radius);
-              ctx.quadraticCurveTo(x, y, x + radius, y);
-              ctx.closePath();
-              ctx.fill();
-              const padding = minDim * 0.02;
-              ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
-            }
-          } catch (e) { console.error("QR Error", e); }
-        }
-      } else {
-        // --- POSTER / SOCIAL DESIGN ---
         // Load all assets in parallel
         const [templateImg, coffeeImg, logoImg] = await Promise.all([
           loadImage(getTemplatePath()),
@@ -168,38 +111,125 @@ function BrandingAsset({
           (useLogo && merchantLogo) ? loadImage(merchantLogo) : Promise.resolve(null)
         ]);
 
-        // 1. Draw Template Background
+        // 1. Draw Template Background (Fit-to-Width strategy, anchored to TOP-LEFT)
         if (templateImg) {
-          ctx.drawImage(templateImg, 0, 0, width, height);
+          const scale = width / templateImg.width;
+          const drawWidth = width;
+          const drawHeight = templateImg.height * scale;
+          
+          const drawX = 0; 
+          const drawY = 0; 
+          
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          
+          ctx.drawImage(templateImg, drawX, drawY, drawWidth, drawHeight);
+        } else if (designType === 'counter') {
+          // Fallback teal for counter if no template
+          ctx.fillStyle = '#6ca3a4';
+          ctx.fillRect(0, 0, width, height);
         } else {
           ctx.fillStyle = '#fdf8f2';
           ctx.fillRect(0, 0, width, height);
         }
 
-        // Overlay Coffee and Logo on Poster/Social
-        // 2. Coffee Cup Image (Dynamic)
-        if (coffeeImg) {
-          const cupWidth = width * 0.38; // Scaled down for alignment
-          const cupHeight = cupWidth * (coffeeImg.height / coffeeImg.width);
-          const cupX = (width - cupWidth) / 2;
-          const cupY = height * (designType === 'story' ? 0.38 : 0.32);
+        // --- DESIGN CONFIGURATIONS (Isolated) ---
+        const configs: Record<string, any> = {
+          poster: {
+            cupWidthFactor: 0.58,
+            cupYFactor: 0.28,
+            logoMaxWFactor: 0.30,
+            logoMaxHFactor: 0.10,
+            marginXFactor: 0.12,
+            marginYFactor: 0.04
+          },
+          story: {
+            cupWidthFactor: 0.60,
+            cupYFactor: 0.28,
+            logoMaxWFactor: 0.30,
+            logoMaxHFactor: 0.10,
+            marginXFactor: 0.12,
+            marginYFactor: 0.06
+          },
+          post: {
+            cupWidthFactor: 0.55,
+            cupYFactor: 0.26,
+            logoMaxWFactor: 0.30,
+            logoMaxHFactor: 0.10,
+            marginXFactor: 0.12,
+            marginYFactor: 0.04
+          },
+          counter: {
+            qrSizeFactor: 0.65, // Increased size
+            qrYFactor: 0.50,
+            qrRadiusFactor: 0.04,
+            qrPaddingFactor: 0.02
+          }
+        };
 
-          ctx.drawImage(coffeeImg, cupX, cupY, cupWidth, cupHeight);
-        }
+        const config = configs[designType] || configs.post;
 
-        // 3. Merchant Logo (Dynamic)
-        if (logoImg) {
-          const logoMaxW = width * 0.22;
-          const logoMaxH = height * 0.08;
-          const ratio = Math.min(logoMaxW / logoImg.width, logoMaxH / logoImg.height);
-          const logoW = logoImg.width * ratio;
-          const logoH = logoImg.height * ratio;
-          
-          const marginX = width * 0.08;
-          const marginY = height * 0.04;
-          ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
+        // Overlay Elements
+        if (designType === 'counter') {
+          // --- COUNTER SIGN QR CODE ---
+          if (merchantId) {
+            try {
+              const baseUrl = window.location.origin;
+              const qrUrl = await QRCode.toDataURL(`${baseUrl}/products?merchant=${merchantId}`, {
+                margin: 2, scale: 10, color: { dark: '#000000', light: '#ffffff' }
+              });
+              const qrImg = await loadImage(qrUrl);
+              if (qrImg) {
+                const qrSize = minDim * config.qrSizeFactor;
+                const x = (width - qrSize) / 2;
+                const y = height * config.qrYFactor - (qrSize / 2); // Position based on factor
+                const radius = minDim * config.qrRadiusFactor;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + qrSize - radius, y);
+                ctx.quadraticCurveTo(x + qrSize, y, x + qrSize, y + radius);
+                ctx.lineTo(x + qrSize, y + qrSize - radius);
+                ctx.quadraticCurveTo(x + qrSize, y + qrSize, x + qrSize - radius, y + qrSize);
+                ctx.lineTo(x + radius, y + qrSize);
+                ctx.quadraticCurveTo(x, y + qrSize, x, y + qrSize - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                ctx.fill();
+                
+                const padding = minDim * config.qrPaddingFactor;
+                ctx.drawImage(qrImg, x + padding, y + padding, qrSize - 2 * padding, qrSize - 2 * padding);
+              }
+            } catch (e) { console.error("QR Error", e); }
+          }
+        } else {
+          // --- POSTER / STORY / POST OVERLAYS ---
+          // 2. Coffee Cup Image (Dynamic)
+          if (coffeeImg) {
+            const cupWidth = width * config.cupWidthFactor;
+            const cupHeight = cupWidth * (coffeeImg.height / coffeeImg.width);
+            const cupX = (width - cupWidth) / 2;
+            const cupY = height * config.cupYFactor;
+
+            ctx.drawImage(coffeeImg, cupX, cupY, cupWidth, cupHeight);
+          }
+
+          // 3. Merchant Logo (Dynamic)
+          if (logoImg) {
+            const logoMaxW = width * config.logoMaxWFactor;
+            const logoMaxH = height * config.logoMaxHFactor;
+            const ratio = Math.min(logoMaxW / logoImg.width, logoMaxH / logoImg.height);
+            const logoW = logoImg.width * ratio;
+            const logoH = logoImg.height * ratio;
+            
+            const marginX = width * config.marginXFactor;
+            const marginY = height * config.marginYFactor;
+            ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
+          }
         }
-      }
+        setIsRendering(false);
     };
 
     renderPoster();
@@ -212,10 +242,31 @@ function BrandingAsset({
   const download = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = `${merchantName}-${title.replace(/\s+/g, '-')}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+
+    if (designType === 'poster' || designType === 'counter') {
+      // PDF Download for physical assets
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const isPoster = designType === 'poster';
+      
+      // Standard A4: 210 x 297 mm, Standard A5: 148 x 210 mm
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: isPoster ? 'a4' : 'a5'
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      
+      doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+      doc.save(`${merchantName}-${title.replace(/\s+/g, '-')}.pdf`);
+    } else {
+      // PNG Download for social media assets
+      const link = document.createElement('a');
+      link.download = `${merchantName}-${title.replace(/\s+/g, '-')}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+    }
   };
 
   return (
@@ -227,13 +278,28 @@ function BrandingAsset({
       <div className="relative w-full h-[280px] bg-slate-50/50 rounded-2xl overflow-hidden border border-[#6ca3a4]/10 transition-all group-hover:shadow-md p-3 flex items-center justify-center">
          {/* Checkerboard pattern wrapper */}
          <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#ccc 1px, transparent 0)', backgroundSize: '10px 10px' }}></div>
-         <canvas ref={canvasRef} width={width} height={height} className="relative z-10 max-w-full max-h-full object-contain shadow-sm rounded-lg" />
+         
+         <AnimatePresence>
+            {isRendering && (
+               <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 z-20 bg-white/80 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3"
+               >
+                  <Loader2 className="w-8 h-8 text-[#6ca3a4] animate-spin" />
+                  <span className="text-[10px] font-bold text-[#6ca3a4] uppercase tracking-widest">Generating...</span>
+               </motion.div>
+            )}
+         </AnimatePresence>
+
+         <canvas ref={canvasRef} width={width} height={height} className={`relative z-10 max-w-full max-h-full object-contain shadow-sm rounded-lg transition-opacity duration-500 ${isRendering ? 'opacity-0' : 'opacity-100'}`} />
       </div>
       <button 
         onClick={download}
         className="mt-3 py-2 px-4 bg-white border border-[#2c3e50]/10 shadow-sm rounded-lg text-[#6ca3a4] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all font-bold text-[9px] uppercase "
       >
-        Download PNG <span className="text-sm font-light leading-none">→</span>
+        Download {designType === 'poster' || designType === 'counter' ? 'PDF' : 'PNG'} <span className="text-sm font-light leading-none">→</span>
       </button>
     </div>
   );
@@ -355,7 +421,7 @@ function OrderModal({
    );
 }
 
-function ExperienceBrontie() {
+function ExperienceBrontie({ defaultItemImage }: { defaultItemImage?: string }) {
    const router = useRouter();
    const [demoId, setDemoId] = useState<string | null>(null);
    const [demoData, setDemoData] = useState<any>(null);
@@ -537,8 +603,8 @@ function ExperienceBrontie() {
 
                <div className="flex gap-4 items-center pl-1">
                   <div className="w-24 h-24 bg-gray-100 rounded-[12px] overflow-hidden shrink-0 shadow-sm border border-gray-100">
-                     {demoData?.itemImage ? (
-                        <img src={demoData.itemImage} alt="Voucher" className="w-full h-full object-cover" />
+                     {demoData?.itemImage || defaultItemImage ? (
+                        <img src={demoData?.itemImage || defaultItemImage} alt="Voucher" className="w-full h-full object-cover" />
                      ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xl">☕</div>
                      )}
@@ -783,11 +849,25 @@ function OnboardingStep6Content() {
            </div>
            
            <div className="bg-white px-4 py-2 rounded-[16px] flex justify-between items-center border border-gray-100 ">
-              <div className="flex items-center gap-3">
-                 <Link2 className="size-4 stroke-[2.5]" color='#6ca3a4' /> 
-                 <span className="text-[12px] font-bold text-[#6CA3A4]">brontie.ie/your-cafe</span>
+              <div className="flex items-center gap-3 overflow-hidden">
+                 <Link2 className="size-4 stroke-[2.5] shrink-0" color='#6ca3a4' /> 
+                 <span className="text-[12px] font-bold text-[#6CA3A4] truncate">
+                    {merchantData?._id 
+                       ? `${window.location.host}/products?merchant=${merchantData._id}`
+                       : 'brontie.ie/products?merchant=...'
+                    }
+                 </span>
               </div>
-              <button className="w-8 h-8 rounded-full bg-[#6ca3a4] flex items-center justify-center text-white hover:brightness-110 shadow-sm">
+              <button 
+                onClick={() => {
+                  if (merchantData?._id) {
+                    const url = `${window.location.origin}/products?merchant=${merchantData._id}`;
+                    navigator.clipboard.writeText(url);
+                    toast.success('Link copied to clipboard!');
+                  }
+                }}
+                className="w-8 h-8 rounded-full bg-[#6ca3a4] flex items-center justify-center text-white hover:brightness-110 shadow-sm shrink-0"
+              >
                  <Copy className="size-3 stroke-[2.5]" color='#fff' />
               </button>
            </div>
@@ -845,7 +925,7 @@ function OnboardingStep6Content() {
              <div className="min-w-[280px] md:min-w-0 snap-center">
                 <BrandingAsset 
                    title="Counter QR Sign (A5)" subtitle="Perfect for placing beside the till." 
-                   width={1748} height={1240} 
+                   width={1240} height={1748} 
                    merchantName={merchantData?.name || 'Your Café'} 
                    merchantLogo={merchantData?.logoUrl}
                    useLogo={useLogo}
@@ -856,35 +936,52 @@ function OnboardingStep6Content() {
           </div>
         </div>
 
-        {/* Physical Promo Banner */}
-        <div className="w-full max-w-[820px] bg-[#6ca3a4] rounded-[16px] overflow-hidden shadow-sm flex flex-col md:flex-row relative group min-h-[260px] items-center px-6 md:px-16 py-8 md:py-0">
-          <div className="space-y-6 flex-1 z-10 flex flex-col justify-center items-center md:items-start text-center md:text-left">
-             <div className="space-y-5 max-w-[380px]">
-                <h2 className={`text-4xl text-white ${lobster.className}`}>Skip The Printing,<br/>We'll Send It Ready To<br/>Use</h2>
-                <p className="text-white opacity-95 font-medium text-[14px] leading-relaxed">
-                   We'll Send You A Brontie QR Tent Card For Your Counter. Pre-Printed, Ready To Use.
+        {/* Physical Promo Banner - Precision Redesign */}
+        <div className="w-full bg-[#6ca3a4] rounded-[24px] overflow-hidden shadow-lg flex flex-col md:flex-row relative min-h-[320px] items-center p-8 md:p-10 group">
+          {/* Subtle Noise Texture Overlay */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+          
+          <div className="flex-1 z-10 flex flex-col justify-between h-full space-y-8 text-center md:text-left">
+             <div className="space-y-4">
+                <h2 className={`text-[32px] md:text-[42px] leading-[1.1] text-white ${lobster.className}`}>
+                   Skip The Printing,<br/>
+                   We&apos;ll Send It Ready To<br/>
+                   Use
+                </h2>
+                <p className="text-white/90 font-medium text-[14px] md:text-[15px] leading-relaxed max-w-[400px]">
+                   We&apos;ll Send You A Brontie QR Tent Card For Your Counter. Pre-Printed, Ready To Use.
                 </p>
              </div>
              
-             <div className="space-y-4 flex flex-col items-center md:items-start">
+             <div className="space-y-6">
                 <button 
                    onClick={() => setIsOrderModalOpen(true)}
-                   className="bg-[#f4c24d] text-black font-bold px-6 h-10 rounded-[8px] text-[10px] shadow-sm transform hover:brightness-105 transition-all flex items-center gap-2 group w-fit"
+                   className="bg-[#f4c24d] text-black font-bold px-8 h-12 rounded-[14px] text-[13px] shadow-md transform hover:scale-[1.02] transition-all flex items-center justify-center gap-2 w-full md:w-fit"
                 >
-                   <span>Order a free QR counter card →</span>
+                   <span>Order a free QR counter card</span>
+                   <ArrowRight className="w-4 h-4" />
                 </button>
-                <div className="flex items-center gap-2 opacity-70">
-                   <div className="w-4 h-4 rounded-md border border-white flex items-center justify-center">
-                      <span className="text-white text-[10px] leading-none mb-px">📄</span>
-                   </div>
-                   <p className="text-[8px] uppercase text-white">Free for founding cafes, limited time only</p>
+                
+                {/* Bottom Left Info */}
+                <div className="flex items-center gap-2 text-white">
+                   <Info className="w-3.5 h-3.5 opacity-90" />
+                   <p className="text-[10px] font-medium opacity-90">Free for founding cafés, limited time only</p>
                 </div>
              </div>
           </div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center p-4 mt-8 md:mt-0">
-             <div className="relative w-[240px] h-[240px] bg-white rounded-2xl flex flex-col items-center justify-center gap-2 group-hover:scale-105 transition-all duration-700 shadow-md">
-                <Image src="/images/onboarding/wooden-block.png" alt="Wooden Block" layout="fill" objectFit="contain" />
+          {/* Right side: Image Container */}
+          <div className="relative z-10 w-full md:w-[400px] h-full flex items-center justify-center mt-8 md:mt-0 px-2">
+             <div className="relative w-full aspect-[4/3] md:h-full bg-white rounded-[24px] flex items-center justify-center p-3 shadow-md overflow-hidden group-hover:shadow-lg transition-all">
+                <div className="relative w-full h-full scale-[1.1]">
+                   <Image 
+                      src="/images/onboarding/promo-tent-card.png" 
+                      alt="Brontie QR Tent Card" 
+                      layout="fill" 
+                      objectFit="contain" 
+                      className="transition-transform duration-700 group-hover:scale-105"
+                   />
+                </div>
              </div>
           </div>
         </div>
@@ -901,7 +998,7 @@ function OnboardingStep6Content() {
            </div>
 
            {/* Interactive Experience Section */}
-           <ExperienceBrontie />
+           <ExperienceBrontie defaultItemImage={firstItemImage} />
         </div>
 
       </div>

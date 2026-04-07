@@ -198,12 +198,12 @@ function BrandingAsset({
             marginYFactor: 0.04
           },
           story: {
-            cupWidthFactor: 0.38,
-            cupYFactor: 0.38,
-            logoMaxWFactor: 0.22,
-            logoMaxHFactor: 0.08,
-            marginXFactor: 0.08,
-            marginYFactor: 0.04
+            cupWidthFactor: 0.60, // Slightly larger
+            cupYFactor: 0.28,    // Slightly higher
+            logoMaxWFactor: 0.30,
+            logoMaxHFactor: 0.10,
+            marginXFactor: 0.12,
+            marginYFactor: 0.06
           },
           post: {
             cupWidthFactor: 0.55,

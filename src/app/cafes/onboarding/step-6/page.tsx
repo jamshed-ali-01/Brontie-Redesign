@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import { 
   Check, 
@@ -28,7 +29,8 @@ import {
   ScanLine,
   Link2,
   Lightbulb,
-  CircleAlert
+  CircleAlert,
+  Loader2
 } from 'lucide-react';
 import SetupLayout from '@/components/shared/auth/SetupLayout';
 import { Lobster } from 'next/font/google';
@@ -67,6 +69,7 @@ function BrandingAsset({
   designType?: 'poster' | 'post' | 'story' | 'counter';
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isRendering, setIsRendering] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -75,6 +78,7 @@ function BrandingAsset({
     if (!ctx) return;
 
     const renderPoster = async () => {
+      setIsRendering(true);
       const minDim = Math.min(width, height);
       
       // Helper to load image as a Promise
@@ -225,6 +229,7 @@ function BrandingAsset({
             ctx.drawImage(logoImg, width - logoW - marginX, height - logoH - marginY, logoW, logoH);
           }
         }
+        setIsRendering(false);
     };
 
     renderPoster();
@@ -273,7 +278,22 @@ function BrandingAsset({
       <div className="relative w-full h-[280px] bg-slate-50/50 rounded-2xl overflow-hidden border border-[#6ca3a4]/10 transition-all group-hover:shadow-md p-3 flex items-center justify-center">
          {/* Checkerboard pattern wrapper */}
          <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#ccc 1px, transparent 0)', backgroundSize: '10px 10px' }}></div>
-         <canvas ref={canvasRef} width={width} height={height} className="relative z-10 max-w-full max-h-full object-contain shadow-sm rounded-lg" />
+         
+         <AnimatePresence>
+            {isRendering && (
+               <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 z-20 bg-white/80 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3"
+               >
+                  <Loader2 className="w-8 h-8 text-[#6ca3a4] animate-spin" />
+                  <span className="text-[10px] font-bold text-[#6ca3a4] uppercase tracking-widest">Generating...</span>
+               </motion.div>
+            )}
+         </AnimatePresence>
+
+         <canvas ref={canvasRef} width={width} height={height} className={`relative z-10 max-w-full max-h-full object-contain shadow-sm rounded-lg transition-opacity duration-500 ${isRendering ? 'opacity-0' : 'opacity-100'}`} />
       </div>
       <button 
         onClick={download}
@@ -916,35 +936,52 @@ function OnboardingStep6Content() {
           </div>
         </div>
 
-        {/* Physical Promo Banner */}
-        <div className="w-full max-w-[820px] bg-[#6ca3a4] rounded-[16px] overflow-hidden shadow-sm flex flex-col md:flex-row relative group min-h-[260px] items-center px-6 md:px-16 py-8 md:py-0">
-          <div className="space-y-6 flex-1 z-10 flex flex-col justify-center items-center md:items-start text-center md:text-left">
-             <div className="space-y-5 max-w-[380px]">
-                <h2 className={`text-4xl text-white ${lobster.className}`}>Skip The Printing,<br/>We'll Send It Ready To<br/>Use</h2>
-                <p className="text-white opacity-95 font-medium text-[14px] leading-relaxed">
-                   We'll Send You A Brontie QR Tent Card For Your Counter. Pre-Printed, Ready To Use.
+        {/* Physical Promo Banner - Precision Redesign */}
+        <div className="w-full bg-[#6ca3a4] rounded-[24px] overflow-hidden shadow-lg flex flex-col md:flex-row relative min-h-[320px] items-center p-8 md:p-10 group">
+          {/* Subtle Noise Texture Overlay */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+          
+          <div className="flex-1 z-10 flex flex-col justify-between h-full space-y-8 text-center md:text-left">
+             <div className="space-y-4">
+                <h2 className={`text-[32px] md:text-[42px] leading-[1.1] text-white ${lobster.className}`}>
+                   Skip The Printing,<br/>
+                   We&apos;ll Send It Ready To<br/>
+                   Use
+                </h2>
+                <p className="text-white/90 font-medium text-[14px] md:text-[15px] leading-relaxed max-w-[400px]">
+                   We&apos;ll Send You A Brontie QR Tent Card For Your Counter. Pre-Printed, Ready To Use.
                 </p>
              </div>
              
-             <div className="space-y-4 flex flex-col items-center md:items-start">
+             <div className="space-y-6">
                 <button 
                    onClick={() => setIsOrderModalOpen(true)}
-                   className="bg-[#f4c24d] text-black font-bold px-6 h-10 rounded-[8px] text-[10px] shadow-sm transform hover:brightness-105 transition-all flex items-center gap-2 group w-fit"
+                   className="bg-[#f4c24d] text-black font-bold px-8 h-12 rounded-[14px] text-[13px] shadow-md transform hover:scale-[1.02] transition-all flex items-center justify-center gap-2 w-full md:w-fit"
                 >
-                   <span>Order a free QR counter card →</span>
+                   <span>Order a free QR counter card</span>
+                   <ArrowRight className="w-4 h-4" />
                 </button>
-                <div className="flex items-center gap-2 opacity-70">
-                   <div className="w-4 h-4 rounded-md border border-white flex items-center justify-center">
-                      <span className="text-white text-[10px] leading-none mb-px">📄</span>
-                   </div>
-                   <p className="text-[8px] uppercase text-white">Free for founding cafes, limited time only</p>
+                
+                {/* Bottom Left Info */}
+                <div className="flex items-center gap-2 text-white">
+                   <Info className="w-3.5 h-3.5 opacity-90" />
+                   <p className="text-[10px] font-medium opacity-90">Free for founding cafés, limited time only</p>
                 </div>
              </div>
           </div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center p-4 mt-8 md:mt-0">
-             <div className="relative w-[240px] h-[240px] bg-white rounded-2xl flex flex-col items-center justify-center gap-2 group-hover:scale-105 transition-all duration-700 shadow-md">
-                <Image src="/images/onboarding/wooden-block.png" alt="Wooden Block" layout="fill" objectFit="contain" />
+          {/* Right side: Image Container */}
+          <div className="relative z-10 w-full md:w-[400px] h-full flex items-center justify-center mt-8 md:mt-0 px-2">
+             <div className="relative w-full aspect-[4/3] md:h-full bg-white rounded-[24px] flex items-center justify-center p-3 shadow-md overflow-hidden group-hover:shadow-lg transition-all">
+                <div className="relative w-full h-full scale-[1.1]">
+                   <Image 
+                      src="/images/onboarding/promo-tent-card.png" 
+                      alt="Brontie QR Tent Card" 
+                      layout="fill" 
+                      objectFit="contain" 
+                      className="transition-transform duration-700 group-hover:scale-105"
+                   />
+                </div>
              </div>
           </div>
         </div>

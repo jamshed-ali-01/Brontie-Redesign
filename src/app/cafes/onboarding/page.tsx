@@ -142,7 +142,7 @@ export default function OnboardingPage() {
               <div className="flex-1 ml-4 text-left">
                 <h3 className="text-[14px] font-semibold text-black   leading-none mb-1 font-sans">
                   {step.title}
-                  {step.isOptional && <span className="text-[10px] text-gray-500  ml-1 font-sans">(Optional)</span>}
+                  {step.isOptional && <span className="text-[10px] text-gray-500  ml-1 font-sans">(optional)</span>}
                 </h3>
                 <p className="text-[10px] text-gray-500 ">{step.description}</p>
               </div>

@@ -217,7 +217,7 @@ export default function OnboardingStep2() {
               <Home className="w-9 h-9 stroke-[2]" />
             </div>
             <h3 className="text-[14px] font-bold text-[#2c3e50] mb-2 tracking-tight">Just one location</h3>
-            <p className="text-[10px] text-gray-500 font-medium font-sans opacity-80">Keep it simple</p>
+            {/* <p className="text-[10px] text-gray-500 font-medium font-sans opacity-80">Keep it simple</p> */}
             {formData.locationType === 'single' && (
               <div className="absolute top-4 right-4 text-[#f4c24d]">
                  <div className="w-[18px] h-[18px] rounded-full border-[1.5px] border-[#f4c24d] flex items-center justify-center">

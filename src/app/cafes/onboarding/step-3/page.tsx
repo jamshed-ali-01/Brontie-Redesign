@@ -76,7 +76,7 @@ export default function OnboardingStep3() {
                         name: 'Coffee + Cake', 
                         description: 'Our signature house blend latte and Fresh Cake.', 
                         payout: 7.70, 
-                        imageUrl: '/images/onboarding/good-photo.jpg', 
+                        imageUrl: '/images/onboarding/coffee-cake.jpg', 
                         status: 'draft' 
                      }
                   ];
@@ -98,7 +98,7 @@ export default function OnboardingStep3() {
                         name: 'Coffee + Cake', 
                         description: 'Our signature house blend latte and Fresh Cake.', 
                         payout: 7.70, 
-                        imageUrl: '/images/onboarding/good-photo.jpg', 
+                        imageUrl: '/images/onboarding/coffee-cake.jpg', 
                         status: 'draft' 
                      }
                   ]);
@@ -480,7 +480,7 @@ export default function OnboardingStep3() {
               <div className="pt-6 border-t border-gray-100 flex flex-col gap-4 mt-6">
                  <div className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full bg-[#f4c24d]/10 flex items-center justify-center text-[#f4c24d] flex-shrink-0 mt-0.5"><Info className="w-3 h-3" /></div>
-                    <p className="text-[10px] font-medium text-gray-500 leading-relaxed">Photos should be clear, well-lit, and show the item directly. No text or logos.</p>
+                    <p className="text-[10px] font-medium text-gray-500 leading-relaxed">Photos should be clear, well-lit, and show the item directly.</p>
                  </div>
               </div>
             </div>

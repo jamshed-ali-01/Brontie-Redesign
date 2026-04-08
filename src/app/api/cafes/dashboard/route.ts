@@ -486,7 +486,7 @@ export async function GET(request: NextRequest) {
     // Get merchant details including Brontie fee settings and Stripe Connect settings
     console.log("Dashboard API - Searching for merchant with ID:", merchantId);
     const merchant = await Merchant.findById(merchantObjectId).select(
-      "payoutDetails brontieFeeSettings stripeConnectSettings createdAt"
+      "payoutDetails brontieFeeSettings stripeConnectSettings createdAt name logoUrl"
     );
     console.log("Dashboard API - Merchant found:", !!merchant);
 
@@ -869,6 +869,8 @@ export async function GET(request: NextRequest) {
 
     const dashboardData = {
       merchantId: merchantId,
+      merchantName: merchant?.name || 'Cafe',
+      merchantLogo: merchant?.logoUrl || null,
       activeVouchers: activeVouchers[0]?.total || 0,
       activeVouchersValue: activeVouchers[0]?.totalValue || 0,
       redeemedVouchers: redeemedVouchers[0]?.total || 0,

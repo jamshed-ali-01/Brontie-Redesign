@@ -121,10 +121,10 @@ export default function OnboardingPage() {
   return (
     <AuthLayout>
       <div className="text-center mb-8 max-w-[420px] mx-auto    ">
-        <h1 className={`text-[32px] md:text-[36px] md:text-[#6ca3a4] text-black mb-2 leading-tight ${lobster.className}`}>
+        <h1 className={`text-[36px] md:text-[40px] md:text-[#6ca3a4] text-black mb-2 leading-tight ${lobster.className}`}>
           Welcome to Brontie <span className="inline-block origin-bottom-right ml-1 drop-shadow-sm">👋</span>
         </h1>
-        <p className="md:text-gray-500 text-black/90 md:text-[12px] text-xs  font-sans opacity-90">
+        <p className="md:text-gray-500 text-black/90 md:text-[14px] text-sm font-sans opacity-90">
           Start receiving coffee gifts in just a few minutes.
         </p>
       </div>
@@ -140,11 +140,11 @@ export default function OnboardingPage() {
               </div>
               
               <div className="flex-1 ml-4 text-left">
-                <h3 className="text-[14px] font-semibold text-black   leading-none mb-1 font-sans">
+                <h3 className="text-[15px] font-semibold text-black leading-none mb-1 font-sans">
                   {step.title}
-                  {step.isOptional && <span className="text-[10px] text-gray-500  ml-1 font-sans">(optional)</span>}
+                  {step.isOptional && <span className="text-[11px] text-gray-500 ml-1 font-sans">(optional)</span>}
                 </h3>
-                <p className="text-[10px] text-gray-500 ">{step.description}</p>
+                <p className="text-[12px] text-gray-500">{step.description}</p>
               </div>
               
               <div className="ml-3 shrink-0">
@@ -171,11 +171,11 @@ export default function OnboardingPage() {
           onClick={handleContinue}
           className="w-full bg-[#f4c24d] text-[#2c3e50] font-bold h-[50px] rounded-[18px] flex items-center justify-center space-x-3 hover:bg-[#e5b54d] transition-all group shadow-2xl shadow-[#f4c24d]/20 relative active:scale-95 disabled:opacity-50"
         >
-          <span className="text-[12px] uppercase tracking-wider">Continue Setup</span>
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform  " />
+          <span className="text-[13px] uppercase tracking-wider">Continue Setup</span>
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
         </button>
-        <p className="text-gray-500 text-[12px] mt-3 text-center  ">
-         Takes 3-5 minutes. You can save and return anytime
+        <p className="text-gray-500 text-[13px] mt-3 text-center">
+          Takes 3-5 minutes. You can save and return anytime
         </p>
       </div>
     </AuthLayout>

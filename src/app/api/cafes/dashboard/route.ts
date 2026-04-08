@@ -435,7 +435,7 @@ export async function GET(request: NextRequest) {
             $ifNull: [
               "$stripeFee",
               {
-                $add: [{ $multiply: ["$amount", 0.014] }, 0.25],
+                $add: [{ $multiply: ["$amount", 0.02] }, 0.25],
               },
             ],
           },
@@ -762,7 +762,7 @@ export async function GET(request: NextRequest) {
             $ifNull: [
               "$stripeFee",
               {
-                $add: [{ $multiply: ["$amount", 0.014] }, 0.25],
+                $add: [{ $multiply: ["$amount", 0.02] }, 0.25],
               },
             ],
           },

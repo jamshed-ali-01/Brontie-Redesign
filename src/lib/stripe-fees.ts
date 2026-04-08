@@ -46,7 +46,7 @@ export async function getActualStripeFee(paymentIntentId: string): Promise<numbe
  * Uses the standard 1.4% + €0.25 fee structure
  */
 export function getEstimatedStripeFee(amount: number): number {
-  return (amount * 0.014) + 0.25;
+  return (amount * 0.02) + 0.25;
 }
 
 /**

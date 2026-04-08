@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
           totalGrossAmount += txn.amount || 0;
           
           // Calculate Stripe fee
-          const stripeFee = txn.stripeFee || (txn.amount * 0.014 + 0.25);
+          const stripeFee = txn.stripeFee || (txn.amount * 0.02 + 0.25);
           totalStripeFees += stripeFee;
           
           // Calculate Brontie commission (if active)

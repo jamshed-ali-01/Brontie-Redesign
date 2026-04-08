@@ -636,7 +636,7 @@ async function createPurchaseTransaction(
     }
     if (!stripeFee) {
       // Fallback to estimated fee (1.4% + €0.25)
-      stripeFee = (amount * 0.014) + 0.25;
+      stripeFee = (amount * 0.02) + 0.25;
     }
 
     // Check if Brontie fee is active

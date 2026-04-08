@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
               '$stripeFee', 
               { 
                 $add: [
-                  { $multiply: [{ $ifNull: ['$amountGross', '$giftItem.price'] }, 0.014] },
+                  { $multiply: [{ $ifNull: ['$amountGross', '$giftItem.price'] }, 0.02] },
                   0.25
                 ]
               }
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
                   '$stripeFee', 
                   { 
                     $add: [
-                      { $multiply: [{ $ifNull: ['$amountGross', '$giftItem.price'] }, 0.014] },
+                      { $multiply: [{ $ifNull: ['$amountGross', '$giftItem.price'] }, 0.02] },
                       0.25
                     ]
                   }

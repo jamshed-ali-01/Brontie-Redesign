@@ -720,9 +720,9 @@ export async function generateCafeReport(merchantId: string): Promise<{ buffer: 
       $group: {
         _id: null,
         totalPayout: { $sum: '$amount' },
-        totalStripeFees: { $sum: { $multiply: ['$amount', 0.029] } }, // 2.9% Stripe fee
+        totalStripeFees: { $sum: { $add: [{ $multiply: ['$amount', 0.02] }, 0.25] } }, // 2% + €0.25 Stripe fee
         totalBrontieFees: { $sum: { $multiply: ['$amount', 0.05] } }, // 5% Brontie fee
-        netToCafe: { $sum: { $subtract: ['$amount', { $multiply: ['$amount', 0.079] }] } } // Net after all fees
+        netToCafe: { $sum: { $subtract: ['$amount', { $add: [{ $multiply: ['$amount', 0.07] }, 0.25] }] } } // Net after all fees (5% Brontie + 2% Stripe + 0.25)
       }
     }
   ]);
@@ -765,7 +765,7 @@ export async function generateCafeReport(merchantId: string): Promise<{ buffer: 
             '$stripeFee',
             {
               $add: [
-                { $multiply: ['$amount', 0.014] },
+                { $multiply: ['$amount', 0.02] },
                 0.25
               ]
             }

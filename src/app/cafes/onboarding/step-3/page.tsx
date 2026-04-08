@@ -376,14 +376,14 @@ export default function OnboardingStep3() {
                              <Wand2 className="w-3 h-3" />
                              <span className="text-[9px] font-bold">Write with AI</span>
                           </div>
-                       </div>
-                       {/* Pricing Section - Figma Match */}
-                       <div className="mt-5 bg-[#fef6eb] px-6 py-6 rounded-[22px] flex flex-col gap-4">
+                        </div>
+                       {/* Pricing Section - Figma Match (Pixel Perfect) */}
+                       <div className="mt-5 bg-[#fef6eb] px-7 py-7 rounded-[28px] flex flex-col">
                           {/* Top Row: Listing Price Input */}
-                          <div className="flex items-center justify-between">
-                             <span className="text-[11px] font-bold text-[#2c3e50] uppercase tracking-wider">YOUR LISTING PRICE</span>
-                             <div className="bg-white rounded-[8px] flex items-center px-4 py-2 w-[115px] shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-                                <span className="text-[14px] font-bold text-[#2c3e50] opacity-80">€</span>
+                          <div className="flex items-center justify-between pb-5">
+                             <span className="text-[15px] font-bold text-[#2c3e50] uppercase tracking-widest leading-none">YOUR LISTING PRICE</span>
+                             <div className="bg-white rounded-[12px] flex items-center justify-end px-3 py-2.5 w-[115px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] border border-white/50">
+                                <span className="text-[16px] font-bold text-[#2c3e50]">€</span>
                                 <input 
                                    type="number" step="0.1" value={item.payout || ''}
                                    onChange={(e) => {
@@ -391,33 +391,39 @@ export default function OnboardingStep3() {
                                       handleUpdateItem(item.id, { payout: val === '' ? 0 : parseFloat(val) });
                                    }}
                                    placeholder="0.00"
-                                   className="w-full bg-transparent border-none p-0 ml-1 text-right text-[15px] font-bold outline-none text-[#2c3e50] focus:ring-0"
+                                   className="w-[60px] bg-transparent border-none p-0 text-right text-[16px] font-bold outline-none text-[#2c3e50] focus:ring-0"
                                 />
                              </div>
                           </div>
                           
+                          {/* White Line Separator */}
+                          <div className="h-[1px] bg-white w-full mb-6"></div>
+
                           {/* Middle Section: Fees Breakdown */}
-                          <div className="border-y border-black/5 py-5 flex flex-col gap-3.5 my-1">
-                             <div className="flex items-center justify-between text-[13px] font-medium text-[#2c3e50]/70">
-                                <span className="tracking-tight">+ Stripe Fee (2% + €0.25)</span>
-                                <span>€{pricing.stripeFeeAdjustment.toFixed(2)}</span>
+                          <div className="flex flex-col gap-2.5 mb-6">
+                             <div className="flex items-center justify-between text-[15px] font-normal text-[#2c3e50]/80">
+                                <span className="tracking-tight text-gray-800">+ Stripe Fee (2% + €0.25)</span>
+                                <span className="text-gray-800 font-normal">€{pricing.stripeFeeAdjustment.toFixed(2)}</span>
                              </div>
                              
-                             <div className="flex items-center justify-between text-[13px] font-medium text-[#2c3e50]/70">
-                                <span className="tracking-tight">+ Brontie Fee (10%)</span>
-                                <span>€{pricing.platformFeeAdjustment.toFixed(2)}</span>
+                             <div className="flex items-center justify-between text-[15px] font-normal text-[#2c3e50]/80">
+                                <span className="tracking-tight text-gray-800">+ Brontie Fee (10%)</span>
+                                <span className="text-gray-800 font-normal">€{pricing.platformFeeAdjustment.toFixed(2)}</span>
                              </div>
                              
                              <div className="flex items-center justify-between pt-1">
-                                <span className="text-[16px] font-medium text-[#2c3e50]">Customer Pays</span>
-                                <span className="text-[16px] font-bold text-[#2c3e50]">€{pricing.brontieListingPrice.toFixed(2)}</span>
+                                <span className="text-[17px] font-medium text-[#2c3e50]">Customer Pays</span>
+                                <span className="text-[17px] font-medium text-[#2c3e50]">€{pricing.brontieListingPrice.toFixed(2)}</span>
                              </div>
                           </div>
- 
+
+                          {/* White Line Separator */}
+                          <div className="h-[1px] bg-white w-full mb-4"></div>
+  
                           {/* Bottom Row: Final Payout */}
-                          <div className="flex items-center justify-between pt-1">
-                             <span className="text-[16px] font-bold text-black">Your Payout</span>
-                             <span className="text-[24px] font-black text-[#6ca3a4]">€{item.payout.toFixed(2)}</span>
+                          <div className="flex items-center justify-between">
+                             <span className="text-[16px] font-bold text-[#2c3e50]">Your Payout</span>
+                             <span className="text-[22px] font-black text-[#6ca3a4] tracking-tight">€{item.payout.toFixed(2)}</span>
                           </div>
                        </div>
                     </div>

@@ -272,8 +272,8 @@ function BrandingAsset({
   return (
     <div className="flex flex-col items-center gap-2 group">
       <div className="text-center mb-1">
-         <h4 className="text-[14px] font-bold text-[#2c3e50]">{title}</h4>
-         <p className="text-[10px] text-gray-400 font-medium leading-tight">{subtitle}</p>
+         <h4 className="text-[17px] font-bold text-[#2c3e50]">{title}</h4>
+         <p className="text-[12px] text-gray-400 font-medium leading-tight">{subtitle}</p>
       </div>
       <div className="relative w-full h-[280px] bg-slate-50/50 rounded-2xl overflow-hidden border border-[#6ca3a4]/10 transition-all group-hover:shadow-md p-3 flex items-center justify-center">
          {/* Checkerboard pattern wrapper */}
@@ -297,7 +297,7 @@ function BrandingAsset({
       </div>
       <button 
         onClick={download}
-        className="mt-3 py-2 px-4 bg-white border border-[#2c3e50]/10 shadow-sm rounded-lg text-[#6ca3a4] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all font-bold text-[9px] uppercase "
+        className="mt-3 py-2 px-5 bg-white border border-[#2c3e50]/10 shadow-sm rounded-lg text-[#6ca3a4] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all font-bold text-[11px] uppercase "
       >
         Download {designType === 'poster' || designType === 'counter' ? 'PDF' : 'PNG'} <span className="text-sm font-light leading-none">→</span>
       </button>
@@ -575,16 +575,16 @@ function ExperienceBrontie({ defaultItemImage }: { defaultItemImage?: string }) 
       <div className="w-full space-y-4 relative overflow-hidden">
          
          {/* Step Indicator */}
-         <div className="flex items-center justify-center gap-1 max-w-[600px] mx-auto opacity-70  ">
+         <div className="flex items-center justify-center gap-1.5 max-w-[700px] mx-auto opacity-80">
             {['Generate Voucher', 'Send to your phone', 'Open the Link', 'Scan the QR'].map((st, idx) => (
                <div key={idx} className="flex items-center gap-1.5 flex-1">
-                  <div className="flex items-center gap-1.5 bg-[#6ca3a4]/10 text-[#6ca3a4] px-3 py-1.5 pl-2 rounded-full w-full justify-center">
-                    <div className="w-3.5 h-3.5 bg-[#6ca3a4] rounded-full flex shrink-0 items-center justify-center text-white text-[8px] font-bold">
-                      {step > idx + 1 ? <Check className="w-2.5 h-2.5 stroke-[4]" /> : idx + 1}
+                  <div className="flex items-center gap-2 bg-[#6ca3a4]/10 text-[#6ca3a4] px-3 py-2 pl-2.5 rounded-full w-full justify-center">
+                    <div className="w-4 h-4 bg-[#6ca3a4] rounded-full flex shrink-0 items-center justify-center text-white text-[10px] font-bold">
+                      {step > idx + 1 ? <Check className="w-3 h-3 stroke-[4]" /> : idx + 1}
                     </div>
-                    <span className="text-[8px] font-bold uppercase tracking-wider whitespace-nowrap">{st}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">{st}</span>
                   </div>
-                  {idx < 3 && <div className="text-gray-300 text-[10px]">&gt;</div>}
+                  {idx < 3 && <div className="text-gray-300 text-[12px]">&gt;</div>}
                </div>
             ))}
          </div>
@@ -610,8 +610,8 @@ function ExperienceBrontie({ defaultItemImage }: { defaultItemImage?: string }) 
                      )}
                   </div>
                   <div className="space-y-0.5">
-                     <h4 className="text-[14px] font-bold text-black leading-tight">{demoData?.itemName || 'Coffee'}</h4>
-                     <p className="text-[9px] text-[#2c3e50]/60 font-medium">Your Cafe-Demo only</p>
+                     <h4 className="text-[16px] font-bold text-black leading-tight">{demoData?.itemName || 'Coffee'}</h4>
+                     <p className="text-[12px] text-[#2c3e50]/60 font-medium">Your Cafe-Demo only</p>
                   </div>
                </div>
 
@@ -623,27 +623,27 @@ function ExperienceBrontie({ defaultItemImage }: { defaultItemImage?: string }) 
                       <button 
                          type="button"
                          onClick={handleShareWhatsapp}
-                         className="h-10 bg-[#fffbea] text-black rounded-[8px] flex items-center justify-center gap-2 text-[10px] font-bold border border-[#f4c24d]/30 hover:bg-[#f4c24d]/10 transition-colors"
+                         className="h-11 bg-[#fffbea] text-black rounded-[10px] flex items-center justify-center gap-2.5 text-[12px] font-bold border border-[#f4c24d]/30 hover:bg-[#f4c24d]/10 transition-colors"
                       >
-                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" /></svg>
+                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" /></svg>
                          Share via Whatsapp
                       </button>
                       <button 
                          type="button"
                          onClick={handleCopyLink}
-                         className="h-10 bg-[#6ca3a4] text-white rounded-[8px] flex items-center justify-center gap-2 text-[10px] font-bold transition-colors hover:brightness-105 shadow-sm border border-[#528a8b]"
+                         className="h-11 bg-[#6ca3a4] text-white rounded-[10px] flex items-center justify-center gap-2.5 text-[12px] font-bold transition-colors hover:brightness-105 shadow-sm border border-[#528a8b]"
                       >
-                         <Copy className="w-3.5 h-3.5" />
+                         <Copy className="w-4 h-4" />
                          Copy Link
                       </button>
                    </div>
                    
                    <div className="flex items-center gap-4 pt-6 border-t border-gray-100">
-                      <button type="button" onClick={generateVoucher} disabled={isGenerating} className="flex items-center justify-center gap-2 px-6 h-10 border border-[#6ca3a4]/40 rounded-[8px] text-[10px] font-bold text-[#6ca3a4] hover:bg-gray-50 bg-white">
-                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isGenerating ? 'animate-spin' : ''}><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 2v6h6"/></svg>
+                      <button type="button" onClick={generateVoucher} disabled={isGenerating} className="flex items-center justify-center gap-2.5 px-6 h-11 border border-[#6ca3a4]/40 rounded-[10px] text-[12px] font-bold text-[#6ca3a4] hover:bg-gray-50 bg-white shadow-sm">
+                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isGenerating ? 'animate-spin' : ''}><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 2v6h6"/></svg>
                          Refresh
                       </button>
-                      <button type="button" onClick={generateVoucher} disabled={isGenerating} className="flex-1 h-10 border border-gray-100 rounded-[8px] text-[10px] font-bold text-black flex items-center justify-center hover:bg-gray-50 bg-white shadow-sm">
+                      <button type="button" onClick={generateVoucher} disabled={isGenerating} className="flex-1 h-11 border border-gray-100 rounded-[10px] text-[12px] font-bold text-black flex items-center justify-center hover:bg-gray-50 bg-white shadow-sm">
                          {isGenerating ? 'Generating...' : 'Generate New Test Voucher'}
                       </button>
                    </div>
@@ -669,30 +669,30 @@ function ExperienceBrontie({ defaultItemImage }: { defaultItemImage?: string }) 
                      )}
 
                    </div>
-                   <div className="space-y-1">
-                      <h3 className={`text-[20px] md:text-[22px] text-[#2c3e50] ${lobster.className} leading-tight`}>
+                   <div className="space-y-1.5">
+                      <h3 className={`text-[22px] md:text-[24px] text-[#2c3e50] ${lobster.className} leading-tight`}>
                          {isRedeemed ? 'Demo Complete!' : 'Your counter QR'}
                       </h3>
-                      <p className="text-[9px] text-[#2c3e50]/60 font-medium leading-[1.4] max-w-[140px]">
+                      <p className="text-[12px] text-[#2c3e50]/70 font-medium leading-[1.4] max-w-[180px]">
                          {isRedeemed ? 'You have successfully experienced the Brontie loop.' : 'This sits at your till. Customers scan it to redeem their gift in person.'}
                       </p>
                    </div>
                 </div>
 
-               <div className="space-y-5">
-                  <h4 className={`text-[15px] italic text-[#2c3e50] ${lobster.className}`}>How to complete the demo</h4>
-                      <div className="flex overflow-x-auto md:overflow-y-auto gap-4 pb-4 snap-x md:snap-none md:flex-col md:space-y-4 md:max-w-[280px] md:pb-0 scrollbar-hide">
+               <div className="space-y-4">
+                  <h4 className={`text-[17px] italic text-[#2c3e50] ${lobster.className}`}>How to complete the demo</h4>
+                      <div className="flex overflow-x-auto md:overflow-y-auto gap-4 pb-4 snap-x md:snap-none md:flex-col md:space-y-4 md:max-w-[300px] md:pb-0 scrollbar-hide">
                          {[
                             <span key={0}><b>Send yourself the link</b> via WhatsApp on the left</span>,
                             <span key={1}><b>Open the link on your phone</b> — you'll see the voucher your customer receives</span>,
                             <span key={2}><b>Tap Redeem</b> on your phone, then <b>scan the QR above</b> on this screen</span>,
                             <span key={3}>Watch the voucher status change to <span className="text-[#6ca3a4]">Redeemed ✓</span></span>
                          ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 min-w-[220px] md:min-w-0 shrink-0 snap-center">
-                               <div className={`w-4 h-4 rounded-full flex shrink-0 items-center justify-center text-[8px] font-bold border transition-all mt-0.5 ${step > i + 1 ? 'bg-[#fffbea] border-[#f4c24d]/30 text-[#f4c24d]' : 'bg-[#fffbea] border-[#f4c24d]/20 text-[#f4c24d]'}`}>
+                            <div key={i} className="flex items-start gap-3 min-w-[230px] md:min-w-0 shrink-0 snap-center">
+                               <div className={`w-5 h-5 rounded-full flex shrink-0 items-center justify-center text-[10px] font-bold border transition-all mt-[2px] ${step > i + 1 ? 'bg-[#fffbea] border-[#f4c24d]' : 'bg-[#fffbea] border-[#f4c24d]/30 text-[#f4c24d]'}`}>
                                   {i + 1}
                                </div>
-                               <p className={`text-[9px] leading-[1.5] ${step === i + 1 ? 'text-[#2c3e50] font-bold' : 'text-[#2c3e50]/80'}`}>{item}</p>
+                               <p className={`text-[12px] leading-[1.5] ${step === i + 1 ? 'text-[#2c3e50] font-bold' : 'text-[#2c3e50]/80'}`}>{item}</p>
                             </div>
                          ))}
                       </div>
@@ -785,7 +785,7 @@ function OnboardingStep6Content() {
       subtitle="Print your QR and start redeeming coffee gifts today."
       onBack={() => router.back()}
       hideProgress={true}
-      maxWidth="max-w-[1100px]"
+      maxWidth="max-w-[1200px]"
       inlineHeading={false}
     >
       <div className="w-full flex flex-col items-center gap-8 -mt-4">
@@ -807,7 +807,7 @@ function OnboardingStep6Content() {
                 <path d="M7.5 9V4H6.5V9H7.5ZM7.5 11V10H6.5V11H7.5Z" fill="white"/>
              </svg>
           </div>
-          <p className="text-[10px] font-medium text-black flex-1 pt-0.5">
+          <p className="text-[13px] font-medium text-black flex-1 leading-relaxed">
              Your café is now live, so customers may start redeeming gifts soon. Make sure the QR is placed beside the till so customers can scan it easily.
           </p>
         </div>
@@ -818,40 +818,40 @@ function OnboardingStep6Content() {
              <h3 className={`text-[24px] md:text-[28px] text-[#2c3e50] ${lobster.className}`}>Next Steps</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
-              {[
-                 { icon: Printer, title: "1- Print your QR Sign", desc: "Download and print your unique store code" },
-                 { icon: MapPin, title: "2 - Place it beside the till", desc: "Ensure it's visible for customers during checkout" },
-                 { icon: Coffee, title: "3 - Send yourself a test coffee", desc: "Try the customer experience for yourself" },
-                 { icon: ScanLine, title: "4 - Start redeeming coffee gifts", desc: "You're all set, customers can start sending gifts to your café today" }
-              ].map((step, idx) => (
-                 <div key={idx} className="bg-[#fdf8f2] rounded-xl p-3 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#6ca3a4] rounded-lg flex shrink-0 items-center justify-center text-white">
-                       <step.icon className="w-5 h-5 stroke-[2]" color='#fff' />
-                    </div>
-                    <div className="flex flex-col items-start gap-0.5">
-                       <h4 className="text-[10px] font-bold text-black leading-tight">{step.title}</h4>
-                       <p className="text-[8px] text-gray-500 font-medium leading-tight">{step.desc}</p>
-                    </div>
-                 </div>
-              ))}
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                  {[
+                     { icon: Printer, title: "1- Print your QR Sign", desc: "Download and print your unique store code" },
+                     { icon: MapPin, title: "2 - Place it beside the till", desc: "Ensure it's visible for customers during checkout" },
+                     { icon: Coffee, title: "3 - Send yourself a test coffee", desc: "Try the customer experience for yourself" },
+                     { icon: ScanLine, title: "4 - Start redeeming coffee gifts", desc: "You're all set, customers can start sending gifts to your café today" }
+                  ].map((step, idx) => (
+                     <div key={idx} className="bg-[#fdf8f2] rounded-2xl p-4 flex items-center gap-4 border border-[#eee5d8]">
+                        <div className="w-12 h-12 bg-[#6ca3a4] rounded-xl flex shrink-0 items-center justify-center text-white shadow-sm">
+                           <step.icon className="w-6 h-6 stroke-[2]" color='#fff' />
+                        </div>
+                        <div className="flex flex-col items-start gap-0.5">
+                           <h4 className="text-[13px] font-bold text-black leading-tight  mb-0.5">{step.title}</h4>
+                           <p className="text-[12px] text-gray-600 font-medium leading-tight">{step.desc}</p>
+                        </div>
+                     </div>
+                  ))}
+              </div>
         </div>
 
         {/* Share Link Banner */}
         <div className="w-full bg-white rounded-[16px] px-6 md:px-10 py-6 md:py-8 flex flex-col gap-5 relative z-30">
            <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-4 md:gap-0">
-              <h3 className={`text-[22px] md:text-[26px] text-[#2c3e50] ${lobster.className} text-center md:text-left`}>Share this link to let anyone send you a coffee</h3>
+              <h3 className={`text-[26px] md:text-[30px] text-[#2c3e50] ${lobster.className} text-center md:text-left`}>Share this link to let anyone send you a coffee</h3>
               <div className="flex items-center gap-2 px-3 py-1.5 mb-0 md:mb-1">
-                 <span className="text-[10px]">📸</span>
-                 <span className="text-[10px] font-bold text-[#2c3e50] opacity-80">Perfect for your Instagram bio.</span>
+                 <span className="text-[12px]">📸</span>
+                 <span className="text-[12px] font-bold text-[#2c3e50] opacity-80">Perfect for your Instagram bio.</span>
               </div>
            </div>
            
-           <div className="bg-white px-4 py-2 rounded-[16px] flex justify-between items-center border border-gray-100 ">
-              <div className="flex items-center gap-3 overflow-hidden">
-                 <Link2 className="size-4 stroke-[2.5] shrink-0" color='#6ca3a4' /> 
-                 <span className="text-[12px] font-bold text-[#6CA3A4] truncate">
+           <div className="bg-white px-5 py-3 rounded-[16px] flex justify-between items-center border border-gray-100 ">
+              <div className="flex items-center gap-4 overflow-hidden">
+                 <Link2 className="size-5 stroke-[2.5] shrink-0" color='#6ca3a4' /> 
+                 <span className="text-[14px] font-bold text-[#6CA3A4] truncate">
                     {merchantData?._id 
                        ? `${window.location.host}/products?merchant=${merchantData._id}`
                        : 'brontie.ie/products?merchant=...'
@@ -866,15 +866,15 @@ function OnboardingStep6Content() {
                     toast.success('Link copied to clipboard!');
                   }
                 }}
-                className="w-8 h-8 rounded-full bg-[#6ca3a4] flex items-center justify-center text-white hover:brightness-110 shadow-sm shrink-0"
+                className="w-10 h-10 rounded-full bg-[#6ca3a4] flex items-center justify-center text-white hover:brightness-110 shadow-sm shrink-0"
               >
-                 <Copy className="size-3 stroke-[2.5]" color='#fff' />
+                 <Copy className="size-4 stroke-[2.5]" color='#fff' />
               </button>
            </div>
            
-           <div className="bg-[#fffbea] rounded-[12px] px-5 py-3 flex items-center gap-3">
-              <Lightbulb className="size-4 stroke-[2.5]" color='#f4c24d' />
-              <span className="text-[11px] font-medium text-black">Add this to your Insta bio to <span className="underline underline-offset-2 font-bold">drive gifting</span>.</span>
+           <div className="bg-[#fffbea] rounded-[12px] px-5 py-4 flex items-center gap-3">
+              <Lightbulb className="size-5 stroke-[2.5]" color='#f4c24d' />
+              <span className="text-[13px] font-medium text-black">Add this to your Insta bio to <span className="underline underline-offset-2 font-bold">drive gifting</span>.</span>
            </div>
         </div>
 
@@ -990,10 +990,10 @@ function OnboardingStep6Content() {
         <div className="text-left w-full mt-8 mb-2 bg-white rounded-[16px] p-6 md:p-10 pb-10 flex flex-col gap-8 md:gap-10">
            <div className="space-y-2">
                <h2 className={`text-26px md:text-3xl text-[#2c3e50] ${lobster.className}`}>Experience Brontie like your customers do</h2>
-               <p className="text-[11px] text-gray-400 font-medium mt-1">Experience exactly what your customers and recipients will see — demo only, no payouts affected.</p>
-               <div className="flex items-center gap-2 mt-4 text-[#2c3e50] bg-transparent">
-                 <CircleAlert className='size-4 flex-shrink-0' color='#c1bebeff' />
-                  <span className="text-[11px] md:text-[12px] font-medium text-gray-500">This is a test voucher and QR code for demonstration only. It is not your café's live redemption QR and does not create a payout.</span>
+               <p className="text-[13px] text-gray-400 font-medium mt-1">Experience exactly what your customers and recipients will see — demo only, no payouts affected.</p>
+               <div className="flex items-center gap-3 mt-4 text-[#2c3e50] bg-[#f8f8fa] p-5 rounded-2xl border border-gray-100">
+                 <CircleAlert className='size-5 flex-shrink-0' color='#6b7280' />
+                 <span className="text-[13px] md:text-[14px] font-medium text-gray-500 leading-relaxed">This is a test voucher and QR code for demonstration only. It is not your café's live redemption QR and does not create a payout.</span>
                </div>
            </div>
 

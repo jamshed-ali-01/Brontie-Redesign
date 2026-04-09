@@ -33,6 +33,9 @@ interface MenuItem {
    imageUrl: string;
    status: 'draft' | 'saved';
    isSaving?: boolean;
+   isOptimizing?: boolean;
+   isPreviewed?: boolean;
+   isApplyingFull?: boolean;
 }
 
 export default function OnboardingStep3() {
@@ -125,6 +128,56 @@ export default function OnboardingStep3() {
 
    const handleUpdateItem = (id: string, updates: Partial<MenuItem>) => {
       setItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
+   };
+
+   const callRemoveBg = async (imageDataUrl: string, preview: boolean): Promise<string> => {
+      const res = await fetch('/api/remove-bg', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ imageDataUrl, preview }),
+      });
+      if (!res.ok) {
+         const err = await res.json();
+         throw new Error(err.error || 'Background removal failed');
+      }
+      const data = await res.json();
+      return data.imageDataUrl;
+   };
+
+   const handleOptimizeAI = async (item: MenuItem) => {
+      if (!item.imageUrl || item.isOptimizing || item.isPreviewed) return;
+      handleUpdateItem(item.id, { isOptimizing: true });
+      try {
+         const result = await callRemoveBg(item.imageUrl, true);
+         handleUpdateItem(item.id, { imageUrl: result, isPreviewed: true, isOptimizing: false });
+         toast.success('Preview ready! Apply full quality to finalise.', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+            icon: '✨',
+         });
+      } catch (err: any) {
+         handleUpdateItem(item.id, { isOptimizing: false });
+         toast.error(err.message || 'Failed to optimise image', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+         });
+      }
+   };
+
+   const handleApplyFullQuality = async (item: MenuItem) => {
+      if (!item.imageUrl || item.isApplyingFull) return;
+      handleUpdateItem(item.id, { isApplyingFull: true });
+      try {
+         const result = await callRemoveBg(item.imageUrl, false);
+         handleUpdateItem(item.id, { imageUrl: result, isPreviewed: false, isApplyingFull: false });
+         toast.success('Full quality applied!', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+            icon: '🎉',
+         });
+      } catch (err: any) {
+         handleUpdateItem(item.id, { isApplyingFull: false });
+         toast.error(err.message || 'Failed to apply full quality', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+         });
+      }
    };
 
     const handleAddItem = () => {
@@ -337,16 +390,35 @@ export default function OnboardingStep3() {
                            />
                        </div>
                        <div className="flex flex-col items-center gap-1.5 mt-1">
-                          <label 
+                          <label
                             htmlFor={`file-${item.id}`}
                             className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline"
                           >
                             Change Image
                           </label>
-                         <div className="flex items-center gap-1 text-[#6ca3a4] cursor-pointer hover:underline opacity-80 mt-1 pb-2">
+                         <button
+                            type="button"
+                            onClick={() => handleOptimizeAI(item)}
+                            disabled={!item.imageUrl || item.isOptimizing || item.isPreviewed}
+                            className="flex items-center gap-1 text-[#6ca3a4] hover:underline opacity-80 hover:opacity-100 mt-1 pb-2 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+                         >
                             <Wand2 className="w-3 h-3" />
-                            <span className="text-[9px] font-bold">Optimize with AI</span>
-                         </div>
+                            <span className="text-[9px] font-bold">
+                              {item.isOptimizing ? 'Optimizing...' : item.isPreviewed ? 'Optimized ✓' : 'Optimize with AI'}
+                            </span>
+                         </button>
+                         {item.isPreviewed && (
+                           <button
+                              type="button"
+                              onClick={() => handleApplyFullQuality(item)}
+                              disabled={item.isApplyingFull}
+                              className="flex items-center gap-1 bg-[#f4c24d] hover:brightness-105 text-[#2c3e50] rounded-[10px] px-3 py-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                           >
+                              <span className="text-[9px] font-bold">
+                                {item.isApplyingFull ? 'Applying...' : 'Apply full quality'}
+                              </span>
+                           </button>
+                         )}
                        </div>
                     </div>
 

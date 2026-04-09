@@ -12,27 +12,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'imageDataUrl is required' }, { status: 400 });
     }
 
-    // Strip the "data:image/xxx;base64," prefix to get raw base64
-    const base64Match = imageDataUrl.match(/^data:([^;]+);base64,(.+)$/);
-    if (!base64Match) {
-      return NextResponse.json({ error: 'Invalid image data URL format' }, { status: 400 });
+    let removeBgBody: Record<string, string>;
+
+    if (imageDataUrl.startsWith('data:')) {
+      // Base64 data URL — strip the prefix and send as image_file_b64
+      const base64Match = imageDataUrl.match(/^data:([^;]+);base64,(.+)$/);
+      if (!base64Match) {
+        return NextResponse.json({ error: 'Invalid image data URL format' }, { status: 400 });
+      }
+      removeBgBody = {
+        image_file_b64: base64Match[2],
+        size: preview ? 'preview' : 'auto',
+        format: 'png',
+      };
+    } else {
+      // Regular URL (e.g. /images/onboarding/good-photo.jpg or https://...)
+      // Make it absolute if relative
+      const absoluteUrl = imageDataUrl.startsWith('http')
+        ? imageDataUrl
+        : `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://brontie-redesign.vercel.app'}${imageDataUrl}`;
+
+      removeBgBody = {
+        image_url: absoluteUrl,
+        size: preview ? 'preview' : 'auto',
+        format: 'png',
+      };
     }
-    const base64Image = base64Match[2];
 
     // Send to remove.bg
-    // size: 'preview' = free, low-res watermarked
-    // size: 'auto'    = full quality, uses 1 credit
     const removeBgResponse = await fetch('https://api.remove.bg/v1.0/removebg', {
       method: 'POST',
       headers: {
         'X-Api-Key': REMOVE_BG_API_KEY,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        image_file_b64: base64Image,
-        size: preview ? 'preview' : 'auto',
-        format: 'png',
-      }),
+      body: JSON.stringify(removeBgBody),
     });
 
     if (!removeBgResponse.ok) {

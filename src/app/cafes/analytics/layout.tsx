@@ -26,9 +26,13 @@ export default function CafeAnalyticsLayout({ children }: LayoutProps) {
     ensureAuth();
   }, [router]);
 
+  // Bypass specific routes from this specific layout structure
+  if (pathname === '/cafes/analytics/payouts') {
+    return <>{children}</>;
+  }
+
   const nav = [
     { name: 'Voucher Funnel', href: '/cafes/analytics/funnel', icon: '📊' },
-    { name: 'Payouts', href: '/cafes/analytics/payouts', icon: '💰' },
     { name: 'Fees Breakdown', href: '/cafes/analytics/fees', icon: '💸' },
     { name: 'Product Mix & AOV', href: '/cafes/analytics/product-mix', icon: '📦' },
   ];

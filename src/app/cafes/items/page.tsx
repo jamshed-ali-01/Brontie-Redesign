@@ -3,15 +3,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  PlusIcon,
-  PencilIcon,
-  TrashIcon,
-  PhotoIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+  Plus,
+  Pencil,
+  Trash2,
+  Image as ImageIcon,
+  X
+} from 'lucide-react';
 import { getCategoryIdByBusiness } from '@/lib/category-client';
-
 import { getCategoryNameById } from '@/lib/category-client';
+import CafeDashboardLayout from '@/components/cafes/layout/CafeDashboardLayout';
+import { Lobster } from 'next/font/google';
+
+const lobster = Lobster({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 interface GiftItem {
   _id: string;
@@ -47,6 +54,8 @@ export default function CafeItemsPage() {
   });
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
+  const [merchantName, setMerchantName] = useState('Cafe Name M');
+  const [merchantLogo, setMerchantLogo] = useState('');
 
   const fetchMerchantInfo = useCallback(async () => {
     try {
@@ -54,10 +63,12 @@ export default function CafeItemsPage() {
       if (response.ok) {
         const data = await response.json();
         setMerchantBusinessCategory(data.businessCategory || 'Café & Treats');
+        setMerchantName(data.merchantName || 'Cafe Name M');
+        setMerchantLogo(data.logoUrl || '');
       }
     } catch (error) {
       console.error('Failed to fetch merchant info:', error);
-      setMerchantBusinessCategory('Café & Treats'); // Default fallback
+      setMerchantBusinessCategory('Café & Treats');
     }
   }, []);
 
@@ -90,13 +101,13 @@ export default function CafeItemsPage() {
     if (!file) return '';
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
 
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: formDataUpload,
       });
 
       if (response.ok) {
@@ -164,29 +175,51 @@ export default function CafeItemsPage() {
     }
   };
 
+  const handleToggleActive = async (item: GiftItem) => {
+    try {
+      const newStatus = !item.isActive;
+      // Optimistically update
+      setItems(prev => prev.map(i => i._id === item._id ? { ...i, isActive: newStatus } : i));
+
+      const response = await fetch(`/api/cafes/items/${item._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...item, isActive: newStatus }),
+      });
+
+      if (!response.ok) {
+        // Revert on failure
+        setItems(prev => prev.map(i => i._id === item._id ? { ...i, isActive: !newStatus } : i));
+        setError('Failed to update status');
+      }
+    } catch (err) {
+      // Revert on failure
+      setItems(prev => prev.map(i => i._id === item._id ? { ...i, isActive: !item.isActive } : i));
+      setError('Network error when updating status');
+    }
+  };
+
   const handleEdit = (item: GiftItem) => {
     setEditingItem(item);
     setFormData({
       name: item.name,
-      categoryId: item.categoryId,
+      categoryId: item.categoryId || getCategoryIdByBusiness(merchantBusinessCategory),
       price: item.price,
       description: item.description || '',
       imageUrl: item.imageUrl || ''
     });
     setShowAddForm(true);
-
-    // Scroll to top when editing
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (itemId: string) => {
     if (!confirm('Are you sure you want to delete this item?')) return;
-
     try {
       const response = await fetch(`/api/cafes/items/${itemId}`, {
         method: 'DELETE',
       });
-
       if (response.ok) {
         setItems(prev => prev.filter(item => item._id !== itemId));
       } else {
@@ -196,6 +229,7 @@ export default function CafeItemsPage() {
       setError('Network error');
     }
   };
+
   const resetForm = () => {
     const autoCategoryId = getCategoryIdByBusiness(merchantBusinessCategory);
     setFormData({
@@ -207,7 +241,6 @@ export default function CafeItemsPage() {
     });
   };
 
-
   const cancelEdit = () => {
     setEditingItem(null);
     resetForm();
@@ -215,118 +248,58 @@ export default function CafeItemsPage() {
   };
 
 
-  const getCategoryColor = (categoryId: string) => {
-    switch (categoryId) {
-      case '68483ef21d38b4b7195d45cd': return 'bg-amber-100 text-amber-800'; // Cafés & Treats
-      case '68483ef21d38b4b7195d45ce': return 'bg-blue-100 text-blue-800'; // Tickets & Passes
-      case '68492e4c7c523741d619abeb': return 'bg-green-100 text-green-800'; // Dining & Meals
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getCategoryName = (categoryId: string) => {
-    return getCategoryNameById(categoryId);
-  };
-
-
-  if (loading) {
+  if (loading && items.length === 0 && !showAddForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading items...</p>
+      <CafeDashboardLayout cafeName="Loading..." ownerName="">
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="relative w-16 h-16 mb-6">
+            <div className="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-[#f4c24d] rounded-full border-t-transparent animate-spin"></div>
+            <div className="absolute inset-2 border-4 border-gray-100 rounded-full"></div>
+            <div className="absolute inset-2 border-4 border-[#6ca3a4] rounded-full border-t-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <h3 className="text-[16px] font-bold text-gray-800 tracking-wide">Loading menu items...</h3>
         </div>
-      </div>
+      </CafeDashboardLayout>
     );
   }
 
+  const formatCurrency = (val: number) => `€${(val || 0).toFixed(2)}`;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-yellow-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-start gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">☕ Manage Gift Items</h1>
-              <p className="mt-2 text-gray-600">Add, edit, and manage your café&apos;s gift items</p>
+    <CafeDashboardLayout cafeName={merchantName} cafeLogo={merchantLogo} ownerName="">
+      <div className="pb-12 max-w-5xl">
+        <h1 className={`text-[42px] tracking-tight text-[#6ca3a4] mb-2 ${lobster.className}`}>Menu Items</h1>
+        <p className="text-[14px] font-medium text-[#879bb1] mb-8">Manage and showcase your cafe menu items here</p>
 
-              <div className="flex items-center justify-between gap-3 mt-3">
-                <div className="  bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-blue-800 text-sm">
-                    <strong>You can list up to 15 items on Brontie.</strong> Feel free to combine items, such as &quot;Coffee&quot; (Americano/Latte/Cappuccino) or &quot;Pastries&quot; (Croissant/Muffin/Scone).
-                  </p>
-
-
-                </div>
-                <button
-                  onClick={() => {
-                    if (items.length >= 15) {
-                      setError('You can only have up to 15 items. Please remove some items before adding new ones.');
-                      return;
-                    }
-                    const autoCategoryId = getCategoryIdByBusiness(merchantBusinessCategory);
-
-                    setFormData({
-                      name: '',
-                      categoryId: autoCategoryId,
-                      price: 0.5,
-                      description: '',
-                      imageUrl: ''
-                    });
-                    setShowAddForm(true);
-                  }}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                  Add Item
-                </button>
-              </div>
-
-            </div>
-            <div className="flex flex-col items-end gap-">
-
-
-            </div>
-
-          </div>
-        </div>
-
-        {/* Add/Edit Form */}
-        {showAddForm && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {editingItem ? 'Edit Item' : 'Add New Item'}
+        {showAddForm ? (
+          /* ADD/EDIT FORM UI */
+          <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-8 mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900">
+                {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
               </h2>
-              <button
-                onClick={cancelEdit}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <XMarkIcon className="h-6 w-6" />
+              <button onClick={cancelEdit} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <X className="w-6 h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Item Name *
-                  </label>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-2">Item Name *</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-black"
-                    placeholder="e.g., Cappuccino, Croissant"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6ca3a4] focus:border-transparent text-[14px] font-medium"
+                    placeholder="e.g., Cappuccino"
                   />
                 </div>
 
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price (€) *
-                  </label>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-2">Price (€) *</label>
                   <input
                     type="number"
                     required
@@ -334,17 +307,19 @@ export default function CafeItemsPage() {
                     step="0.10"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-black"
-                    placeholder="0.50"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6ca3a4] focus:border-transparent text-[14px] font-medium"
+                    placeholder="4.50"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Minimum €0.50, increments of €0.10</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Image
-                  </label>
-                  <div className="flex items-center space-x-2">
+                <div className="md:col-span-2">
+                  <label className="block text-[13px] font-bold text-gray-700 mb-2">Image</label>
+                  <div className="flex items-center gap-4">
+                    {formData.imageUrl && (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shadow-sm shrink-0">
+                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                     <input
                       type="file"
                       accept="image/*"
@@ -354,189 +329,159 @@ export default function CafeItemsPage() {
                     />
                     <label
                       htmlFor="image-upload"
-                      className="cursor-pointer text-black bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md flex items-center gap-2 transition-colors"
+                      className="cursor-pointer bg-[#fcfdfd] border border-gray-200 hover:bg-gray-50 text-[13px] font-bold text-gray-600 px-4 py-3 rounded-xl flex items-center gap-2 transition-colors"
                     >
-                      <PhotoIcon className="h-5 w-5" />
-                      {uploading ? 'Uploading...' : 'Upload Image'}
+                      <ImageIcon className="w-5 h-5 text-gray-400" />
+                      {uploading ? 'Uploading...' : (formData.imageUrl ? 'Change Image' : 'Upload Image')}
                     </label>
                   </div>
-                  {formData.imageUrl && (
-                    <div className="mt-2">
-                      <img
-                        src={formData.imageUrl}
-                        alt="Preview"
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                  maxLength={200}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-black"
-                  placeholder="Brief description of the item..."
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {formData.description.length}/200 characters
-                </p>
+                <div className="md:col-span-2">
+                  <label className="block text-[13px] font-bold text-gray-700 mb-2">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    rows={3}
+                    maxLength={200}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6ca3a4] focus:border-transparent text-[14px] font-medium resize-none shadow-sm"
+                    placeholder="Brief description of the item..."
+                  />
+                  <p className="text-[11px] font-medium text-gray-400 mt-2 text-right">
+                    {formData.description.length}/200 characters
+                  </p>
+                </div>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="bg-red-50 text-red-600 p-4 rounded-xl text-[13px] border border-red-100 font-medium">
+                  {error}
                 </div>
               )}
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-[#879bb1] hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="bg-[#6ca3a4] hover:bg-[#5b8c8d] text-white px-8 py-2.5 rounded-xl text-[14px] font-bold shadow-sm disabled:opacity-50 transition-colors"
                 >
-                  {loading ? 'Saving...' : (editingItem ? 'Update Item' : 'Add Item')}
+                  {loading ? 'Saving...' : (editingItem ? 'Update Menu Item' : 'Add Menu Item')}
                 </button>
               </div>
             </form>
           </div>
-        )}
-
-        {/* Items List */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">
-              Your Gift Items ({items.length})
-            </h3>
-          </div>
-
-          {items.length === 0 ? (
-            <div className="text-center py-12">
-              <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No items yet</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Get started by adding your first gift item.
-              </p>
-              <div className="mt-6">
-                <button
-                  onClick={() => {
-                    if (items.length >= 15) {
-                      setError('You can only have up to 15 items. Please remove some items before adding new ones.');
-                      return;
-                    }
-                    setShowAddForm(true);
-                  }}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md flex items-center gap-2 mx-auto"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                  Add Item
-                </button>
+        ) : (
+          <>
+            {/* MAIN TABLE */}
+            <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex flex-col pt-2 pb-2 mb-8 relative">
+              
+              <div className="overflow-x-auto w-full px-2">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="border-b border-gray-50">
+                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 px-6 w-[30%]">Item</th>
+                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pr-6 w-[15%]">Your Price</th>
+                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pr-6 w-[20%]">Brontie Listed Price</th>
+                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pr-6 w-[20%]">Status</th>
+                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 px-6 w-[15%] text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {items.length > 0 ? items.map((item) => (
+                      <tr key={item._id} className="hover:bg-gray-50/30 transition-colors group">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-4">
+                            {item.imageUrl ? (
+                              <img src={item.imageUrl} alt={item.name} className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-50" />
+                            ) : (
+                              <div className="w-12 h-12 rounded-xl bg-[#f0f4f4] flex items-center justify-center shrink-0 border border-[#e2ecec]">
+                                <ImageIcon className="w-5 h-5 text-[#879bb1]" />
+                              </div>
+                            )}
+                            <span className="text-[13px] font-bold text-gray-900 group-hover:text-[#6ca3a4] transition-colors">{item.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 pr-6 text-[13px] font-bold text-[#879bb1]">
+                          ${item.price.toFixed(2)}
+                        </td>
+                        <td className="py-4 pr-6 text-[13px] font-bold text-[#879bb1]">
+                          €{item.price.toFixed(2)}
+                        </td>
+                        <td className="py-4 pr-6">
+                           <button 
+                             onClick={() => handleToggleActive(item)}
+                             className="flex items-center gap-3 cursor-pointer group/toggle"
+                           >
+                             <div className={`w-[46px] h-[26px] rounded-full flex items-center px-[3px] transition-colors ${item.isActive ? 'bg-[#eaf1f1]' : 'bg-gray-200'}`}>
+                               <div className={`w-[20px] h-[20px] rounded-full transform transition-transform duration-200 shadow-sm ${item.isActive ? 'bg-[#6ca3a4] translate-x-[20px]' : 'bg-white translate-x-0'}`}></div>
+                             </div>
+                             <span className="text-[14px] font-medium text-gray-700 select-none">Visible</span>
+                           </button>
+                        </td>
+                        <td className="py-4 px-6 text-right relative">
+                          <div className="flex items-center justify-end gap-5">
+                            <button onClick={() => handleEdit(item)} className="text-[#879bb1] hover:text-[#6ca3a4] transition-colors">
+                              <Pencil className="w-[18px] h-[18px] stroke-[2]" />
+                            </button>
+                            <button onClick={() => handleDelete(item._id)} className="text-[#ff4747] hover:text-[#d33a3a] transition-colors">
+                              <Trash2 className="w-[18px] h-[18px] stroke-[2]" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center">
+                          <ImageIcon className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                          <p className="text-[14px] font-medium text-gray-400">No menu items found. Add your first item!</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Item
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {items.map((item) => (
-                    <tr key={item._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {item.imageUrl ? (
-                            <img
-                              src={item.imageUrl}
-                              alt={item.name}
-                              className="h-10 w-10 rounded-md object-cover mr-3"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center mr-3">
-                              <PhotoIcon className="h-5 w-5 text-gray-400" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(item.categoryId)}`}>
-                          {item.categoryId ? getCategoryName(item.categoryId) : 'Other'}
 
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        €{item.price.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate">
-                          {item.description || 'No description'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className="text-teal-600 hover:text-teal-900 transition-colors"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item._id)}
-                            className="text-red-600 hover:text-red-900 transition-colors"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+            {/* ERROR LIMIT */}
+            {error && !showAddForm && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-xl text-[13px] border border-red-100 font-medium mb-6 text-center">
+                  {error}
+                </div>
+            )}
 
-        {/* Back to Dashboard */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => router.push('/cafes/dashboard')}
-            className="text-teal-600 hover:text-teal-700 font-medium"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
+            {/* DASHED ADD BUTTON */}
+            <button
+               onClick={() => {
+                  if (items.length >= 15) {
+                    setError('You can only have up to 15 items. Please remove some items before adding new ones.');
+                    return;
+                  }
+                  const autoCategoryId = getCategoryIdByBusiness(merchantBusinessCategory);
+                  setFormData({
+                    name: '',
+                    categoryId: autoCategoryId,
+                    price: 0.5,
+                    description: '',
+                    imageUrl: ''
+                  });
+                  setShowAddForm(true);
+                }}
+              className="w-full flex flex-col items-center justify-center py-6 rounded-2xl border-[1.5px] border-dashed border-[#88b5b5] bg-[#fdfefe] hover:bg-[#f6fcfc] transition-colors group cursor-pointer"
+            >
+              <Plus className="w-7 h-7 text-[#88b5b5] mb-2 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+              <span className="text-[14px] font-medium text-[#88b5b5]">Add another Menu Item</span>
+            </button>
+          </>
+        )}
+
       </div>
-    </div>
+    </CafeDashboardLayout>
   );
 }

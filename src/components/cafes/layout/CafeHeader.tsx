@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Lobster } from 'next/font/google';
 import { useRouter } from 'next/navigation';
+import { Menu, X } from 'lucide-react';
 
 const lobster = Lobster({
   weight: '400',
@@ -16,9 +17,17 @@ interface CafeHeaderProps {
   cafeName?: string;
   ownerName?: string;
   cafeLogo?: string;
+  isMobileMenuOpen?: boolean;
+  setIsMobileMenuOpen?: (isOpen: boolean) => void;
 }
 
-export default function CafeHeader({ cafeName = 'Cafe Name', ownerName = '', cafeLogo }: CafeHeaderProps) {
+export default function CafeHeader({ 
+  cafeName = 'Cafe Name', 
+  ownerName = '', 
+  cafeLogo,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen
+}: CafeHeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -67,17 +76,35 @@ export default function CafeHeader({ cafeName = 'Cafe Name', ownerName = '', caf
   };
 
   return (
-    <header className="h-[64px] bg-[#6ca3a4] fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-10 shrink-0 shadow-sm">
-      <div className="flex items-center gap-6">
+    <header className="h-[64px] bg-[#6ca3a4] fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 lg:px-10 shrink-0 shadow-sm">
+      
+      {/* Mobile Hamburger (left) */}
+      <button 
+        className="lg:hidden w-10 h-10 flex items-center justify-start text-white"
+        onClick={() => setIsMobileMenuOpen && setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <X className="w-6 h-6 stroke-[2.5]" /> : <Menu className="w-6 h-6 stroke-[2.5]" />}
+      </button>
+
+      {/* Desktop Logo & Name (left) */}
+      <div className="hidden lg:flex items-center gap-6">
         <Link href="/cafes/dashboard" className="relative w-[120px] h-[32px] block">
           <Image src="/images/logo-main.svg" alt="Brontie" fill className="object-contain object-left" />
         </Link>
-        <div className={`hidden md:block text-white text-2xl tracking-wide ${lobster.className}`}>
+        <div className={`text-white text-2xl tracking-wide ${lobster.className}`}>
           {cafeName}
         </div>
       </div>
-      
-      <div className="flex items-center relative" ref={dropdownRef}>
+
+      {/* Mobile Logo (right) */}
+      <div className="lg:hidden flex items-center justify-end">
+        <Link href="/cafes/dashboard" className="relative w-[100px] h-[28px] block mt-1">
+          <Image src="/images/logo-main.svg" alt="Brontie" fill className="object-contain object-right" />
+        </Link>
+      </div>
+
+      {/* Desktop Avatar (right) */}
+      <div className="hidden lg:flex items-center relative" ref={dropdownRef}>
         <div 
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-10 h-10 rounded-full bg-[#f4c24d] flex items-center justify-center text-white font-bold text-sm shadow-sm cursor-pointer hover:scale-105 transition-transform overflow-hidden relative border border-[#f4c24d]"

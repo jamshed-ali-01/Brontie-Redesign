@@ -1,7 +1,7 @@
 import React from 'react';
 import { Gift, Coffee, CheckCircle, Wallet, Lightbulb } from 'lucide-react';
 
-interface MetroProps {
+interface MetricProps {
   title: string;
   value: string | number;
   subValue?: string;
@@ -11,19 +11,19 @@ interface MetroProps {
   trendIsPositive?: boolean;
 }
 
-function MetricCard({ title, value, subValue, subText, icon, trendText, trendIsPositive }: MetroProps) {
+function MetricCard({ title, value, subValue, subText, icon, trendText, trendIsPositive }: MetricProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col h-full">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide">{title}</h3>
+    <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-6 flex flex-col h-full">
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="text-xs font-semibold text-gray-500">{title}</h3>
         <div className="text-[#f4c24d]">{icon}</div>
       </div>
-      <div className="mt-auto">
-        <div className="text-[32px] font-bold text-gray-900 leading-none mb-2">{value}</div>
-        {subValue && <div className="text-[11px] text-gray-500 mb-1">{subValue}</div>}
-        {subText && <div className="text-[11px] text-gray-400">{subText}</div>}
+      <div className="mt-auto flex flex-col gap-1">
+        <div className="text-[32px] font-bold text-gray-900 leading-tight tracking-tight">{value}</div>
+        {subValue && <div className="text-[11px] text-gray-400 font-medium">{subValue}</div>}
+        {subText && <div className="text-[11px] text-gray-400 font-medium">{subText}</div>}
         {trendText && (
-          <div className={`text-[11px] font-medium mt-2 ${trendIsPositive ? 'text-green-500' : 'text-gray-500'}`}>
+          <div className={`text-[11px] font-bold ${trendIsPositive ? 'text-[#38c172]' : 'text-gray-500'}`}>
             {trendText}
           </div>
         )}
@@ -57,7 +57,7 @@ export default function DashboardMetrics({
           value={totalGiftsCount} 
           trendText="+12% from last month"
           trendIsPositive={true}
-          icon={<Gift className="w-5 h-5 stroke-[2]" />}
+          icon={<Gift className="w-5 h-5 stroke-[1.5]" />}
         />
         <MetricCard 
           title="Active Vouchers" 
@@ -65,28 +65,28 @@ export default function DashboardMetrics({
           subValue="Waiting for redemption"
           trendText="+10 vouchers this month"
           trendIsPositive={true}
-          icon={<Coffee className="w-5 h-5 stroke-[2]" />}
+          icon={<Coffee className="w-5 h-5 stroke-[1.5]" />}
         />
         <MetricCard 
           title="Redeemed" 
           value={redeemedCount} 
           subValue="Completed visits"
-          icon={<CheckCircle className="w-5 h-5 stroke-[2]" />}
+          icon={<CheckCircle className="w-5 h-5 stroke-[1.5]" />}
         />
         <MetricCard 
           title="Available Balance" 
           value={`€${availableBalance.toFixed(0)}`} 
           subValue={`Total paid out €${totalPaidOut.toLocaleString()}`}
           subText={`Next payout: ${nextPayoutDate}`}
-          icon={<Wallet className="w-5 h-5 stroke-[2]" />}
+          icon={<Wallet className="w-5 h-5 stroke-[1.5]" />}
         />
       </div>
 
-      <div className="bg-[#fff9eb] border border-[#fde6b3] rounded-xl p-4 flex items-start gap-4 shadow-sm">
-        <div className="text-[#f4c24d] mt-0.5">
-          <Lightbulb className="w-5 h-5 stroke-[2.5]" />
+      <div className="bg-[#fffbf0] border border-[#fde6b3] rounded-xl p-4 flex items-start gap-3 shadow-sm mx-auto">
+        <div className="text-[#f4c24d] mt-0.5 shrink-0">
+          <Lightbulb className="w-5 h-5 stroke-[2]" />
         </div>
-        <div className="text-sm text-gray-800">
+        <div className="text-[13px] text-gray-800 leading-snug">
           <span className="font-bold">Tip: </span> Coffee + Cake sells 40% more than coffee alone. Consider promoting it in your café.
         </div>
       </div>

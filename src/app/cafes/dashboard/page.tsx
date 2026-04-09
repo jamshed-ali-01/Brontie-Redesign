@@ -364,12 +364,18 @@ export default function CafeDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fcfcfc] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#6ca3a4] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium tracking-wide">Loading your dashboard...</p>
+      <CafeDashboardLayout cafeName="Loading..." ownerName="">
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="relative w-16 h-16 mb-6">
+            <div className="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-[#f4c24d] rounded-full border-t-transparent animate-spin"></div>
+            <div className="absolute inset-2 border-4 border-gray-100 rounded-full"></div>
+            <div className="absolute inset-2 border-4 border-[#6ca3a4] rounded-full border-t-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <h3 className="text-[16px] font-bold text-gray-800 tracking-wide">Loading your dashboard...</h3>
+          <p className="mt-2 text-[12px] text-gray-500 font-medium">Please wait a moment.</p>
         </div>
-      </div>
+      </CafeDashboardLayout>
     );
   }
 

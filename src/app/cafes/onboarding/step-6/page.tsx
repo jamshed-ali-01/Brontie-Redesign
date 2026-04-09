@@ -243,16 +243,15 @@ function BrandingAsset({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (designType === 'poster' || designType === 'counter') {
+    if (designType === 'poster') {
       // PDF Download for physical assets
       const imgData = canvas.toDataURL('image/png', 1.0);
-      const isPoster = designType === 'poster';
       
-      // Standard A4: 210 x 297 mm, Standard A5: 148 x 210 mm
+      // Standard A4: 210 x 297 mm
       const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
-        format: isPoster ? 'a4' : 'a5'
+        format: 'a4'
       });
 
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -261,7 +260,7 @@ function BrandingAsset({
       doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
       doc.save(`${merchantName}-${title.replace(/\s+/g, '-')}.pdf`);
     } else {
-      // PNG Download for social media assets
+      // PNG Download for other assets (post, story, counter)
       const link = document.createElement('a');
       link.download = `${merchantName}-${title.replace(/\s+/g, '-')}.png`;
       link.href = canvas.toDataURL('image/png', 1.0);
@@ -299,7 +298,7 @@ function BrandingAsset({
         onClick={download}
         className="mt-3 py-2 px-5 bg-white border border-[#2c3e50]/10 shadow-sm rounded-lg text-[#6ca3a4] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all font-bold text-[11px] uppercase "
       >
-        Download {designType === 'poster' || designType === 'counter' ? 'PDF' : 'PNG'} <span className="text-sm font-light leading-none">→</span>
+        Download {designType === 'poster' ? 'PDF' : 'PNG'} <span className="text-sm font-light leading-none">→</span>
       </button>
     </div>
   );

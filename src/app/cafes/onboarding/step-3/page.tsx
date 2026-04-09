@@ -421,7 +421,7 @@ export default function OnboardingStep3() {
                                ) : (
                                   <>
                                      <Wand2 className="w-3 h-3" />
-                                     <span className="text-[9px] font-bold">Apply full quality (1 credit)</span>
+                                     <span className="text-[9px] font-bold">Apply full quality</span>
                                   </>
                                )}
                             </button>

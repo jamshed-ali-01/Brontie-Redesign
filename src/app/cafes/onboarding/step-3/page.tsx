@@ -16,6 +16,7 @@ import {
 import SetupLayout from '@/components/shared/auth/SetupLayout';
 import { Lobster } from 'next/font/google';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 const lobster = Lobster({
    weight: '400',

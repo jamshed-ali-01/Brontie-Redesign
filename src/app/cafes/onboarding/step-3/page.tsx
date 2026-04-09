@@ -33,6 +33,9 @@ interface MenuItem {
    imageUrl: string;
    status: 'draft' | 'saved';
    isSaving?: boolean;
+   isPreviewed?: boolean;  // true after free preview, shows "Apply full quality" button
+   isOptimizing?: boolean; // true while remove.bg is running
+   isApplyingFull?: boolean; // true while full quality is being applied
 }
 
 export default function OnboardingStep3() {
@@ -41,9 +44,6 @@ export default function OnboardingStep3() {
    const [loadingInitial, setLoadingInitial] = useState(true);
    const [saving, setSaving] = useState(false);
    const [error, setError] = useState('');
-   const [optimizingIds, setOptimizingIds] = useState<Set<string>>(new Set());
-   const [previewedIds, setPreviewedIds] = useState<Set<string>>(new Set());
-   const [applyingFullIds, setApplyingFullIds] = useState<Set<string>>(new Set());
    const router = useRouter();
 
    // 1. Fetch items on mount
@@ -157,47 +157,41 @@ export default function OnboardingStep3() {
 
    // Step 1: Free low-res preview — no credit used
    const handleOptimizeAI = async (item: MenuItem) => {
-      if (!item.imageUrl || optimizingIds.has(item.id)) return;
+      if (!item.imageUrl || item.isOptimizing) return;
 
-      setOptimizingIds(prev => new Set(prev).add(item.id));
+      handleUpdateItem(item.id, { isOptimizing: true });
       try {
          const data = await callRemoveBg(item, true);
-         handleUpdateItem(item.id, { imageUrl: data.imageDataUrl });
-         // Mark as previewed so the "Apply full quality" button appears
-         setPreviewedIds(prev => new Set(prev).add(item.id));
+         handleUpdateItem(item.id, { imageUrl: data.imageDataUrl, isPreviewed: true, isOptimizing: false });
          toast.success('Preview ready! Apply full quality to save.', {
             style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
             icon: '✨',
          });
       } catch (err: any) {
+         handleUpdateItem(item.id, { isOptimizing: false });
          toast.error(err.message ?? 'Optimisation failed', {
             style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
          });
-      } finally {
-         setOptimizingIds(prev => { const s = new Set(prev); s.delete(item.id); return s; });
       }
    };
 
    // Step 2: Full quality — uses 1 credit
    const handleApplyFullQuality = async (item: MenuItem) => {
-      if (applyingFullIds.has(item.id)) return;
+      if (item.isApplyingFull) return;
 
-      setApplyingFullIds(prev => new Set(prev).add(item.id));
+      handleUpdateItem(item.id, { isApplyingFull: true });
       try {
          const data = await callRemoveBg(item, false);
-         handleUpdateItem(item.id, { imageUrl: data.imageDataUrl });
-         // Remove from previewed — full quality applied, button no longer needed
-         setPreviewedIds(prev => { const s = new Set(prev); s.delete(item.id); return s; });
+         handleUpdateItem(item.id, { imageUrl: data.imageDataUrl, isPreviewed: false, isApplyingFull: false });
          toast.success('Full quality applied! (1 credit used)', {
             style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
             icon: '🎉',
          });
       } catch (err: any) {
+         handleUpdateItem(item.id, { isApplyingFull: false });
          toast.error(err.message ?? 'Failed to apply full quality', {
             style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
          });
-      } finally {
-         setApplyingFullIds(prev => { const s = new Set(prev); s.delete(item.id); return s; });
       }
    };
 
@@ -387,10 +381,10 @@ export default function OnboardingStep3() {
                          <button
                             type="button"
                             onClick={() => handleOptimizeAI(item)}
-                            disabled={!item.imageUrl || optimizingIds.has(item.id) || previewedIds.has(item.id)}
+                            disabled={!item.imageUrl || item.isOptimizing || item.isPreviewed}
                             className="flex items-center gap-1 text-[#6ca3a4] hover:opacity-100 opacity-80 mt-1 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
                          >
-                            {optimizingIds.has(item.id) ? (
+                            {item.isOptimizing ? (
                                <>
                                   <svg className="animate-spin w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -402,21 +396,21 @@ export default function OnboardingStep3() {
                                <>
                                   <Wand2 className="w-3 h-3" />
                                   <span className="text-[9px] font-bold">
-                                     {previewedIds.has(item.id) ? '✓ Preview applied' : 'Optimize with AI'}
+                                     {item.isPreviewed ? '✓ Preview applied' : 'Optimize with AI'}
                                   </span>
                                </>
                             )}
                          </button>
 
                          {/* Step 2: Apply full quality (uses 1 credit) — shown after preview */}
-                         {previewedIds.has(item.id) && (
+                         {item.isPreviewed && (
                             <button
                                type="button"
                                onClick={() => handleApplyFullQuality(item)}
-                               disabled={applyingFullIds.has(item.id)}
+                               disabled={item.isApplyingFull}
                                className="flex items-center gap-1 text-white bg-[#6ca3a4] hover:bg-[#528a8b] rounded-[8px] px-2.5 py-1 mt-1 pb-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                               {applyingFullIds.has(item.id) ? (
+                               {item.isApplyingFull ? (
                                   <>
                                      <svg className="animate-spin w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

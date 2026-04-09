@@ -40,6 +40,9 @@ export default function OnboardingStep3() {
    const [loadingInitial, setLoadingInitial] = useState(true);
    const [saving, setSaving] = useState(false);
    const [error, setError] = useState('');
+   const [optimizingIds, setOptimizingIds] = useState<Set<string>>(new Set());
+   const [previewedIds, setPreviewedIds] = useState<Set<string>>(new Set());
+   const [applyingFullIds, setApplyingFullIds] = useState<Set<string>>(new Set());
    const router = useRouter();
 
    // 1. Fetch items on mount
@@ -136,6 +139,65 @@ export default function OnboardingStep3() {
          imageUrl: '',
          status: 'draft'
       }]);
+   };
+
+   const callRemoveBg = async (item: MenuItem, preview: boolean) => {
+      const response = await fetch('/api/remove-bg', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ imageDataUrl: item.imageUrl, preview }),
+      });
+      if (!response.ok) {
+         const err = await response.json();
+         throw new Error(err.error ?? 'Background removal failed');
+      }
+      return response.json();
+   };
+
+   // Step 1: Free low-res preview — no credit used
+   const handleOptimizeAI = async (item: MenuItem) => {
+      if (!item.imageUrl || optimizingIds.has(item.id)) return;
+
+      setOptimizingIds(prev => new Set(prev).add(item.id));
+      try {
+         const data = await callRemoveBg(item, true);
+         handleUpdateItem(item.id, { imageUrl: data.imageDataUrl });
+         // Mark as previewed so the "Apply full quality" button appears
+         setPreviewedIds(prev => new Set(prev).add(item.id));
+         toast.success('Preview ready! Apply full quality to save.', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+            icon: '✨',
+         });
+      } catch (err: any) {
+         toast.error(err.message ?? 'Optimisation failed', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+         });
+      } finally {
+         setOptimizingIds(prev => { const s = new Set(prev); s.delete(item.id); return s; });
+      }
+   };
+
+   // Step 2: Full quality — uses 1 credit
+   const handleApplyFullQuality = async (item: MenuItem) => {
+      if (applyingFullIds.has(item.id)) return;
+
+      setApplyingFullIds(prev => new Set(prev).add(item.id));
+      try {
+         const data = await callRemoveBg(item, false);
+         handleUpdateItem(item.id, { imageUrl: data.imageDataUrl });
+         // Remove from previewed — full quality applied, button no longer needed
+         setPreviewedIds(prev => { const s = new Set(prev); s.delete(item.id); return s; });
+         toast.success('Full quality applied! (1 credit used)', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+            icon: '🎉',
+         });
+      } catch (err: any) {
+         toast.error(err.message ?? 'Failed to apply full quality', {
+            style: { borderRadius: '16px', background: '#2c3e50', color: '#fff', fontSize: '12px', fontWeight: 'bold' },
+         });
+      } finally {
+         setApplyingFullIds(prev => { const s = new Set(prev); s.delete(item.id); return s; });
+      }
    };
 
    // 2. Individual Item Save to Database
@@ -304,14 +366,71 @@ export default function OnboardingStep3() {
                                 <Camera className="w-8 h-8 opacity-50" />
                              </div>
                           )}
-                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                          <input
+                             type="file"
+                             accept="image/*"
+                             id={`file-${item.id}`}
+                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                             onChange={(e) => handleFileChange(e, item.id)}
+                          />
                        </div>
                        <div className="flex flex-col items-center gap-1.5 mt-1">
-                         <span className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline">Change Image</span>
-                         <div className="flex items-center gap-1 text-[#6ca3a4] cursor-pointer hover:underline opacity-80 mt-1 pb-2">
-                            <Wand2 className="w-3 h-3" />
-                            <span className="text-[9px] font-bold">Optimize with AI</span>
-                         </div>
+                          <label
+                            htmlFor={`file-${item.id}`}
+                            className="text-[10px] font-bold text-[#6ca3a4] cursor-pointer hover:underline"
+                          >
+                            Change Image
+                          </label>
+
+                         {/* Step 1: Optimize with AI (free preview) */}
+                         <button
+                            type="button"
+                            onClick={() => handleOptimizeAI(item)}
+                            disabled={!item.imageUrl || optimizingIds.has(item.id) || previewedIds.has(item.id)}
+                            className="flex items-center gap-1 text-[#6ca3a4] hover:opacity-100 opacity-80 mt-1 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                         >
+                            {optimizingIds.has(item.id) ? (
+                               <>
+                                  <svg className="animate-spin w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                  </svg>
+                                  <span className="text-[9px] font-bold">Generating preview…</span>
+                               </>
+                            ) : (
+                               <>
+                                  <Wand2 className="w-3 h-3" />
+                                  <span className="text-[9px] font-bold">
+                                     {previewedIds.has(item.id) ? '✓ Preview applied' : 'Optimize with AI'}
+                                  </span>
+                               </>
+                            )}
+                         </button>
+
+                         {/* Step 2: Apply full quality (uses 1 credit) — shown after preview */}
+                         {previewedIds.has(item.id) && (
+                            <button
+                               type="button"
+                               onClick={() => handleApplyFullQuality(item)}
+                               disabled={applyingFullIds.has(item.id)}
+                               className="flex items-center gap-1 text-white bg-[#6ca3a4] hover:bg-[#528a8b] rounded-[8px] px-2.5 py-1 mt-1 pb-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                               {applyingFullIds.has(item.id) ? (
+                                  <>
+                                     <svg className="animate-spin w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                     </svg>
+                                     <span className="text-[9px] font-bold">Applying…</span>
+                                  </>
+                               ) : (
+                                  <>
+                                     <Wand2 className="w-3 h-3" />
+                                     <span className="text-[9px] font-bold">Apply full quality (1 credit)</span>
+                                  </>
+                               )}
+                            </button>
+                         )}
                        </div>
                     </div>
 

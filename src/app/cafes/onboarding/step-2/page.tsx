@@ -31,8 +31,8 @@ export default function OnboardingStep2() {
       zipCode: '',
       address: '',
       openingHours: {
-         monFri: { open: '08:00', close: '17:00' },
-         satSun: { open: '09:00', close: '16:00' },
+         monFri: { open: '08:00', close: '20:00' },
+         satSun: { open: '09:00', close: '18:00' },
          daysClosed: [] as string[]
       }
    });
@@ -397,13 +397,25 @@ export default function OnboardingStep2() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="relative">
                         <select className="w-full bg-[#fbecce] px-3 rounded-[12px] text-[#2c3e50] border-2 border-transparent focus:border-[#f4c24d] outline-none text-[13px] h-[50px] appearance-none transition-all" value={formData.openingHours.monFri.open} onChange={(e) => setFormData({ ...formData, openingHours: { ...formData.openingHours, monFri: { ...formData.openingHours.monFri, open: e.target.value } } })}>
-                          <option value="08:00">8:00AM</option><option value="09:00">9:00AM</option>
+                          <option value="06:00">6:00AM</option>
+                          <option value="07:00">7:00AM</option>
+                          <option value="08:00">8:00AM</option>
+                          <option value="09:00">9:00AM</option>
+                          <option value="10:00">10:00AM</option>
                         </select>
                         <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 rotate-90 pointer-events-none" />
                       </div>
                       <div className="relative">
                         <select className="w-full bg-[#fbecce] px-3 rounded-[12px] text-[#2c3e50] border-2 border-transparent focus:border-[#f4c24d] outline-none text-[13px] h-[50px] appearance-none transition-all" value={formData.openingHours.monFri.close} onChange={(e) => setFormData({ ...formData, openingHours: { ...formData.openingHours, monFri: { ...formData.openingHours.monFri, close: e.target.value } } })}>
-                          <option value="17:00">5:00PM</option><option value="18:00">6:00PM</option>
+                          <option value="15:00">3:00PM</option>
+                          <option value="16:00">4:00PM</option>
+                          <option value="17:00">5:00PM</option>
+                          <option value="18:00">6:00PM</option>
+                          <option value="19:00">7:00PM</option>
+                          <option value="20:00">8:00PM</option>
+                          <option value="21:00">9:00PM</option>
+                          <option value="22:00">10:00PM</option>
+                          <option value="23:00">11:00PM</option>
                         </select>
                         <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 rotate-90 pointer-events-none" />
                       </div>
@@ -415,14 +427,25 @@ export default function OnboardingStep2() {
                     <div className="grid grid-cols-2 gap-4">
                        <div className="relative">
                         <select className="w-full bg-[#fbecce] px-3 rounded-[12px] text-[#2c3e50] border-2 border-transparent focus:border-[#f4c24d] outline-none text-[13px] h-[50px] appearance-none transition-all" value={formData.openingHours.satSun.open} onChange={(e) => setFormData({ ...formData, openingHours: { ...formData.openingHours, satSun: { ...formData.openingHours.satSun, open: e.target.value } } })}>
-                          <option value="09:00">9:00AM</option><option value="10:00">10:00AM</option>
+                          <option value="06:00">6:00AM</option>
+                          <option value="07:00">7:00AM</option>
+                          <option value="08:00">8:00AM</option>
+                          <option value="09:00">9:00AM</option>
+                          <option value="10:00">10:00AM</option>
                         </select>
                         <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 rotate-90 pointer-events-none" />
                       </div>
                       <div className="relative">
                         <select className="w-full bg-[#fbecce] px-3 rounded-[12px] text-[#2c3e50] border-2 border-transparent focus:border-[#f4c24d] outline-none text-[13px] h-[50px] appearance-none transition-all" value={formData.openingHours.satSun.close} onChange={(e) => setFormData({ ...formData, openingHours: { ...formData.openingHours, satSun: { ...formData.openingHours.satSun, close: e.target.value } } })}>
-                           <option value="15:00">3:00PM</option>
-                           <option value="16:00">4:00PM</option>
+                          <option value="15:00">3:00PM</option>
+                          <option value="16:00">4:00PM</option>
+                          <option value="17:00">5:00PM</option>
+                          <option value="18:00">6:00PM</option>
+                          <option value="19:00">7:00PM</option>
+                          <option value="20:00">8:00PM</option>
+                          <option value="21:00">9:00PM</option>
+                          <option value="22:00">10:00PM</option>
+                          <option value="23:00">11:00PM</option>
                         </select>
                         <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 rotate-90 pointer-events-none" />
                       </div>

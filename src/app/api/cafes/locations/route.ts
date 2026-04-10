@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const merchantId = decoded.merchantId;
 
     const locations = await MerchantLocation.find({ merchantId })
-      .select('name address city county area customArea zipCode country phoneNumber openingHours accessibility isActive createdAt updatedAt')
+      .select('name address city county area customArea zipCode country phoneNumber openingHours accessibility isActive photoUrl createdAt updatedAt')
       .sort({ name: 1 });
 
     return NextResponse.json({
@@ -85,21 +85,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!area) {
-      return NextResponse.json(
-        { error: 'Area is required' },
-        { status: 400 }
-      );
-    }
-
     // Final area value (either from dropdown or custom)
-    const finalArea = area === 'other' ? customArea : area;
-
-    if (!finalArea) {
-      return NextResponse.json(
-        { error: 'Please specify area/town name' },
-        { status: 400 }
-      );
+    let finalArea = area;
+    if (area === 'other') {
+      finalArea = customArea;
     }
 
     const location = new MerchantLocation({
@@ -108,7 +97,7 @@ export async function POST(request: NextRequest) {
       address,
       city: city || '',
       county,
-      area: finalArea,
+      area: finalArea || '',
       customArea: area === 'other' ? customArea : undefined,
       zipCode,
       country: country || 'Ireland',

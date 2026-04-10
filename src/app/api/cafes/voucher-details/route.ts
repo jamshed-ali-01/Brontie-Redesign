@@ -71,6 +71,14 @@ export async function GET(request: NextRequest) {
         }
       },
       {
+        $lookup: {
+          from: 'merchantlocations',
+          localField: 'validLocationIds',
+          foreignField: '_id',
+          as: 'locations'
+        }
+      },
+      {
         $project: {
           _id: 1,
           giftItemName: '$giftItem.name',
@@ -82,6 +90,8 @@ export async function GET(request: NextRequest) {
           recipientName: { $ifNull: ['$transaction.recipientName', '$recipientName'] },
           recipientEmail: { $ifNull: ['$transaction.recipientEmail', '$email'] },
           message: { $ifNull: ['$transaction.message', ''] },
+          code: '$redemptionCode',
+          location: { $arrayElemAt: ['$locations.name', 0] },
           status: 1
         }
       },
@@ -125,6 +135,14 @@ export async function GET(request: NextRequest) {
         }
       },
       {
+        $lookup: {
+          from: 'merchantlocations',
+          localField: 'validLocationIds',
+          foreignField: '_id',
+          as: 'locations'
+        }
+      },
+      {
         $project: {
           _id: 1,
           giftItemName: '$giftItem.name',
@@ -137,6 +155,8 @@ export async function GET(request: NextRequest) {
           recipientName: { $ifNull: ['$transaction.recipientName', '$recipientName'] },
           recipientEmail: { $ifNull: ['$transaction.recipientEmail', '$email'] },
           message: { $ifNull: ['$transaction.message', ''] },
+          code: '$redemptionCode',
+          location: { $arrayElemAt: ['$locations.name', 0] },
           status: 1
         }
       },

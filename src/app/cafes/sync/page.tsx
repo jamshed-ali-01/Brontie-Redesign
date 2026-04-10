@@ -1,9 +1,19 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import ConfirmModal from '@/components/shared/ConfirmModal';
+import CafeDashboardLayout from '@/components/cafes/layout/CafeDashboardLayout';
+import { Lobster } from 'next/font/google';
+import { ArrowLeft } from 'lucide-react';
+
+const lobster = Lobster({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 interface SquareItem {
   name: string;
@@ -88,8 +98,25 @@ function SquareSyncContent() {
   const [webhookInfo, setWebhookInfo] = useState<SquareWebhookInfo | null>(null);
   const [loadingWebhook, setLoadingWebhook] = useState(false);
   const [showDiscountWebhook, setShowDiscountWebhook] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'webhook' | 'config' | null>(null);
+  const [merchantName, setMerchantName] = useState('Cafe Name M');
+  const [merchantLogo, setMerchantLogo] = useState('');
+
+  const fetchMerchantInfo = useCallback(async () => {
+    try {
+      const response = await fetch('/api/cafes/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setMerchantName(data.merchantName || 'Cafe Name M');
+        setMerchantLogo(data.logoUrl || '');
+      }
+    } catch (error) {
+      console.error('Failed to fetch merchant info:', error);
+    }
+  }, []);
 
   useEffect(() => {
+    fetchMerchantInfo();
     fetchSquareCredentials();
 
     // Check for OAuth callback params
@@ -265,11 +292,8 @@ function SquareSyncContent() {
     }
   };
 
-  const handleDeleteWebhook = async () => {
-    if (!confirm('Are you sure you want to delete this webhook? This will stop all automatic sync.')) {
-      return;
-    }
-
+  const executeDeleteWebhook = async () => {
+    setConfirmAction(null);
     setLoadingWebhook(true);
     try {
       const response = await fetch('/api/cafes/square-webhook', {
@@ -434,11 +458,8 @@ function SquareSyncContent() {
     }
   };
 
-  const handleDeleteConfiguration = async () => {
-    if (!confirm('Are you sure you want to delete your Square configuration? This will remove all connection settings and stop syncing.')) {
-      return;
-    }
-
+  const executeDeleteConfiguration = async () => {
+    setConfirmAction(null);
     setLoading(true);
     setError('');
     setSuccess('');
@@ -501,7 +522,7 @@ function SquareSyncContent() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="relative w-20 h-20 mx-auto">
-            <div className="absolute inset-0 border-4 border-teal-100 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-[#e2ecec] rounded-full"></div>
             <div className="absolute inset-0 border-4 border-teal-600 rounded-full border-t-transparent animate-spin"></div>
           </div>
           <p className="mt-6 text-slate-600 font-medium animate-pulse">Initializing Square Sync...</p>
@@ -511,29 +532,24 @@ function SquareSyncContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Dashboard-style Header */}
-      <div className="bg-white shadow-sm border-b overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">🔄 Square Product Sync</h1>
-              <p className="text-gray-600">Keep your Brontie inventory and Square catalog in sync</p>
-            </div>
-            <div className="flex space-x-3">
-              <Link
-                href="/cafes/dashboard"
-                className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                <span className="text-white">← Back to Dashboard</span>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <span className="text-white">Logout</span>
-              </button>
-            </div>
+    <CafeDashboardLayout>
+      <div className="pb-8">
+        <Link
+          href="/cafes/dashboard"
+          className="inline-flex items-center text-sm font-medium text-[#879bb1] hover:text-[#6ca3a4] transition-colors mb-6 group"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Back to Dashboard
+        </Link>
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className={`text-[42px] tracking-tight text-[#6ca3a4] mb-2 ${lobster.className}`}>
+              Square Product Sync
+            </h1>
+            <p className="text-[14px] font-medium text-[#879bb1]">
+              Keep your Brontie inventory and Square catalog in sync
+            </p>
           </div>
         </div>
       </div>
@@ -562,7 +578,7 @@ function SquareSyncContent() {
                         <>
                           {error.split("Please click 'Login with Square' again")[0]}
                           <span className="block mt-2 font-bold bg-white px-3 py-2 rounded border border-red-100 shadow-sm">
-                            👉 Please click <span className="text-teal-600">"Login with Square"</span> again in the setup section below to update your permissions.
+                            👉 Please click <span className="text-[#6ca3a4]">"Login with Square"</span> again in the setup section below to update your permissions.
                           </span>
                         </>
                       ) : error}
@@ -584,12 +600,12 @@ function SquareSyncContent() {
             </div>
 
             <div className="space-y-6">
-              <div className="p-6 bg-teal-50 border border-teal-100 rounded-xl text-center">
+              <div className="p-6 bg-[#f0f7f7] border border-[#e2ecec] rounded-xl text-center">
                 <h3 className="text-lg font-semibold text-teal-900 mb-2">Automated Setup</h3>
                 <p className="text-teal-700 text-sm mb-6">The fastest way to connect. We'll automatically fetch your locations and handle security.</p>
                 <a
                   href="/api/cafes/square-auth/authorize"
-                  className="inline-block bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors shadow-sm"
+                  className="inline-block bg-[#6ca3a4] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#568586] transition-colors shadow-sm"
                 >
                   Login with Square
                 </a>
@@ -601,7 +617,7 @@ function SquareSyncContent() {
               </div>
 
               <details className="group">
-                <summary className="cursor-pointer text-center text-gray-500 font-medium hover:text-teal-600 transition-colors list-none">
+                <summary className="cursor-pointer text-center text-gray-500 font-medium hover:text-[#6ca3a4] transition-colors list-none">
                   Manual Configuration Details ▼
                 </summary>
                 <form onSubmit={handleFormSubmit} className="mt-6 space-y-4 pt-4 border-t border-gray-50">
@@ -671,7 +687,7 @@ function SquareSyncContent() {
                   <button
                     onClick={handleSync}
                     disabled={loading || !isSquareActive}
-                    className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-teal-700 transition-colors disabled:opacity-50"
+                    className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#6ca3a4] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#568586] transition-colors disabled:opacity-50"
                   >
                     {loading ? 'Syncing...' : '🔄 Sync Now'}
                   </button>
@@ -691,7 +707,7 @@ function SquareSyncContent() {
                     {showUpdateForm ? '✕ Close' : '🔧 Update'}
                   </button>
                   <button
-                    onClick={handleDeleteConfiguration}
+                    onClick={() => setConfirmAction('config')}
                     className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors flex-1 md:flex-none"
                   >
                     🗑️ Delete Link
@@ -737,7 +753,7 @@ function SquareSyncContent() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
                     <p className="text-sm font-semibold text-gray-500 mb-1">Products added in Brontie</p>
-                    <p className="text-3xl font-bold text-teal-600">{syncData.summary.total_giftitems}</p>
+                    <p className="text-3xl font-bold text-[#6ca3a4]">{syncData.summary.total_giftitems}</p>
                     <p className="text-xs text-gray-400 mt-1">Total items in your Brontie catalog</p>
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
@@ -771,11 +787,11 @@ function SquareSyncContent() {
                 <div className="bg-white rounded-lg shadow p-8 border border-gray-100">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-lg font-bold text-gray-900">Synchronization Health</h4>
-                    <span className="text-2xl font-black text-teal-600">{syncData.summary.sync_percentage}%</span>
+                    <span className="text-2xl font-black text-[#6ca3a4]">{syncData.summary.sync_percentage}%</span>
                   </div>
                   <div className="w-full bg-gray-100 h-4 rounded-full overflow-hidden">
                     <div
-                      className="bg-teal-600 h-full transition-all duration-1000"
+                      className="bg-[#6ca3a4] h-full transition-all duration-1000"
                       style={{ width: `${syncData.summary.sync_percentage}%` }}
                     ></div>
                   </div>
@@ -783,7 +799,8 @@ function SquareSyncContent() {
 
                 {/* Tabbed Product Table */}
                 <div className="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
+                  <div className="overflow-x-auto w-full">
+                    <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Product</th>
@@ -829,12 +846,13 @@ function SquareSyncContent() {
                         <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-medium italic">No products found for this filter.</td></tr>
                       )}
                     </tbody>
-                  </table>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
             {/* Automation Card - Refined Light Teal Style */}
-            <div className="bg-teal-50 rounded-xl p-8 md:p-10 border border-teal-100 relative overflow-hidden group mb-8">
+            <div className="bg-[#f0f7f7] rounded-xl p-8 md:p-10 border border-[#e2ecec] relative overflow-hidden group mb-8">
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <div className="flex items-center gap-4 mb-6">
@@ -850,28 +868,29 @@ function SquareSyncContent() {
                         <p className="text-[10px] font-black uppercase tracking-widest text-teal-500 mb-1">Status</p>
                         <p className="font-bold text-green-600 uppercase tracking-widest">{webhookInfo.status}</p>
                       </div>
-                      {/* <button
-                        onClick={handleDeleteWebhook}
+                      <button
+                        onClick={() => setConfirmAction('webhook')}
+                        disabled={loadingWebhook}
                         className="px-8 py-4 bg-red-50 text-red-600 rounded-xl font-bold transition-all border border-red-100 hover:bg-red-100"
                       >
                         Disconnect Automation
-                      </button> */}
+                      </button>
                     </div>
                   ) : (
                     <button
                       onClick={handleSetupWebhook}
                       disabled={loading || !isSquareActive}
-                      className="bg-teal-600 text-white px-10 py-4 rounded-xl font-black text-lg hover:bg-teal-700 transition-all active:scale-95 shadow-lg shadow-teal-500/10"
+                      className="bg-[#6ca3a4] text-white px-10 py-4 rounded-xl font-black text-lg hover:bg-[#568586] transition-all active:scale-95 shadow-lg shadow-teal-500/10"
                     >
                       Enable Live Automation
                     </button>
                   )}
                 </div>
                 <div className="flex justify-center lg:justify-end">
-                  <div className="p-6 bg-white rounded-xl border border-teal-100 shadow-sm text-center w-full max-w-[240px]">
+                  <div className="p-6 bg-white rounded-xl border border-[#e2ecec] shadow-sm text-center w-full max-w-[240px]">
                     <p className="text-[10px] font-black uppercase tracking-widest text-teal-500 mb-1">Feature</p>
                     <p className="font-bold text-teal-900">Auto Price Updates</p>
-                    <div className="mt-2 text-xs text-teal-600 font-medium">Synced instantly from Square</div>
+                    <div className="mt-2 text-xs text-[#6ca3a4] font-medium">Synced instantly from Square</div>
                   </div>
                 </div>
               </div>
@@ -891,8 +910,28 @@ function SquareSyncContent() {
             )}
           </div>
         )}
+
+        <ConfirmModal
+          isOpen={confirmAction === 'webhook'}
+          title="Delete Webhook"
+          message="Are you sure you want to delete this webhook? This will stop all automatic sync."
+          confirmText="Delete Webhook"
+          onConfirm={executeDeleteWebhook}
+          onCancel={() => setConfirmAction(null)}
+          isDestructive={true}
+        />
+
+        <ConfirmModal
+          isOpen={confirmAction === 'config'}
+          title="Delete Configuration"
+          message="Are you sure you want to delete your Square configuration? This will remove all connection settings and stop syncing."
+          confirmText="Delete Link"
+          onConfirm={executeDeleteConfiguration}
+          onCancel={() => setConfirmAction(null)}
+          isDestructive={true}
+        />
       </div>
-    </div>
+    </CafeDashboardLayout>
   );
 }
 

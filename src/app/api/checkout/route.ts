@@ -61,8 +61,13 @@ export async function POST(request: NextRequest) {
     const baseAmountCents = Math.round(giftItem.price * qty * 100);
     const feeAmountCents = Math.round(baseAmountCents * SERVICE_FEE_PERCENT);
 
+    const imageUrl = giftItem.imageUrl?.startsWith('http') 
+      ? giftItem.imageUrl 
+      : giftItem.imageUrl 
+        ? `${origin}${giftItem.imageUrl.startsWith('/') ? '' : '/'}${giftItem.imageUrl}` 
+        : undefined;
+
     const sessionPayload: any = {
-      payment_method_types: ['card', 'revolut_pay'],
       line_items: [
         {
           price_data: {
@@ -70,7 +75,7 @@ export async function POST(request: NextRequest) {
             product_data: {
               name: `${giftItem.name} — ${giftItem.merchantId.name}`,
               description: `${qty} × €${giftItem.price.toFixed(2)}`,
-              images: giftItem.imageUrl ? [giftItem.imageUrl] : [],
+              images: imageUrl ? [imageUrl] : [],
             },
             unit_amount: baseAmountCents, // Total amount in cents
           },

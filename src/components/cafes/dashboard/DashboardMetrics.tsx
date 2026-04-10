@@ -42,6 +42,10 @@ interface DashboardMetricsProps {
   availableBalance: number;
   totalPaidOut: number;
   nextPayoutDate: string;
+  trends?: {
+    giftsLast30Days: number;
+    redeemedLast30Days: number;
+  };
 }
 
 export default function DashboardMetrics({
@@ -50,30 +54,37 @@ export default function DashboardMetrics({
   redeemedCount,
   availableBalance,
   totalPaidOut,
-  nextPayoutDate
+  nextPayoutDate,
+  trends
 }: DashboardMetricsProps) {
+  const giftsTrendRaw = trends?.giftsLast30Days || 0;
+  const giftsTrendText = giftsTrendRaw > 0 ? `+${giftsTrendRaw} this month` : 'No new gifts this month';
+
+  const redeemedTrendRaw = trends?.redeemedLast30Days || 0;
+  const redeemedTrendText = redeemedTrendRaw > 0 ? `+${redeemedTrendRaw} this month` : 'No redemptions this month';
+  
   return (
     <div className="space-y-6 mb-8">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <MetricCard 
           title="Total Gifts Sent" 
           value={totalGiftsCount} 
-          trendText="+12% from last month"
-          trendIsPositive={true}
+          trendText={giftsTrendText}
+          trendIsPositive={giftsTrendRaw > 0}
           icon={<Gift  color='#f4c24d' className="w-5 h-5 stroke-[1.5]" />}
         />
         <MetricCard 
           title="Active Vouchers" 
           value={activeVouchersCount} 
           subValue="Waiting for redemption"
-          trendText="+10 vouchers this month"
-          trendIsPositive={true}
           icon={<Coffee color='#f4c24d' className="w-5 h-5 stroke-[1.5]" />}
         />
         <MetricCard 
           title="Redeemed" 
           value={redeemedCount} 
           subValue="Completed visits"
+          trendText={redeemedTrendText}
+          trendIsPositive={redeemedTrendRaw > 0}
           icon={<CheckCircle color='#f4c24d'  className="w-5 h-5 stroke-[1.5]" />}
         />
         <MetricCard 

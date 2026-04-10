@@ -225,7 +225,7 @@ export default function GiftItemPage() {
       return;
     }
 
-    setError("");
+    // setError("");
     setIsCreatingVoucher(true);
 
     try {
@@ -273,7 +273,7 @@ export default function GiftItemPage() {
       else if (data.redirectUrl) window.location.href = data.redirectUrl;
       else throw new Error("Invalid response from server");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create checkout session");
+      toast.error(err instanceof Error ? err.message : "Failed to create checkout session");
     } finally {
       setIsCreatingVoucher(false);
     }

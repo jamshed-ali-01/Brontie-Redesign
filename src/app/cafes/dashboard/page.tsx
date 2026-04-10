@@ -98,6 +98,11 @@ interface DashboardData {
     platformFee: number;
   };
   accountAge: number;
+  trends?: {
+    giftsLast30Days: number;
+    redeemedLast30Days: number;
+    redemptionsTrendWeekPercentage?: number;
+  };
   brontieFee?: {
     isActive: boolean;
     commissionRate: number;
@@ -437,6 +442,7 @@ export default function CafeDashboardPage() {
         availableBalance={dashboardData?.availableForPayout || 0}
         totalPaidOut={dashboardData?.paidOutValue || 0}
         nextPayoutDate={getNextPayoutDate()}
+        trends={dashboardData?.trends}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -451,6 +457,7 @@ export default function CafeDashboardPage() {
           <DashboardCharts 
             dailyActivity={dashboardData?.dailyActivity || []} 
             topSellingItem={dashboardData?.topSellingItems?.[0]}
+            trends={dashboardData?.trends}
           />
         </div>
       </div>

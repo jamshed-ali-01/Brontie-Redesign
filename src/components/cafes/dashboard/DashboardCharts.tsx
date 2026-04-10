@@ -17,9 +17,14 @@ interface TopSellingItem {
 interface DashboardChartsProps {
   dailyActivity: DailyActivity[];
   topSellingItem?: TopSellingItem;
+  trends?: {
+    giftsLast30Days: number;
+    redeemedLast30Days: number;
+    redemptionsTrendWeekPercentage?: number;
+  };
 }
 
-export default function DashboardCharts({ dailyActivity, topSellingItem }: DashboardChartsProps) {
+export default function DashboardCharts({ dailyActivity, topSellingItem, trends }: DashboardChartsProps) {
   const maxActivity = dailyActivity && dailyActivity.length > 0 
     ? Math.max(...dailyActivity.map(d => Math.max(d.purchased || 0, d.redeemed || 0))) 
     : 60;
@@ -100,7 +105,10 @@ export default function DashboardCharts({ dailyActivity, topSellingItem }: Dashb
         </div>
 
         <div className="text-center text-[10px] sm:text-[11px] text-[#1c2b36] font-medium tracking-wide">
-          7-Day Activity · Redemptions +12% vs last week
+          7-Day Activity {trends?.redemptionsTrendWeekPercentage !== undefined && (
+            <span className="opacity-70 mx-1">·</span>
+          )}
+          {trends?.redemptionsTrendWeekPercentage !== undefined ? `Redemptions ${trends.redemptionsTrendWeekPercentage > 0 ? '+' : ''}${trends.redemptionsTrendWeekPercentage}% vs last week` : ''}
         </div>
       </div>
 

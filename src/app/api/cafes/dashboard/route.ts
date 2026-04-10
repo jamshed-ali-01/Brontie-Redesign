@@ -539,7 +539,6 @@ export async function GET(request: NextRequest) {
         $match: {
           "giftItem.merchantId": merchantObjectId,
           status: { $in: ["issued", "pending", "unredeemed", "redeemed"] },
-          createdAt: { $gte: minStartDate },
         },
       },
       {
@@ -577,8 +576,6 @@ export async function GET(request: NextRequest) {
         $match: {
           "giftItem.merchantId": merchantObjectId,
           status: "redeemed",
-          // Reset date ke baad wale redeemed vouchers hi show karein
-          redeemedAt: { $gte: redeemedStartDate },
         },
       },
       {
@@ -704,6 +701,46 @@ export async function GET(request: NextRequest) {
         };
       }
     );
+
+    // Calculate trends for the last 30 days
+    const thrityDaysAgoDate = new Date();
+    thrityDaysAgoDate.setDate(thrityDaysAgoDate.getDate() - 30);
+    const thirtyDaysAgoIso = thrityDaysAgoDate.toISOString().split("T")[0];
+    
+    // Calculate week vs week
+    const sevenDaysAgoDate = new Date();
+    sevenDaysAgoDate.setDate(sevenDaysAgoDate.getDate() - 7);
+    const sevenDaysAgoIso = sevenDaysAgoDate.toISOString().split("T")[0];
+
+    const fourteenDaysAgoDate = new Date();
+    fourteenDaysAgoDate.setDate(fourteenDaysAgoDate.getDate() - 14);
+    const fourteenDaysAgoIso = fourteenDaysAgoDate.toISOString().split("T")[0];
+    
+    let giftsLast30Days = 0;
+    let redeemedLast30Days = 0;
+    
+    let redemptionsThisWeek = 0;
+    let redemptionsLastWeek = 0;
+
+    formattedDailyActivity.forEach(day => {
+      if (day.date >= thirtyDaysAgoIso) {
+        giftsLast30Days += day.purchased;
+        redeemedLast30Days += day.redeemed;
+      }
+      
+      if (day.date >= sevenDaysAgoIso) {
+        redemptionsThisWeek += day.redeemed;
+      } else if (day.date >= fourteenDaysAgoIso && day.date < sevenDaysAgoIso) {
+        redemptionsLastWeek += day.redeemed;
+      }
+    });
+    
+    let redemptionsTrendWeekPercentage = 0;
+    if (redemptionsLastWeek > 0) {
+      redemptionsTrendWeekPercentage = Math.round(((redemptionsThisWeek - redemptionsLastWeek) / redemptionsLastWeek) * 100);
+    } else if (redemptionsThisWeek > 0) {
+      redemptionsTrendWeekPercentage = 100;
+    }
 
     // Fill in missing dates with zeros - last 7 days only
     const completeDailyActivity = [];
@@ -904,6 +941,11 @@ export async function GET(request: NextRequest) {
         activatedAt: merchant.brontieFeeSettings?.activatedAt || null,
       },
       accountAge,
+      trends: {
+        giftsLast30Days,
+        redeemedLast30Days,
+        redemptionsTrendWeekPercentage
+      },
       stripeConnectSettings: merchant?.stripeConnectSettings || {
         isConnected: false,
         onboardingCompleted: false,

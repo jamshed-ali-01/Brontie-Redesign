@@ -131,7 +131,7 @@ export default function CafePayoutsPage() {
 
   if (loading) {
     return (
-      <CafeDashboardLayout cafeName="Loading..." ownerName="">
+      <CafeDashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <div className="relative w-16 h-16 mb-6">
             <div className="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
@@ -157,68 +157,64 @@ export default function CafePayoutsPage() {
   const transactions = dashboardData?.payoutTransactions || [];
 
   return (
-    <CafeDashboardLayout 
-      cafeName={dashboardData?.merchantName || 'Cafe Name'} 
-      ownerName={dashboardData?.payoutDetails?.accountHolderName || 'User'}
-      cafeLogo={dashboardData?.merchantLogo}
-    >
+    <CafeDashboardLayout>
       <div className="pb-8">
         <h1 className={`text-[42px] tracking-tight text-[#6ca3a4] mb-2 ${lobster.className}`}>Earnings & Payouts</h1>
         <p className="text-[14px] font-medium text-[#879bb1] mb-8">Track your earnings and view scheduled transfers to your account</p>
 
         {/* Top 4 KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-5 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-[11px] font-bold text-[#879bb1] tracking-wide">Available Balance</h3>
-              <Gift className="w-4 h-4 text-[#f4c24d] stroke-[2]" />
+              <h3 className="text-sm font-semibold text-[#94A3B8] tracking-wide">Available Balance</h3>
+              <Gift className="size-5 stroke-[2]" color='#f4c24d' />
             </div>
-            <div className="text-[26px] font-bold text-gray-900 leading-none">€ {availBalance.toFixed(2)}</div>
+            <div className="text-[24px] font-semibold text-gray-900 leading-none">€ {availBalance.toFixed(2)}</div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-5 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-[11px] font-bold text-[#879bb1] tracking-wide">Next Payout</h3>
-              <Calendar className="w-4 h-4 text-[#f4c24d] stroke-[2]" />
+              <h3 className="text-sm font-semibold text-[#94A3B8] tracking-wide">Next Payout</h3>
+              <Calendar className="size-5 stroke-[2] " color='#f4c24d' />
             </div>
-            <div className="text-[16px] font-bold text-gray-900 leading-none mt-auto mb-1">{nextPayoutDisplay}</div>
+            <div className="text-[16px] font-semibold text-gray-900 leading-none mt-auto mb-1">{nextPayoutDisplay}</div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-5 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-[11px] font-bold text-[#879bb1] tracking-wide">Last Payout</h3>
-              <CheckCircle className="w-4 h-4 text-[#f4c24d] stroke-[2]" />
+              <h3 className="text-sm font-semibold text-[#94A3B8] tracking-wide">Last Payout</h3>
+              <CheckCircle className="size-5 stroke-[2]" color='#f4c24d' />
             </div>
-            <div className="text-[16px] font-bold text-gray-900 leading-none mt-auto mb-1">
+            <div className="text-[16px] font-semibold text-gray-900 leading-none mt-auto mb-1">
               {lastPayoutDate ? lastPayoutDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : 'No Payouts Yet'}
             </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-5 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-[11px] font-bold text-[#879bb1] tracking-wide">Total Paid out</h3>
-              <Wallet className="w-4 h-4 text-[#f4c24d] stroke-[2]" />
+              <h3 className="text-sm font-semibold text-[#94A3B8] tracking-wide">Total Paid out</h3>
+              <Wallet className="size-5 stroke-[2]" color='#f4c24d' />
             </div>
-            <div className="text-[26px] font-bold text-gray-900 leading-none">€{(totPaidOut.toLocaleString(undefined, {minimumFractionDigits: 2}))}</div>
+            <div className="text-[24px] font-semibold text-gray-900 leading-none">€{(totPaidOut.toLocaleString(undefined, {minimumFractionDigits: 2}))}</div>
           </div>
         </div>
 
        
         {/* Main Content Split */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <div className="lg:col-span-8 flex flex-col">
 
              {/* Schedule Info Box */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex overflow-hidden mb-8 relative">
+        <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex overflow-hidden mb-4 relative">
           <div className="w-[6px] bg-[#f4c24d] absolute top-0 bottom-0 left-0"></div>
           <div className="pl-6 p-5 flex items-center gap-5 w-full">
             <div className="w-12 h-12 rounded-full bg-[#fffbf0] flex items-center justify-center shrink-0">
-               <Calendar className="w-5 h-5 text-[#f4c24d] stroke-[2]" />
+               <Calendar className="w-5 h-5 text-[#f4c24d] stroke-[2]"  color='#f4c24d'/>
             </div>
             <div>
-              <p className="text-[12px] font-medium text-gray-400">Your next payout is scheduled for</p>
-              <h3 className="text-[20px] font-bold text-gray-900 mt-1">{nextPayoutLong}</h3>
-              <p className="text-[10px] text-gray-400 mt-1 font-medium">{getDeadlineText()}</p>
+              <p className="text-sm font-medium text-[#94A3B8] leading-tight">Your next payout is scheduled for</p>
+              <h3 className="text-xl font-bold text-gray-900 mt-1">{nextPayoutLong}</h3>
+              <p className="text-xs text-[#94A3B8] mt-1 font-medium">{getDeadlineText()}</p>
             </div>
           </div>
         </div>
@@ -226,42 +222,43 @@ export default function CafePayoutsPage() {
             
             {/* Redeemed this Month & Payouts Table combined card */}
             <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex flex-col overflow-hidden">
-              <div className="p-6">
-                <h3 className="text-[18px] font-bold text-gray-900 mb-6">Total Redeemed This Month</h3>
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-gray-900 mb-6">Total Redeemed This Month</h3>
                 
-                <div className="space-y-4 text-[13px] font-medium text-[#879bb1] mb-8">
+                <div className="space-y-4 text-base   text-[#475569] mb-8">
                   <div className="flex justify-between items-center">
-                    <span>Gross Redemptions</span>
-                    <span className="font-bold text-gray-900">€{grossMonth.toFixed(2)}</span>
+                    <span className='font-light'>Gross Redemptions</span>
+                    <span className="font-semibold text-gray-900">€{grossMonth.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Payment Processing Fees</span>
-                    <span className="font-medium text-[#ff5b5b]">-€{feesMonth.toFixed(2)}</span>
+                    <span className='font-light'>Payment Processing Fees</span>
+                    <span className="font-semibold text-[#ff5b5b]">-€{feesMonth.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Brontie Commission</span>
-                    <span className="font-medium text-[#ff5b5b]">-€{brontieFeeMonth.toFixed(2)}</span>
+                    <span className='font-light'>Brontie Commission</span>
+                    <span className="font-semibold text-[#ff5b5b]">-€{brontieFeeMonth.toFixed(2)}</span>
                   </div>
                 </div>
                 
                 <div className="flex justify-between items-center mt-2 mb-2">
-                  <h4 className="text-[18px] font-bold text-gray-900">Net Paid to Café</h4>
+                  <h4 className="text-lg font-bold text-gray-900">Net Paid to Café</h4>
                   <div className="bg-[#fff9eb] text-[#f4c24d] px-4 py-2 rounded-xl text-[20px] font-bold border border-[#fff2cc]">
                     €{netPaidMonth.toFixed(2)}
                   </div>
                 </div>
               </div>
 
-              <hr className="border-gray-100 mx-6 mb-2" />
+              
 
               {/* Payouts Table inside same card */}
               <div className="pt-4 pb-2">
-                <h3 className="text-[16px] font-bold text-gray-900 mb-6 px-6 tracking-wide">Payouts</h3>
+                <h3 className="text-[16px] font-semibold text-gray-900 mb-6 px-4 sm:px-6 tracking-wide">Payouts</h3>
                 
-                <div className="overflow-x-auto w-full px-6 mb-4">
-                  <table className="w-full text-left border-collapse min-w-[650px] rounded-xl overflow-hidden shadow-[0_0_0_1px_rgba(0,0,0,0.02)]">
-                    <thead>
-                      <tr className="bg-[#fcfdfd]">
+                <div className="overflow-x-auto w-full">
+                  <div className="min-w-[650px] px-4 sm:px-6 mb-4">
+                    <table className="w-full text-left border-collapse rounded-xl overflow-hidden shadow-[0_0_0_1px_rgba(0,0,0,0.02)]">
+                      <thead>
+                        <tr className="bg-[#fcfdfd]">
                         <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pl-6 w-[25%] relative rounded-tl-xl border-b border-gray-50">
                           Payout Date/Time
                         </th>
@@ -294,7 +291,8 @@ export default function CafePayoutsPage() {
                         </tr>
                       )}
                     </tbody>
-                  </table>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -303,7 +301,7 @@ export default function CafePayoutsPage() {
 
           <div className="lg:col-span-4">
             <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-6 flex flex-col">
-              <h3 className="text-[18px] font-bold text-gray-900 mb-6">Monthly Reports</h3>
+              <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-5 mb-2">Monthly Reports</h3>
               
               <div className="space-y-4">
                 {[
@@ -318,12 +316,12 @@ export default function CafePayoutsPage() {
                          <FileText className="w-5 h-5 text-[#6ca3a4] stroke-[1.5]" />
                       </div>
                       <div>
-                        <h4 className="text-[14px] font-extrabold text-gray-900 leading-tight">{report.month}</h4>
-                        <p className="text-[12px] font-medium text-[#a0b0c0] mt-0.5">Statement</p>
+                        <h4 className="text-sm font-semibold text-gray-900 leading-tight">{report.month}</h4>
+                        <p className="text-xs  text-[#94A3B8] mt-0.5">Statement</p>
                       </div>
                     </div>
                     <button className="w-8 h-8 flex items-center justify-center text-[#a0b0c0] hover:text-[#6ca3a4] transition-colors shrink-0">
-                      <Download className="w-[18px] h-[18px] stroke-[2]" />
+                      <Download className="size-6 stroke-[2]" color="#94A3B8" />
                     </button>
                   </div>
                 ))}

@@ -142,7 +142,7 @@ export default function VouchersPage() {
 
   if (loading) {
     return (
-      <CafeDashboardLayout cafeName="Loading..." ownerName="">
+      <CafeDashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <div className="relative w-16 h-16 mb-6">
             <div className="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
@@ -158,7 +158,7 @@ export default function VouchersPage() {
   }
 
   return (
-    <CafeDashboardLayout cafeName={merchantData?.name || "Cafe"} ownerName={merchantData?.payoutDetails?.accountHolderName || "Admin"}>
+    <CafeDashboardLayout>
       <div className="flex flex-col">
         {/* Header Section */}
         <h1 className={`text-[42px] text-[#6ca3a4] mb-2 ${lobster.className}`}>Vouchers</h1>

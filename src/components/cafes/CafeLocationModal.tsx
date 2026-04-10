@@ -234,7 +234,6 @@ export default function CafeLocationModal({
                     value={formData.area || ''}
                     onChange={(e) => handleAreaChange(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-black"
-                    required
                     disabled={!formData.county}
                   >
                     <option value="">
@@ -263,7 +262,6 @@ export default function CafeLocationModal({
                         value={formData.customArea || ''}
                         onChange={(e) => onFormDataChange({ ...formData, customArea: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-black"
-                        required
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Enter the specific area or town name not listed above

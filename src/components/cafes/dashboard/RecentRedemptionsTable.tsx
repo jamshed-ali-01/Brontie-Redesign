@@ -24,9 +24,9 @@ export default function RecentRedemptionsTable({ redemptions }: RecentRedemption
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-6 flex flex-col h-full mb-6 relative">
+    <div className="bg-white rounded-xl sm:rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-4 sm:p-6 flex flex-col h-full mb-6 relative">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[13px] font-bold text-gray-900 tracking-wide">Recent Redemptions</h3>
+        <h3 className="text-[16px] font-bold text-gray-900 tracking-wide">Recent Redemptions</h3>
         <Link href="#" className="text-[10px] font-bold text-[#6ca3a4] hover:text-[#568586]">
           View All
         </Link>
@@ -36,10 +36,10 @@ export default function RecentRedemptionsTable({ redemptions }: RecentRedemption
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
             <tr>
-              <th className="text-[9px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[28%]">Item</th>
-              <th className="text-[9px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[22%]">Location</th>
-              <th className="text-[9px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[35%]">Date/Time</th>
-              <th className="text-[9px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[15%] text-right">Value</th>
+              <th className="text-[10px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[28%]">Item</th>
+              <th className="text-[10px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[22%]">Location</th>
+              <th className="text-[10px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[35%]">Date/Time</th>
+              <th className="text-[10px] uppercase font-bold text-gray-500 tracking-wider pb-4 w-[15%] text-right">Value</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50 border-t border-gray-50">

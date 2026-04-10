@@ -13,6 +13,8 @@ import { getCategoryIdByBusiness } from '@/lib/category-client';
 import { getCategoryNameById } from '@/lib/category-client';
 import CafeDashboardLayout from '@/components/cafes/layout/CafeDashboardLayout';
 import { Lobster } from 'next/font/google';
+import { toast } from 'react-hot-toast';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 
 const lobster = Lobster({
   weight: '400',
@@ -44,6 +46,7 @@ export default function CafeItemsPage() {
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<GiftItem | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [merchantBusinessCategory, setMerchantBusinessCategory] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -164,12 +167,17 @@ export default function CafeItemsPage() {
         resetForm();
         setShowAddForm(false);
         setEditingItem(null);
+        toast.success(editingItem ? 'Menu item updated!' : 'Menu item added!');
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to save item');
+        const errorMessage = errorData.error || 'Failed to save item';
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch {
-      setError('Network error');
+      const errorMessage = 'Network error';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -192,12 +200,14 @@ export default function CafeItemsPage() {
       if (!response.ok) {
         // Revert on failure
         setItems(prev => prev.map(i => i._id === item._id ? { ...i, isActive: !newStatus } : i));
-        setError('Failed to update status');
+        toast.error('Failed to update status');
+      } else {
+        toast.success(`Item is now ${newStatus ? 'visible' : 'hidden'}`);
       }
     } catch (err) {
       // Revert on failure
       setItems(prev => prev.map(i => i._id === item._id ? { ...i, isActive: !item.isActive } : i));
-      setError('Network error when updating status');
+      toast.error('Network error when updating status');
     }
   };
 
@@ -214,19 +224,26 @@ export default function CafeItemsPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (itemId: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+  const handleDelete = (itemId: string) => {
+    setItemToDelete(itemId);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      const response = await fetch(`/api/cafes/items/${itemId}`, {
+      const response = await fetch(`/api/cafes/items/${itemToDelete}`, {
         method: 'DELETE',
       });
       if (response.ok) {
-        setItems(prev => prev.filter(item => item._id !== itemId));
+        setItems(prev => prev.filter(item => item._id !== itemToDelete));
+        toast.success('Item deleted successfully');
       } else {
-        setError('Failed to delete item');
+        toast.error('Failed to delete item');
       }
     } catch {
-      setError('Network error');
+      toast.error('Network error');
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -250,7 +267,7 @@ export default function CafeItemsPage() {
 
   if (loading && items.length === 0 && !showAddForm) {
     return (
-      <CafeDashboardLayout cafeName="Loading..." ownerName="">
+      <CafeDashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <div className="relative w-16 h-16 mb-6">
             <div className="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
@@ -267,7 +284,7 @@ export default function CafeItemsPage() {
   const formatCurrency = (val: number) => `€${(val || 0).toFixed(2)}`;
 
   return (
-    <CafeDashboardLayout cafeName={merchantName} cafeLogo={merchantLogo} ownerName="">
+    <CafeDashboardLayout>
       <div className="pb-12 max-w-5xl">
         <h1 className={`text-[42px] tracking-tight text-[#6ca3a4] mb-2 ${lobster.className}`}>Menu Items</h1>
         <p className="text-[14px] font-medium text-[#879bb1] mb-8">Manage and showcase your cafe menu items here</p>
@@ -380,17 +397,17 @@ export default function CafeItemsPage() {
         ) : (
           <>
             {/* MAIN TABLE */}
-            <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex flex-col pt-2 pb-2 mb-8 relative">
+            <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex flex-col pb-2 mb-8 relative">
               
-              <div className="overflow-x-auto w-full px-2">
+              <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[700px]">
-                  <thead>
-                    <tr className="border-b border-gray-50">
-                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 px-6 w-[30%]">Item</th>
-                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pr-6 w-[15%]">Your Price</th>
-                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pr-6 w-[20%]">Brontie Listed Price</th>
-                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 pr-6 w-[20%]">Status</th>
-                      <th className="text-[10px] uppercase font-bold text-[#879bb1] tracking-wider py-4 px-6 w-[15%] text-right">Action</th>
+                  <thead className='bg-[#f8fafc]'>
+                    <tr className="border-b border-gray-50 ">
+                      <th className="text-xs uppercase font-semibold text-[#879bb1] tracking-wider py-4 px-6 w-[30%]">Item</th>
+                      <th className="text-xs uppercase font-semibold text-[#879bb1] tracking-wider py-4 pr-6 w-[15%]">Your Price</th>
+                      <th className="text-xs uppercase font-semibold text-[#879bb1] tracking-wider py-4 pr-6 w-[20%]">Brontie Listed Price</th>
+                      <th className="text-xs uppercase font-semibold text-[#879bb1] tracking-wider py-4 pr-6 w-[20%]">Status</th>
+                      <th className="text-xs uppercase font-semibold text-[#879bb1] tracking-wider py-4 px-6 w-[15%] text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -401,17 +418,17 @@ export default function CafeItemsPage() {
                             {item.imageUrl ? (
                               <img src={item.imageUrl} alt={item.name} className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-50" />
                             ) : (
-                              <div className="w-12 h-12 rounded-xl bg-[#f0f4f4] flex items-center justify-center shrink-0 border border-[#e2ecec]">
+                              <div className="size-10 rounded-xl bg-[#f0f4f4] flex items-center justify-center shrink-0 border border-[#e2ecec]">
                                 <ImageIcon className="w-5 h-5 text-[#879bb1]" />
                               </div>
                             )}
-                            <span className="text-[13px] font-bold text-gray-900 group-hover:text-[#6ca3a4] transition-colors">{item.name}</span>
+                            <span className="text-xs font-semibold text-gray-900 group-hover:text-[#6ca3a4] transition-colors">{item.name}</span>
                           </div>
                         </td>
-                        <td className="py-4 pr-6 text-[13px] font-bold text-[#879bb1]">
+                        <td className="py-4 pr-6 text-sm font-semibold text-[#879bb1]">
                           ${item.price.toFixed(2)}
                         </td>
-                        <td className="py-4 pr-6 text-[13px] font-bold text-[#879bb1]">
+                        <td className="py-4 pr-6 text-sm font-semibold text-[#879bb1]">
                           €{item.price.toFixed(2)}
                         </td>
                         <td className="py-4 pr-6">
@@ -422,7 +439,7 @@ export default function CafeItemsPage() {
                              <div className={`w-[46px] h-[26px] rounded-full flex items-center px-[3px] transition-colors ${item.isActive ? 'bg-[#eaf1f1]' : 'bg-gray-200'}`}>
                                <div className={`w-[20px] h-[20px] rounded-full transform transition-transform duration-200 shadow-sm ${item.isActive ? 'bg-[#6ca3a4] translate-x-[20px]' : 'bg-white translate-x-0'}`}></div>
                              </div>
-                             <span className="text-[14px] font-medium text-gray-700 select-none">Visible</span>
+                             <span className="text-sm  text-gray-700 select-none">Visible</span>
                            </button>
                         </td>
                         <td className="py-4 px-6 text-right relative">
@@ -430,8 +447,8 @@ export default function CafeItemsPage() {
                             <button onClick={() => handleEdit(item)} className="text-[#879bb1] hover:text-[#6ca3a4] transition-colors">
                               <Pencil className="w-[18px] h-[18px] stroke-[2]" />
                             </button>
-                            <button onClick={() => handleDelete(item._id)} className="text-[#ff4747] hover:text-[#d33a3a] transition-colors">
-                              <Trash2 className="w-[18px] h-[18px] stroke-[2]" />
+                            <button onClick={() => handleDelete(item._id)} className=" transition-colors">
+                              <Trash2 className="w-[18px] h-[18px] stroke-[2]"  color='#ff4747'/>
                             </button>
                           </div>
                         </td>
@@ -460,7 +477,7 @@ export default function CafeItemsPage() {
             <button
                onClick={() => {
                   if (items.length >= 15) {
-                    setError('You can only have up to 15 items. Please remove some items before adding new ones.');
+                    toast.error('You can only have up to 15 items. Please remove some before adding new ones.');
                     return;
                   }
                   const autoCategoryId = getCategoryIdByBusiness(merchantBusinessCategory);
@@ -475,13 +492,22 @@ export default function CafeItemsPage() {
                 }}
               className="w-full flex flex-col items-center justify-center py-6 rounded-2xl border-[1.5px] border-dashed border-[#88b5b5] bg-[#fdfefe] hover:bg-[#f6fcfc] transition-colors group cursor-pointer"
             >
-              <Plus className="w-7 h-7 text-[#88b5b5] mb-2 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+              <Plus color='#88b5b5' className="w-7 h-7   mb-2 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
               <span className="text-[14px] font-medium text-[#88b5b5]">Add another Menu Item</span>
             </button>
           </>
         )}
 
       </div>
+      <ConfirmModal
+        isOpen={!!itemToDelete}
+        title="Delete Menu Item"
+        message="Are you sure you want to delete this menu item? It will be removed permanently."
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setItemToDelete(null)}
+        isDestructive={true}
+      />
     </CafeDashboardLayout>
   );
 }

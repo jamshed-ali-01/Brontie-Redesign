@@ -30,6 +30,28 @@ export async function PUT(
     const merchantId = decoded.merchantId;
 
     const body = await request.json();
+
+    // Check if it's a partial update for photoUrl only
+    if (Object.keys(body).length === 1 && body.photoUrl !== undefined) {
+      const location = await MerchantLocation.findOneAndUpdate(
+        { _id: locationId, merchantId },
+        { photoUrl: body.photoUrl, updatedAt: new Date() },
+        { new: true }
+      );
+
+      if (!location) {
+        return NextResponse.json(
+          { error: 'Location not found or you do not have permission' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        location
+      });
+    }
+
     const {
       name,
       address,
@@ -52,21 +74,10 @@ export async function PUT(
       );
     }
 
-    if (!area) {
-      return NextResponse.json(
-        { error: 'Area is required' },
-        { status: 400 }
-      );
-    }
-
     // Final area value (either from dropdown or custom)
-    const finalArea = area === 'other' ? customArea : area;
-
-    if (!finalArea) {
-      return NextResponse.json(
-        { error: 'Please specify area/town name' },
-        { status: 400 }
-      );
+    let finalArea = area;
+    if (area === 'other') {
+      finalArea = customArea;
     }
 
     const updateData = {
@@ -74,8 +85,8 @@ export async function PUT(
       address,
       city: city || '',
       county,
-      area: finalArea,
-      customArea: area === 'other' ? customArea : undefined,
+      area: finalArea || '',
+      customArea: area === 'other' ? customArea : '',
       zipCode,
       country: country || 'Ireland',
       phoneNumber: phoneNumber || '',

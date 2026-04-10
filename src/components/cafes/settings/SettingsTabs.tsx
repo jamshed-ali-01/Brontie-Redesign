@@ -22,10 +22,10 @@ export default function SettingsTabs({ activeTab, onTabChange }: SettingsTabsPro
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`pb-4 text-xs font-bold tracking-widest transition-colors relative ${
+          className={`pb-4 text-sm font-semibold  transition-colors relative ${
             activeTab === tab.id
-              ? 'text-[#f4c24d]'
-              : 'text-gray-400 hover:text-gray-600'
+              ? 'text-[#F4C24D]'
+              : 'text-[#94A3B8] hover:text-gray-600'
           }`}
         >
           {tab.label}

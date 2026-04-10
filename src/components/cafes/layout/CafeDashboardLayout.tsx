@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CafeHeader from './CafeHeader';
 import CafeSidebar from './CafeSidebar';
 
@@ -11,15 +11,48 @@ interface CafeDashboardLayoutProps {
   cafeLogo?: string;
 }
 
-export default function CafeDashboardLayout({ children, cafeName, ownerName, cafeLogo }: CafeDashboardLayoutProps) {
+// Simple global cache to prevent re-fetching across unmounts within the same SPA session
+let cachedProfilePromise: Promise<any> | null = null;
+let cachedProfileData: any = null;
+
+export default function CafeDashboardLayout({ children, cafeName: initialCafeName, ownerName: initialOwnerName, cafeLogo: initialCafeLogo }: CafeDashboardLayoutProps) {
+  const [merchantData, setMerchantData] = useState<{name: string, logoUrl?: string} | null>(cachedProfileData);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (cachedProfileData) {
+      // Already cached and set in initial state
+      return;
+    }
+
+    if (!cachedProfilePromise) {
+      cachedProfilePromise = fetch('/api/cafes/profile').then(res => res.json());
+    }
+
+    cachedProfilePromise
+      .then(data => {
+        if (data && !data.error) {
+          cachedProfileData = data;
+          setMerchantData(data);
+        } else {
+          cachedProfilePromise = null; // Failed, allow retry next time
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch merchant data in layout', err);
+        cachedProfilePromise = null;
+      });
+  }, []);
+
+  const displayCafeName = merchantData?.name || initialCafeName || 'Loading';
+  const displayCafeLogo = merchantData?.logoUrl || initialCafeLogo;
+
   return (
-    <div className="min-h-screen bg-[#fcfcfc] font-sans">
+    <div className="min-h-screen bg-[#fbf8f2] font-sans">
       <CafeHeader 
-        cafeName={cafeName} 
-        ownerName={ownerName} 
-        cafeLogo={cafeLogo} 
+        cafeName={displayCafeName} 
+        ownerName={initialOwnerName} 
+        cafeLogo={displayCafeLogo}  
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
       />

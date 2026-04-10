@@ -34,7 +34,7 @@ function CustomDropdown({ label, options, value, onChange }: CustomDropdownProps
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-full flex items-center justify-between bg-white text-gray-700 text-[13px] font-bold px-6 py-4 min-w-[200px] focus:outline-none rounded-xl"
+        className="h-full flex items-center justify-between bg-[#f8fafc] text-gray-700 text-[13px] font-semibold px-6 py-4 min-w-[200px] focus:outline-none rounded-xl "
       >
         <span className="truncate">
           {label}: <span className="text-gray-900">{selectedOption.label}</span>
@@ -114,12 +114,12 @@ export default function VouchersFilterBar({ filters, onChange }: VouchersFilterB
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 mb-6 relative z-30">
+    <div className="flex flex-col lg:flex-row gap-4 mb-6 relative z-30 bg-white p-3 rounded-2xl">
       
       {/* Search Input - Independent floating block */}
-      <div className="flex-1 bg-white/60 backdrop-blur-sm rounded-xl relative border-transparent">
+      <div className="flex-1 bg-[#f8fafc]     rounded-xl relative border-transparent">
         <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-          <svg className="w-5 h-5 text-[#879bb1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-[#94A3B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -127,7 +127,7 @@ export default function VouchersFilterBar({ filters, onChange }: VouchersFilterB
           type="text"
           value={filters.search}
           onChange={(e) => onChange({ ...filters, search: e.target.value })}
-          className="w-full bg-transparent h-full py-4 pl-12 pr-6 text-[13px] text-gray-700 placeholder-[#879bb1] font-bold focus:outline-none rounded-xl"
+          className="w-full bg-transparent h-full py-4 pl-12 pr-6 text-[13px] text-gray-700 placeholder-[#94A3B8] font-semibold focus:outline-none rounded-xl"
           placeholder="Search by Voucher Code or Name"
         />
       </div>

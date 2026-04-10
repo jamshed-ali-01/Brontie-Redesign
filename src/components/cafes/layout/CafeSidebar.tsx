@@ -15,7 +15,8 @@ import {
   Download,
   CreditCard,
   QrCode,
-  LogOut
+  LogOut,
+  ArrowRight
 } from 'lucide-react';
 
 interface CafeSidebarProps {
@@ -57,7 +58,7 @@ export default function CafeSidebar({ isOpen = false, onClose }: CafeSidebarProp
         />
       )}
 
-      <aside className={`fixed left-0 top-[64px] bottom-0 w-[260px] bg-[#fdfdfd] border-r border-gray-100 overflow-y-auto flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} flex`}>
+      <aside className={`fixed left-0 top-[64px] bottom-0 w-[260px] bg-[#fdfdfd] border-r border-gray-100 overflow-y-auto flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} flex [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#6ca3a4]/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#6ca3a4]/50`}>
         <nav className="flex-1 px-4 py-8 space-y-1">
           {primaryLinks.map((item) => {
             const isActive = pathname === item.href;
@@ -97,35 +98,35 @@ export default function CafeSidebar({ isOpen = false, onClose }: CafeSidebarProp
           
           <div className="space-y-4">
             {/* QR Sign */}
-            <div className="bg-[#f9fafb] p-4 rounded-2xl border border-gray-100">
+            <div className="bg-[#f8fafc] p-4 rounded-2xl border border-gray-100">
               <div className="flex items-start gap-3 mb-3">
-                <div className="p-2 bg-gray-200/50 rounded-lg shrink-0">
-                  <QrCode className="w-5 h-5 stroke-gray-500" />
+                <div className="p-2 bg-[#6CA3A4]/10 rounded-lg shrink-0">
+                  <QrCode className="w-5 h-5" color='#6CA3A4' />
                 </div>
                 <div>
-                  <h5 className="text-xs font-bold text-gray-800">QR Sign</h5>
-                  <p className="text-[10px] text-gray-500 leading-tight mt-0.5">Printable A5 QR sign for your café counter.</p>
+                  <h5 className="text-sm font-bold text-gray-800 mb-1 ">QR Sign</h5>
+                  <p className="text-[10px] text-[#94A3B8] leading-tight mt-0.5">Printable A5 QR sign for your café counter.</p>
                 </div>
               </div>
-              <button className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
-                <Download className="w-3.5 h-3.5" />
+              <button className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-white border border-[#6CA3A4] rounded-lg text-xs font-medium text-[#6CA3A4] hover:bg-gray-50 transition-colors shadow-sm">
+                <Download className="w-3.5 h-3.5 stroke-[#6CA3A4]" />
                 Download PDF
               </button>
             </div>
 
             {/* Counter Card */}
-            <div className="bg-[#fefce8] p-4 rounded-2xl border border-yellow-100">
+            <div className="bg-[#f8fafc] p-4 rounded-2xl border border-yellow-100">
               <div className="flex items-start gap-3 mb-3">
                 <div className="p-2 bg-yellow-100 rounded-lg shrink-0">
                   <CreditCard className="w-5 h-5 stroke-yellow-600" />
                 </div>
                 <div>
-                  <h5 className="text-xs font-bold text-gray-800">Counter Card</h5>
-                  <p className="text-[10px] text-gray-500 leading-tight mt-0.5">A pre-printed tent card for your counter</p>
+                  <h5 className="text-sm font-bold text-gray-800 mb-1 ">Counter Card</h5>
+                  <p className="text-[10px] text-[#94A3B8] leading-tight mt-0.5">A pre-printed tent card for your counter</p>
                 </div>
               </div>
-              <button className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[#f4c24d] rounded-xl text-xs font-bold text-[#2c3e50] hover:bg-[#e5b54d] transition-colors shadow-sm">
-                Order Free Now <span className="text-lg leading-none ml-1">→</span>
+              <button className="w-full flex items-center justify-center gap-2 p-3 bg-[#f4c24d] rounded-lg text-xs font-semibold text-black hover:bg-[#e5b54d] transition-colors shadow-sm">
+                Order Free Now <span className="text-lg leading-none"><ArrowRight className='size-4' /></span>
               </button>
             </div>
           </div>

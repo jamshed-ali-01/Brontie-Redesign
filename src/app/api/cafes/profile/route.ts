@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
 
     // Get merchant profile
-    const merchant = await Merchant.findById(merchantId).select('-password -tempPassword');
+    const merchant = await Merchant.findById(merchantId);
     
     if (!merchant) {
       return NextResponse.json(
@@ -38,7 +38,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(merchant);
+    const merchantObj = merchant.toObject();
+    const hasPassword = !!(merchant.password || merchant.tempPassword);
+    
+    delete merchantObj.password;
+    delete merchantObj.tempPassword;
+
+    return NextResponse.json({ ...merchantObj, hasPassword });
 
   } catch (error) {
     console.error('Get profile error:', error);
@@ -106,7 +112,7 @@ export async function PUT(request: NextRequest) {
         $inc: { signupStep: 0 } // Just a placeholder for base update
       },
       { new: true, runValidators: true }
-    ).select('-password -tempPassword');
+    );
 
     if (!updatedMerchant) {
       return NextResponse.json(
@@ -114,6 +120,12 @@ export async function PUT(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    const updatedObj = updatedMerchant.toObject();
+    const hasPassword = !!(updatedMerchant.password || updatedMerchant.tempPassword);
+    
+    delete updatedObj.password;
+    delete updatedObj.tempPassword;
 
     // If this was Step 1, move to Step 2
     if (updatedMerchant.signupStep === 1) {
@@ -123,7 +135,8 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      merchant: updatedMerchant
+      hasPassword,
+      merchant: updatedObj
     });
 
   } catch (error) {

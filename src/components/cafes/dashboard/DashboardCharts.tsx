@@ -39,8 +39,8 @@ export default function DashboardCharts({ dailyActivity, topSellingItem }: Dashb
   return (
     <div className="space-y-6">
       {/* 7-Day Activity */}
-      <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-6">
-        <h3 className="text-[14px] font-bold text-[#1c2b36] mb-8">7-Day Activity</h3>
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-4 sm:p-6">
+        <h3 className="text-sm sm:text-[14px] font-bold text-[#1c2b36] mb-6 sm:mb-8">7-Day Activity</h3>
         
         <div className="h-44 flex mb-8 pr-2">
           {/* Y Axis */}
@@ -99,7 +99,7 @@ export default function DashboardCharts({ dailyActivity, topSellingItem }: Dashb
           </div>
         </div>
 
-        <div className="text-center text-[11px] text-[#1c2b36] font-medium tracking-wide">
+        <div className="text-center text-[10px] sm:text-[11px] text-[#1c2b36] font-medium tracking-wide">
           7-Day Activity · Redemptions +12% vs last week
         </div>
       </div>
@@ -108,15 +108,15 @@ export default function DashboardCharts({ dailyActivity, topSellingItem }: Dashb
       <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 overflow-hidden">
         <div className="h-44 bg-gray-100 relative">
           <Image 
-            src="/images/onboarding/top-seller-placeholder.jpg" 
+            src="/images/growth.png" 
             alt="Top Seller"
             fill
             className="object-cover"
           />
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="flex justify-between items-start mb-2">
-            <span className="text-[9px] font-bold text-[#f4c24d] bg-[#fffbf0] border border-[#fde6b3] px-2 py-0.5 rounded tracking-wider uppercase">
+            <span className="text-[10px] font-bold text-[#f4c24d] bg-[#fffbf0] border border-[#fde6b3] px-2 py-0.5 rounded tracking-wider uppercase">
               Top Seller
             </span>
             <span className="text-3xl font-bold text-gray-900 leading-none">
@@ -124,14 +124,14 @@ export default function DashboardCharts({ dailyActivity, topSellingItem }: Dashb
             </span>
           </div>
           
-          <h4 className="text-sm font-bold text-gray-900 mt-1">
-            {topSellingItem?.name || 'Loading...'}
+          <h4 className="text-base font-bold text-gray-900 mt-1">
+            {topSellingItem?.name || 'Coffee + Cake'}
           </h4>
-          <p className="text-[11px] text-gray-500">Gifts Sent This Month</p>
+          <p className="text-sm text-gray-500">Gifts Sent This Month</p>
           
-          <div className="mt-5 pt-4 border-t border-gray-50 flex justify-between items-center text-[#6ca3a4]">
-             <span className="text-[11px] font-bold">Growth: +24%</span>
-             <TrendingUp className="w-4 h-4 stroke-[2]" />
+          <div className="mt-5 pt-4 border-t border-gray-50 flex justify-between items-center ">
+             <span className="text-[12px] font-bold text-[#6ca3a4]">Growth: +24%</span>
+             <TrendingUp className="w-4 h-4 stroke-[2]" color='#6ca3a4' />
           </div>
         </div>
       </div>

@@ -10,6 +10,8 @@ import LocationTab from '@/components/cafes/settings/LocationTab';
 import PosSystemTab from '@/components/cafes/settings/PosSystemTab';
 import CafeLocationModal from '@/components/cafes/CafeLocationModal';
 import { MerchantLocation, CafeLocationFormData } from '@/types/merchant';
+import { toast } from 'react-hot-toast';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 
 const lobster = Lobster({
   weight: '400',
@@ -61,6 +63,7 @@ export default function SettingsPage() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [editingLocation, setEditingLocation] = useState<MerchantLocation | null>(null);
   const [locationFormData, setLocationFormData] = useState<CafeLocationFormData>(defaultLocationFormData);
+  const [locationToDelete, setLocationToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([fetchMerchantData(), fetchLocations()]).finally(() => setLoading(false));
@@ -101,12 +104,12 @@ export default function SettingsPage() {
 
       if (response.ok) {
         setMerchantData(updated);
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
-        alert('Failed to update profile');
+        toast.error('Failed to update profile');
       }
     } catch {
-      alert('Network error while saving profile');
+      toast.error('Network error while saving profile');
     }
   };
 
@@ -122,12 +125,12 @@ export default function SettingsPage() {
       if (response.ok) {
         const data = await response.json();
         setMerchantData((prev: any) => prev ? { ...prev, logoUrl: data.url } : null);
-        alert('Logo updated successfully!');
+        toast.success('Logo updated successfully!');
       } else {
-        alert('Failed to upload logo');
+        toast.error('Failed to upload logo');
       }
     } catch {
-      alert('Logo upload failed');
+      toast.error('Logo upload failed');
     }
   };
 
@@ -155,17 +158,24 @@ export default function SettingsPage() {
     setShowLocationModal(true);
   };
 
-  const handleDeleteLocation = async (locationId: string) => {
-    if (!confirm('Are you sure you want to delete this location?')) return;
+  const handleDeleteLocation = (locationId: string) => {
+    setLocationToDelete(locationId);
+  };
+
+  const confirmDeleteLocation = async () => {
+    if (!locationToDelete) return;
     try {
-      const response = await fetch(`/api/cafes/locations/${locationId}`, { method: 'DELETE' });
+      const response = await fetch(`/api/cafes/locations/${locationToDelete}`, { method: 'DELETE' });
       if (response.ok) {
         await fetchLocations();
+        toast.success('Location deleted');
       } else {
-        alert('Failed to delete location');
+        toast.error('Failed to delete location');
       }
     } catch {
-      alert('Network error connecting to API');
+      toast.error('Network error connecting to API');
+    } finally {
+      setLocationToDelete(null);
     }
   };
 
@@ -184,11 +194,43 @@ export default function SettingsPage() {
       if (response.ok) {
         await fetchLocations();
         setShowLocationModal(false);
+        toast.success(`Location ${editingLocation ? 'updated' : 'added'} successfully!`);
       } else {
-        alert('Failed to save location');
+        toast.error('Failed to save location');
       }
     } catch {
-      alert('Failed to save location data');
+      toast.error('Failed to save location data');
+    }
+  };
+
+  const handleLocationCoverUpload = async (locationId: string, file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Now update the location
+        const updateResponse = await fetch(`/api/cafes/locations/${locationId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photoUrl: data.url }),
+        });
+        if (updateResponse.ok) {
+          await fetchLocations();
+          toast.success('Cover image updated successfully!');
+        } else {
+          toast.error('Failed to save cover image to location');
+        }
+      } else {
+        toast.error('Failed to upload cover image');
+      }
+    } catch {
+      toast.error('Cover image upload failed');
     }
   };
 
@@ -198,7 +240,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <CafeDashboardLayout cafeName="Loading..." ownerName="">
+      <CafeDashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <div className="relative w-16 h-16 mb-6">
             <div className="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
@@ -214,7 +256,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <CafeDashboardLayout cafeName={merchantData?.name || 'Cafe Name'} ownerName={merchantData?.payoutDetails?.accountHolderName || 'User'}>
+    <CafeDashboardLayout>
       <div className="flex flex-col">
         <h1 className={`text-4xl text-[#6ca3a4] mb-8 ${lobster.className}`}>Settings</h1>
         
@@ -232,9 +274,11 @@ export default function SettingsPage() {
           {activeTab === 'location' && (
             <LocationTab 
                locations={locations} 
+               merchantLogoUrl={merchantData?.logoUrl}
                onAddLocation={handleAddLocation}
                onEditLocation={handleEditLocation}
                onDeleteLocation={handleDeleteLocation}
+               onUploadCoverPhoto={handleLocationCoverUpload}
             />
           )}
 
@@ -261,6 +305,16 @@ export default function SettingsPage() {
           }}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!locationToDelete}
+        title="Delete Location"
+        message="Are you sure you want to delete this location? This action cannot be undone."
+        confirmText="Delete"
+        onConfirm={confirmDeleteLocation}
+        onCancel={() => setLocationToDelete(null)}
+        isDestructive={true}
+      />
     </CafeDashboardLayout>
   );
 }

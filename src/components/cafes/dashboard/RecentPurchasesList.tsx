@@ -23,8 +23,8 @@ export default function RecentPurchasesList({ purchases }: RecentPurchasesListPr
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-6 flex flex-col h-full mb-6 relative">
-      <h3 className="text-[13px] font-bold text-gray-900 mb-6 tracking-wide">Recent Purchases</h3>
+    <div className="bg-white rounded-xl sm:rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 p-4 sm:p-6 flex flex-col h-full mb-6 relative">
+      <h3 className="text-[16px] font-bold text-gray-900 mb-6 tracking-wide">Recent Purchases</h3>
 
       <div className="space-y-4">
         {displayPurchases.length > 0 ? (

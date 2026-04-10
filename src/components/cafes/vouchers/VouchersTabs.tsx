@@ -21,7 +21,7 @@ export default function VouchersTabs({ activeTab, onTabChange }: VouchersTabsPro
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`pb-4 px-2 text-sm font-bold transition-colors relative ${
+          className={`pb-4 px-2 text-sm font-semibold transition-colors relative ${
             activeTab === tab.id
               ? 'text-[#f4c24d]'
               : 'text-[#879bb1] hover:text-[#425d78]'

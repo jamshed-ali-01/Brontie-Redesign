@@ -186,10 +186,10 @@ if (body.isBulkDashboard === true && body.quantity && body.quantity > 1) {
       sessionId: session.id,
       checkoutUrl: session.url,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating checkout session:', error);
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: error?.message || 'Failed to create checkout session', details: error },
       { status: 500 },
     );
   }

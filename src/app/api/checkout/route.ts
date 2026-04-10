@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import GiftItem from '@/models/GiftItem';
+import '@/models/Merchant';
+import '@/models/MerchantLocation';
 import { getStripe } from '@/lib/stripe';
 import { SERVICE_FEE_PERCENT } from '@/lib/constants';
 import crypto from 'crypto';
@@ -61,11 +63,17 @@ export async function POST(request: NextRequest) {
     const baseAmountCents = Math.round(giftItem.price * qty * 100);
     const feeAmountCents = Math.round(baseAmountCents * SERVICE_FEE_PERCENT);
 
-    const imageUrl = giftItem.imageUrl?.startsWith('http') 
-      ? giftItem.imageUrl 
-      : giftItem.imageUrl 
-        ? `${origin}${giftItem.imageUrl.startsWith('/') ? '' : '/'}${giftItem.imageUrl}` 
-        : undefined;
+    let imageUrl = undefined;
+    if (giftItem.imageUrl) {
+      if (giftItem.imageUrl.startsWith('data:image')) {
+        // Stripe does not accept base64 data URLs, and sending them causes > 2048 chars error
+        imageUrl = undefined;
+      } else if (giftItem.imageUrl.startsWith('http')) {
+        imageUrl = giftItem.imageUrl;
+      } else {
+        imageUrl = `${origin}${giftItem.imageUrl.startsWith('/') ? '' : '/'}${giftItem.imageUrl}`;
+      }
+    }
 
     const sessionPayload: any = {
       line_items: [

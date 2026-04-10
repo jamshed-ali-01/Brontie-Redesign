@@ -35,7 +35,7 @@ export default function VouchersPage() {
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     product: 'all',
-    dateRange: 'this_month',
+    dateRange: 'all_time',
     sortBy: 'newest'
   });
 
